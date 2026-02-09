@@ -35,7 +35,7 @@ async function getSitemapEntries(): Promise<MetadataRoute.Sitemap> {
 
   const staticPages = [
     '', '/about-us', '/contact-us', '/careers', '/terms-of-service',
-    '/privacy-policy', '/faq', '/provider-terms-conditions', '/cancellation-policy', '/categories', 
+    '/privacy-policy', '/faq', '/help-center', '/cancellation-policy', '/categories', 
     '/blog',
   ];
   staticPages.forEach(page => {

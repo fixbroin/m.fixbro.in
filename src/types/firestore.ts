@@ -1412,6 +1412,7 @@ export interface UserProviderConnection {
     paymentId?: string;
     grantedAt: Timestamp;
     expiresAt: Timestamp | null; // null for lifetime access
+    reviewRequested?: boolean;
 }
 
 // New: Complaint System Types
