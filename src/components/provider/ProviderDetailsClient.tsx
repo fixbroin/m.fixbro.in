@@ -31,7 +31,7 @@ import { useGlobalSettings } from '@/hooks/useGlobalSettings';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ProviderDetailsClientProps {
-  initialProviderData: ProviderApplication;
+  initialProviderData: ProviderApplication & { workCategorySlug?: string };
 }
 
 const ReviewCard: React.FC<{ review: FirestoreReview }> = ({ review }) => (
@@ -93,6 +93,17 @@ export default function ProviderDetailsClient({ initialProviderData }: ProviderD
     };
   }, [reviews, initialProviderData, isLoadingReviews]);
 
+  const breadcrumbItems: BreadcrumbItem[] = useMemo(() => {
+    const items: BreadcrumbItem[] = [{ label: "Home", href: "/" }];
+    if (provider.workCategoryName && provider.workCategorySlug) {
+      items.push({
+        label: provider.workCategoryName,
+        href: `/category/${provider.workCategorySlug}`,
+      });
+    }
+    items.push({ label: provider.fullName || "Provider" });
+    return items;
+  }, [provider]);
 
   useEffect(() => {
     if (provider.workAreaCenter?.latitude && provider.workAreaCenter?.longitude && firestoreUser?.latitude && firestoreUser?.longitude) {
@@ -315,12 +326,6 @@ export default function ProviderDetailsClient({ initialProviderData }: ProviderD
     return () => unsubscribe();
   }, [provider.id, toast]);
   
-  const breadcrumbItems: BreadcrumbItem[] = [
-      { label: "Home", href: "/" },
-      { label: "Providers", href: "/providers" },
-      { label: provider.fullName || "Provider" }
-  ];
-
   const isApproved = provider.status === 'approved';
 
   const showConnectButton = !isConnectionLoading && !connection;
