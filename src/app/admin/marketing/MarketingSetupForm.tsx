@@ -88,7 +88,7 @@ export default function MarketingSetupForm() {
   function onSubmit(values: MarketingFormData) {
     startTransition(async () => {
       try {
-        await updateMarketingSettings(values);
+        await updateMarketingSettings(values as any);
         toast({
           title: 'Success!',
           description: 'Marketing settings have been updated.',

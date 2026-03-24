@@ -38,7 +38,8 @@ const DynamicIcon = ({ name, ...props }: DynamicIconProps) => {
     return icons.AlertCircle;
   }, [name]);
 
-  return <LucideIcon {...props} />;
+  const IconComponent = LucideIcon as any;
+  return <IconComponent {...props} />;
 };
 
 export default DynamicIcon;

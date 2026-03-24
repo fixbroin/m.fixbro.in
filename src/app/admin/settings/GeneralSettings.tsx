@@ -86,7 +86,7 @@ export default function GeneralSettings() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(async () => {
         try {
-            await updateGeneralSettings(values);
+            await updateGeneralSettings(values as any);
             toast({
               title: 'Success!',
               description: 'General settings updated successfully.',

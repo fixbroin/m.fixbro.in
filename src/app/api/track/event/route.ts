@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
         const { eventType, data } = await request.json();
         const headersList = await headers();
         const userAgent = headersList.get('user-agent');
-        const ip = headersList.get('x-forwarded-for') ?? request.ip ?? 'unknown';
+        const ip = headersList.get('x-forwarded-for') ?? (request as any).ip ?? 'unknown';
 
 
         if (!eventType || !VALID_COLLECTIONS[eventType]) {

@@ -92,7 +92,7 @@ export default function ServicesPageSettings() {
         try {
             const { title, subtitle, services } = values;
             await updateServicesPageContent({ title, subtitle });
-            await updateServices(services);
+            await updateServices(services as any);
             toast({
               title: 'Success!',
               description: 'Services page content has been updated.',

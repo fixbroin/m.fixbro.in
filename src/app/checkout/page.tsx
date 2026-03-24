@@ -85,16 +85,17 @@ function CheckoutSkeleton() {
     )
 }
 
-export default function CheckoutPage({
+export default async function CheckoutPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+    const resolvedSearchParams = await searchParams;
     return (
         <>
             <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
             <Suspense fallback={<CheckoutSkeleton />}>
-                <CheckoutPageContent searchParams={searchParams} />
+                <CheckoutPageContent searchParams={resolvedSearchParams} />
             </Suspense>
         </>
     )

@@ -1,7 +1,8 @@
 
 'use client';
 
-import { motion, Variants } from 'framer-motion';
+import React from 'react';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface ScrollAnimationProps {
@@ -11,10 +12,10 @@ interface ScrollAnimationProps {
   duration?: number;
   once?: boolean;
   className?: string;
-  as?: keyof JSX.IntrinsicElements;
+  as?: keyof React.JSX.IntrinsicElements;
 }
 
-const animationVariants: Record<string, Variants> = {
+const animationVariants = {
   fadeInUp: {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0 },
@@ -42,7 +43,7 @@ const ScrollAnimation: React.FC<ScrollAnimationProps> = ({
   className,
   as = 'div',
 }) => {
-  const MotionComponent = motion[as];
+  const MotionComponent = (motion as any)[as];
 
   return (
     <MotionComponent

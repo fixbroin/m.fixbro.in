@@ -37,7 +37,7 @@ export const getWhyChooseUsContent = cache(async (): Promise<WhyChooseUsContent>
                         title: 'Why Choose CineElite ADS?',
                         subtitle: 'We are committed to delivering excellence and innovation in every project.',
                         media_url: 'https://placehold.co/600x800.png',
-                        media_type: 'image'
+                        media_type: 'image' as 'image'
                     };
                     await db.query('INSERT INTO settings (setting_key, setting_value) VALUES (?, ?)', ['why_choose_us', JSON.stringify(contentData)]);
                 }
@@ -71,7 +71,7 @@ export const getWhyChooseUsContent = cache(async (): Promise<WhyChooseUsContent>
                     title: 'Why Choose CineElite ADS?',
                     subtitle: 'We are committed to delivering excellence and innovation in every project.',
                     media_url: 'https://placehold.co/600x800.png',
-                    media_type: 'image',
+                    media_type: 'image' as 'image',
                     features: [
                         { id: uuidv4(), icon: 'Zap', title: 'Blazing Fast Performance', description: 'We build websites with Next.js for optimal speed and user experience.' },
                         { id: uuidv4(), icon: 'Smartphone', title: 'Fully Responsive Design', description: 'Your website will look perfect on all devices, from desktops to smartphones.' },

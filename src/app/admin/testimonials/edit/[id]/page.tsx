@@ -3,8 +3,9 @@ import { notFound, redirect } from "next/navigation";
 import { getTestimonial, updateTestimonial } from "../../actions";
 import TestimonialForm from "../../TestimonialForm";
 
-export default async function EditTestimonialPage({ params }: { params: { id: string } }) {
-  const testimonial = await getTestimonial(params.id);
+export default async function EditTestimonialPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const testimonial = await getTestimonial(id);
 
   if (!testimonial) {
     notFound();
@@ -12,7 +13,7 @@ export default async function EditTestimonialPage({ params }: { params: { id: st
 
   async function handleUpdate(data: any) {
     'use server'
-    const result = await updateTestimonial(params.id, data);
+    const result = await updateTestimonial(id, data);
     if (result.success) {
       redirect('/admin/testimonials');
     } else {
