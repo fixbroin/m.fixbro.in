@@ -24,7 +24,7 @@ export default async function ServicesSection() {
       <div className="container relative z-10">
         <ScrollAnimation variant="fadeInUp" className="text-center mb-16">
           <h2 className={cn(
-            "text-4xl md:text-5xl font-black tracking-tight mb-4",
+            "text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tighttracking-tight mb-4",
             useVanta ? "text-white drop-shadow-md" : "text-slate-900 dark:text-white"
           )}>
             {pageContent.title}

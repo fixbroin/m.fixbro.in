@@ -83,7 +83,7 @@ function HeaderContent({ settings }: { settings?: GeneralSettings | null }) {
           
           <Button asChild className="hidden md:flex h-11 px-6 rounded-full font-black text-xs uppercase tracking-widest group shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95">
             <LoadingLink href="/contact">
-                Start Project
+                Get Quote
                 <ArrowRight className="ml-2 h-3 w-3 transition-transform group-hover:translate-x-1" />
             </LoadingLink>
           </Button>

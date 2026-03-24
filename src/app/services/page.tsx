@@ -15,7 +15,7 @@ export default async function ServicesPage() {
   return (
     <main className="overflow-hidden">
       {/* Dynamic Header */}
-      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 bg-slate-50 dark:bg-black/20">
+      <section className="relative pt-16 pb-12 md:pt-24 md:pb-16 bg-slate-50 dark:bg-black/20">
         <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
         </div>
@@ -25,7 +25,7 @@ export default async function ServicesPage() {
                     <Sparkles className="h-3 w-3" />
                     <span>Solutions & Expertise</span>
                 </div>
-                <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight text-slate-900 dark:text-white mb-8 leading-none">
+                <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black tracking-tight text-slate-900 dark:text-white mb-6 leading-tight">
                     {seoData.h1_title}
                 </h1>
                 <p className="mx-auto max-w-2xl text-lg md:text-xl font-medium text-slate-600 dark:text-white leading-relaxed">
@@ -49,7 +49,7 @@ export default async function ServicesPage() {
                         )}>
                             <div className="space-y-4">
                                 <span className="text-primary font-black uppercase tracking-[0.2em] text-xs">Service {index + 1}</span>
-                                <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+                                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tighttext-slate-900 dark:text-white tracking-tight leading-tight">
                                     {service.title}
                                 </h2>
                                 <p className="text-2xl font-bold text-primary">{service.price}</p>

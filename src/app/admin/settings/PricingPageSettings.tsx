@@ -32,6 +32,8 @@ const planSchema = z.object({
   price: z.string().min(1, 'Price is required.'),
   description: z.string().min(1, 'Description is required.'),
   is_featured: z.boolean(),
+  is_enabled: z.boolean(),
+  buttonText: z.string().optional(),
   features: z.array(planFeatureSchema),
   displayOrder: z.coerce.number().int().min(0, 'Display order must be a positive number.'),
 });
@@ -74,6 +76,8 @@ export default function PricingPageSettings() {
           price: p.price || '',
           description: p.description || '',
           is_featured: !!p.is_featured,
+          is_enabled: p.is_enabled !== false,
+          buttonText: p.buttonText || '',
           features: p.features || [],
           displayOrder: p.displayOrder ?? 0
         })));
@@ -102,7 +106,12 @@ export default function PricingPageSettings() {
                 getPricingPageContent()
             ]);
             if (plansData) {
-               form.setValue('plans', plansData.map(p => ({...p, is_featured: !!p.is_featured})) );
+               form.setValue('plans', plansData.map(p => ({
+                 ...p, 
+                 is_featured: !!p.is_featured,
+                 is_enabled: p.is_enabled !== false,
+                 buttonText: p.buttonText || ''
+                })) );
             }
             if (contentData) {
               form.setValue('title', contentData.title);
@@ -203,19 +212,55 @@ export default function PricingPageSettings() {
                       </FormItem>
                     )}
                   />
-                  <FormField
+                   <FormField
                     control={form.control}
-                    name={`plans.${index}.price`}
+                    name={`plans.${index}.is_enabled`}
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Price</FormLabel>
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-slate-50 dark:bg-slate-900/50">
+                        <div className="space-y-0.5">
+                            <FormLabel>Enable Price / Checkout</FormLabel>
+                            <div className="text-[0.8rem] text-muted-foreground">
+                              If disabled, button will link to Contact Us page
+                            </div>
+                        </div>
                         <FormControl>
-                          <Input placeholder="e.g., $99 or Contact Us" {...field} />
+                            <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            />
                         </FormControl>
-                        <FormMessage />
                       </FormItem>
                     )}
                   />
+                  {form.watch(`plans.${index}.is_enabled`) ? (
+                    <FormField
+                      control={form.control}
+                      name={`plans.${index}.price`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Price</FormLabel>
+                          <FormControl>
+                            <Input placeholder="e.g., ₹9999" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  ) : (
+                    <FormField
+                      control={form.control}
+                      name={`plans.${index}.buttonText`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Button Text</FormLabel>
+                          <FormControl>
+                            <Input placeholder="e.g., Contact Us" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
                   <FormField
                     control={form.control}
                     name={`plans.${index}.description`}
@@ -252,7 +297,7 @@ export default function PricingPageSettings() {
               ))}
             </div>
 
-            <Button type="button" variant="outline" onClick={() => append({ title: '', price: '', description: '', is_featured: false, features: [], displayOrder: fields.length + 1 })}>
+            <Button type="button" variant="outline" onClick={() => append({ title: '', price: '0', description: '', is_featured: false, is_enabled: true, buttonText: 'Contact Us', features: [], displayOrder: fields.length + 1 })}>
                 Add Pricing Plan
             </Button>
             

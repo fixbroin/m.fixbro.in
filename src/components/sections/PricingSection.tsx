@@ -19,7 +19,11 @@ function parsePrice(price: string): number {
 }
 
 const PricingCard = ({ plan, onBookNowClick }: { plan: PricingPlan; onBookNowClick: () => void }) => {
-    const isCustom = plan.title.toLowerCase().includes('custom');
+    const isCustom = !plan.is_enabled;
+    const buttonLabel = isCustom ? (plan.buttonText || 'Contact Us') : 'Choose Plan';
+    const linkHref = isCustom 
+        ? '/contact' 
+        : `/checkout?plan=${encodeURIComponent(plan.title)}&price=${parsePrice(plan.price)}`;
     
     return (
         <ScrollAnimation as="div" variant="fadeInUp">
@@ -54,8 +58,14 @@ const PricingCard = ({ plan, onBookNowClick }: { plan: PricingPlan; onBookNowCli
                     </div>
 
                     <div className="mb-8 flex items-baseline gap-1">
-                        <span className="text-4xl lg:text-5xl font-black tracking-tighter">{plan.price}</span>
-                        {!isCustom && <span className={cn("text-sm font-bold opacity-60")}>/project</span>}
+                        {plan.is_enabled ? (
+                            <>
+                                <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight">{plan.price}</span>
+                                <span className={cn("text-sm font-bold opacity-60")}>/project</span>
+                            </>
+                        ) : (
+                            <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight">{plan.buttonText || 'Contact Us'}</span>
+                        )}
                     </div>
 
                     <div className="flex-grow space-y-4 mb-10">
@@ -81,8 +91,8 @@ const PricingCard = ({ plan, onBookNowClick }: { plan: PricingPlan; onBookNowCli
                             ? "bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/25" 
                             : "bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90"
                     )} onClick={onBookNowClick}>
-                        <LoadingLink href={isCustom ? '/contact' : `/checkout?plan=${encodeURIComponent(plan.title)}&price=${parsePrice(plan.price)}`}>
-                            {isCustom ? 'Get Custom Quote' : 'Choose Plan'}
+                        <LoadingLink href={linkHref}>
+                            {buttonLabel}
                         </LoadingLink>
                     </Button>
                 </div>
@@ -137,12 +147,12 @@ export default function PricingSection() {
     const useVanta = vantaSettings?.globalEnable && sectionVantaConfig?.enabled;
     
     return (
-        <section id="pricing" className="relative overflow-hidden py-24">
+        <section id="pricing" className="relative overflow-hidden py-8">
             {useVanta && <VantaBackground sectionConfig={sectionVantaConfig} />}
             <div className="container relative z-10">
                 <ScrollAnimation variant="fadeInUp" className="text-center mb-20">
                     <h2 className={cn(
-                        "text-4xl md:text-5xl font-black tracking-tight mb-4",
+                        "text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tighttracking-tight mb-4",
                         useVanta ? "text-white" : "text-slate-900 dark:text-white"
                     )}>{pageContent.title}</h2>
                     <div className="w-20 h-1.5 bg-primary mx-auto rounded-full mb-6" />

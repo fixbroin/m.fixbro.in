@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 export default function Logo({ appName, logoUrl }: { appName?: string, logoUrl?: string }) {
-  const name = appName || 'CineElite ADS';
+  const name = appName || 'FixBro Interiors';
 
   return (
     <Link href="/" className="inline-flex items-center gap-2 whitespace-nowrap">

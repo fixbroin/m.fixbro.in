@@ -99,12 +99,12 @@ export default function Footer({ settings }: { settings: GeneralSettings | null 
             <div className="bg-primary rounded-[3rem] p-8 md:p-16 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl shadow-primary/30 overflow-hidden relative group">
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                 <div className="text-center md:text-left relative z-10">
-                    <h2 className="text-3xl md:text-5xl font-black tracking-tight text-white mb-4">Start your digital <br className="hidden md:block" /> journey today.</h2>
-                    <p className="text-white font-medium text-lg max-w-md">Join hundreds of successful businesses building the future with us.</p>
+                    <h2 className="text-3xl md:text-5xl font-black tracking-tight text-white mb-4">Transform Your <br className="hidden md:block" /> Home Interiors Today.</h2>
+                    <p className="text-white font-medium text-lg max-w-md">Book a consultation and get expert guidance for your modular kitchen, wardrobes, and complete home interiors.</p>
                 </div>
                 <Button asChild size="lg" className="bg-white text-primary hover:bg-slate-50 h-16 px-10 rounded-full font-black text-lg group shadow-xl relative z-10">
                     <LoadingLink href="/contact">
-                        Get Started Now
+                        Book Site Visit
                         <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                     </LoadingLink>
                 </Button>
@@ -164,7 +164,7 @@ export default function Footer({ settings }: { settings: GeneralSettings | null 
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
           <p className="text-sm font-medium text-white">
-            &copy; {new Date().getFullYear()} {settings?.website_name || 'CineElite ADS'}. Engineered with precision.
+            &copy; {new Date().getFullYear()} {settings?.website_name || 'FixBro Interiors'}. Engineered with precision.
           </p>
            <ul className="flex flex-wrap justify-center gap-x-8 gap-y-4">
               {legalLinks.map((link) => (

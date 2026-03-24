@@ -9,6 +9,7 @@ import { PortfolioItem } from '@/app/admin/settings/actions/portfolio-actions';
 
 interface PortfolioMediaProps {
   item: PortfolioItem;
+  fill?: boolean;
 }
 
 function getYouTubeVideoId(url: string): string | null {
@@ -19,14 +20,16 @@ function getYouTubeVideoId(url: string): string | null {
   return (match && match[1].length === 11) ? match[1] : null;
 }
 
-export default function PortfolioMedia({ item }: PortfolioMediaProps) {
+export default function PortfolioMedia({ item, fill = true }: PortfolioMediaProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const youTubeVideoId = item.mediaType === 'video' && item.mediaUrl ? getYouTubeVideoId(item.mediaUrl) : null;
 
   if (!item.mediaUrl) {
     return (
-      <div className="h-full w-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-400 font-medium">
-        <span>No media available</span>
+      <div className={fill ? "h-full w-full" : "aspect-video w-full"}>
+        <div className="h-full w-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-400 font-medium">
+            <span>No media available</span>
+        </div>
       </div>
     );
   }
@@ -81,7 +84,7 @@ export default function PortfolioMedia({ item }: PortfolioMediaProps) {
   }, []);
 
   return (
-    <div className="relative h-full w-full bg-black overflow-hidden flex items-center justify-center">
+    <div className={`relative ${fill ? 'h-full' : ''} w-full bg-black overflow-hidden flex items-center justify-center`}>
        {item.mediaType === 'video' ? (
         youTubeVideoId ? (
           <iframe
@@ -90,14 +93,14 @@ export default function PortfolioMedia({ item }: PortfolioMediaProps) {
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-            className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
+            className={`${fill ? 'h-full' : 'aspect-video'} w-full object-cover transition-transform duration-500 group-hover:scale-105`}
           ></iframe>
         ) : (
-          <div className="relative h-full w-full">
+          <div className={`relative ${fill ? 'h-full' : ''} w-full`}>
             <video
               ref={videoRef}
               src={item.mediaUrl}
-              className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
+              className={`${fill ? 'h-full object-cover' : 'h-auto'} w-full transition-transform duration-500 group-hover:scale-105`}
               autoPlay
               loop
               muted
@@ -116,14 +119,23 @@ export default function PortfolioMedia({ item }: PortfolioMediaProps) {
           </div>
         )
       ) : (
-        <Image
-          src={item.mediaUrl}
-          alt={item.title}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-          data-ai-hint="portfolio item"
-          unoptimized
-        />
+        fill ? (
+            <Image
+                src={item.mediaUrl}
+                alt={item.title}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                data-ai-hint="portfolio item"
+                unoptimized
+            />
+        ) : (
+            <img
+                src={item.mediaUrl}
+                alt={item.title}
+                className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
+                data-ai-hint="portfolio item"
+            />
+        )
       )}
     </div>
   );

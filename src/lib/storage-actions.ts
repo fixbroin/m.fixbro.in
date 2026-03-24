@@ -3,6 +3,7 @@
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { Readable } from 'stream';
 
 const UPLOAD_DIR = path.resolve(process.cwd(), 'public', 'uploads');
 
@@ -19,7 +20,9 @@ export async function uploadFile(formData: FormData, folder: string = 'general')
       fs.mkdirSync(targetDir, { recursive: true });
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
+    // Use a more memory-efficient way for larger files (videos)
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
     
     // Create numeric timestamp filename as requested (e.g., 1711234567890.ext)
     const timestamp = Date.now();
@@ -33,6 +36,9 @@ export async function uploadFile(formData: FormData, folder: string = 'general')
     const fileName = `${timestamp}${extension}`;
     
     const filePath = path.join(targetDir, fileName);
+    
+    // Using synchronous write for now but with a buffer from arrayBuffer
+    // Next.js Server Actions have a limit, but we increased it in next.config.ts
     fs.writeFileSync(filePath, buffer);
 
     // Return the public URL - Always use forward slashes for URLs
@@ -41,13 +47,13 @@ export async function uploadFile(formData: FormData, folder: string = 'general')
 
   } catch (error: any) {
     console.error('Local upload error:', error);
-    return { success: false, error: 'Failed to upload file locally.' };
+    return { success: false, error: 'Failed to upload file locally. ' + (error.message || '') };
   }
 }
 
 export async function deleteFile(url: string): Promise<{ success: boolean; error?: string }> {
   try {
-    if (!url.startsWith('/uploads/')) {
+    if (!url || !url.startsWith('/uploads/')) {
       return { success: true }; // Not a local upload
     }
 

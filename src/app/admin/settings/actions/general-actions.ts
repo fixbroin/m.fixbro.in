@@ -17,6 +17,7 @@ export interface GeneralSettings {
     linkedin_url: string;
     youtube_url: string;
     loaderType: string;
+    google_site_verification?: string;
 }
 
 export const getGeneralSettings = cache(async (): Promise<GeneralSettings> => {
@@ -27,29 +28,31 @@ export const getGeneralSettings = cache(async (): Promise<GeneralSettings> => {
                 if (rows.length > 0) {
                     const data = typeof rows[0].setting_value === 'string' ? JSON.parse(rows[0].setting_value) : rows[0].setting_value;
                     return {
-                        website_name: data.website_name || 'CineElite ADS',
+                        website_name: data.website_name || 'FixBro Interiors',
                         logo: data.logo || '',
                         favicon: data.favicon || '/favicon.ico',
-                        footer_description: data.footer_description || 'Redefining advertising through cinematic excellence and high-impact visual storytelling.',
+                        footer_description: data.footer_description || 'Transforming spaces with precision and style. Premium interior design and home renovation services.',
                         facebook_url: data.facebook_url || '',
                         instagram_url: data.instagram_url || '',
                         twitter_url: data.twitter_url || '',
                         linkedin_url: data.linkedin_url || '',
                         youtube_url: data.youtube_url || '',
                         loaderType: data.loaderType || 'pulse',
+                        google_site_verification: data.google_site_verification || '',
                     };
                 } else {
                     const defaultData: GeneralSettings = {
-                        website_name: 'CineElite ADS',
+                        website_name: 'FixBro Interiors',
                         logo: '',
                         favicon: '/favicon.ico',
-                        footer_description: 'Redefining advertising through cinematic excellence and high-impact visual storytelling.',
+                        footer_description: 'Transforming spaces with precision and style. Premium interior design and home renovation services.',
                         facebook_url: '',
                         instagram_url: '',
                         twitter_url: '',
                         linkedin_url: '',
                         youtube_url: '',
                         loaderType: 'pulse',
+                        google_site_verification: '',
                     };
                     await db.query('INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)', 
                         ['general_settings', JSON.stringify(defaultData)]);
@@ -58,16 +61,17 @@ export const getGeneralSettings = cache(async (): Promise<GeneralSettings> => {
             } catch (error) {
                 console.error("Failed to fetch general settings:", error);
                 return {
-                    website_name: 'CineElite ADS',
+                    website_name: 'FixBro Interiors',
                     logo: '',
                     favicon: '/favicon.ico',
-                    footer_description: 'Redefining advertising through cinematic excellence and high-impact visual storytelling.',
+                    footer_description: 'Transforming spaces with precision and style. Premium interior design and home renovation services.',
                     facebook_url: '',
                     instagram_url: '',
                     twitter_url: '',
                     linkedin_url: '',
                     youtube_url: '',
                     loaderType: 'pulse',
+                    google_site_verification: '',
                 };
             }
         },

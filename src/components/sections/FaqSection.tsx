@@ -19,7 +19,7 @@ export default async function FaqSection() {
   const useVanta = vantaSettings.globalEnable && sectionVantaConfig?.enabled;
 
   return (
-    <section id="faq" className="relative overflow-hidden py-24 bg-slate-50 dark:bg-black/20">
+    <section id="faq" className="relative overflow-hidden py-8 bg-slate-50 dark:bg-black/20">
       {useVanta && <VantaBackground sectionConfig={sectionVantaConfig} />}
       
       <div className="container relative z-10">
@@ -29,15 +29,15 @@ export default async function FaqSection() {
             <span>Support Center</span>
           </div>
           <h2 className={cn(
-            "text-4xl md:text-5xl font-black tracking-tight mb-4",
+            "text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tighttracking-tight mb-4",
             useVanta ? "text-white" : "text-slate-900 dark:text-white"
-          )}>Common Enquiries</h2>
+          )}>Frequently Asked Questions</h2>
           <div className="w-20 h-1.5 bg-primary mx-auto rounded-full mb-6" />
           <p className={cn(
             "mx-auto max-w-2xl text-lg font-medium",
             useVanta ? "text-white" : "text-slate-600 dark:text-white"
           )}>
-            Find quick answers to common questions about our design process and development standards.
+            Get answers to common questions about our interior services, pricing, and project process.
           </p>
         </ScrollAnimation>
 

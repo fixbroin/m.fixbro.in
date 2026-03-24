@@ -41,7 +41,7 @@ export default async function HeroSection() {
           </ScrollAnimation>
           <ScrollAnimation as="div" variant="fadeInUp" delay={0.2} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
             <Button asChild size="lg" className="w-full sm:w-auto sm:min-w-[200px]">
-              <LoadingLink href="/contact">Get a Free Quote</LoadingLink>
+              <LoadingLink href="/contact">Get Consultation</LoadingLink>
             </Button>
             <Button asChild size="lg" variant="outline" className="w-full sm:w-auto sm:min-w-[200px]">
               <LoadingLink href="/portfolio">View Portfolio</LoadingLink>

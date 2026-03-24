@@ -27,7 +27,7 @@ export default async function PortfolioPage() {
   return (
     <main className="overflow-hidden">
       {/* Header */}
-      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 bg-slate-50 dark:bg-black/20 text-center">
+      <section className="relative pt-16 pb-12 md:pt-24 md:pb-16 bg-slate-50 dark:bg-black/20 text-center">
         <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
         </div>
@@ -37,7 +37,7 @@ export default async function PortfolioPage() {
                     <Sparkles className="h-3 w-3" />
                     <span>Visual Showcase</span>
                 </div>
-                <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight text-slate-900 dark:text-white mb-8 leading-none">
+                <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black tracking-tight text-slate-900 dark:text-white mb-6 leading-tight">
                     {seoData.h1_title}
                 </h1>
                 <p className="mx-auto max-w-2xl text-lg md:text-xl font-medium text-slate-600 dark:text-white leading-relaxed">

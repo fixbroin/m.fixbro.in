@@ -16,6 +16,8 @@ export interface PricingPlan {
     price: string;
     description: string;
     is_featured: boolean;
+    is_enabled: boolean;
+    buttonText?: string;
     features: PlanFeature[];
     displayOrder: number;
     createdAt?: string;
@@ -88,8 +90,8 @@ export const getPricingPlans = cache(async (): Promise<PricingPlan[]> => {
                         }
                     ];
                     for (const plan of defaultPlans) {
-                        await db.query('INSERT INTO pricing_plans (id, title, price, description, isPopular, features, displayOrder) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                            [plan.id, plan.title, plan.price, plan.description, plan.is_featured, JSON.stringify(plan.features), plan.displayOrder]);
+                        await db.query('INSERT INTO pricing_plans (id, title, price, description, isPopular, is_enabled, buttonText, features, displayOrder) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                            [plan.id, plan.title, plan.price, plan.description, plan.is_featured, true, 'Choose Plan', JSON.stringify(plan.features), plan.displayOrder]);
                     }
                     return defaultPlans.map(p => ({ ...p, createdAt: new Date().toISOString() }));
                 }
@@ -97,6 +99,8 @@ export const getPricingPlans = cache(async (): Promise<PricingPlan[]> => {
                 return plans.map((plan: any) => ({
                     ...plan,
                     is_featured: !!plan.isPopular,
+                    is_enabled: plan.is_enabled === undefined ? true : !!plan.is_enabled,
+                    buttonText: plan.buttonText || '',
                     features: typeof plan.features === 'string' ? JSON.parse(plan.features) : plan.features,
                     createdAt: plan.createdAt instanceof Date ? plan.createdAt.toISOString() : plan.createdAt
                 }));
@@ -115,8 +119,8 @@ export async function updatePricingPlans(plans: Omit<PricingPlan, 'id'|'createdA
         await db.query('DELETE FROM pricing_plans');
 
         for (const plan of plans) {
-            await db.query('INSERT INTO pricing_plans (id, title, price, description, isPopular, features, displayOrder) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                [uuidv4(), plan.title, plan.price, plan.description, plan.is_featured, JSON.stringify(plan.features), plan.displayOrder]);
+            await db.query('INSERT INTO pricing_plans (id, title, price, description, isPopular, is_enabled, buttonText, features, displayOrder) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                [uuidv4(), plan.title, plan.price, plan.description, plan.is_featured, plan.is_enabled, plan.buttonText || null, JSON.stringify(plan.features), plan.displayOrder]);
         }
 
         revalidateTag('pricing-plans');

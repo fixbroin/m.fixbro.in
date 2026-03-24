@@ -15,7 +15,7 @@ export default async function AboutPage() {
   return (
     <main className="overflow-hidden">
       {/* Hero Header */}
-      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 bg-slate-50 dark:bg-black/20">
+      <section className="relative pt-16 pb-12 md:pt-24 md:pb-16 bg-slate-50 dark:bg-black/20">
         <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
         </div>
@@ -25,7 +25,7 @@ export default async function AboutPage() {
                     <Sparkles className="h-3 w-3" />
                     <span>Our Story</span>
                 </div>
-                <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight text-slate-900 dark:text-white mb-8 leading-none">
+                <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black tracking-tight text-slate-900 dark:text-white mb-6 leading-tight">
                     {seoData.h1_title}
                 </h1>
                 <p className="mx-auto max-w-2xl text-lg md:text-xl font-medium text-slate-600 dark:text-white leading-relaxed">
@@ -53,7 +53,7 @@ export default async function AboutPage() {
                 </ScrollAnimation>
                 
                 <ScrollAnimation variant="slideInRight" className="space-y-8">
-                    <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tighttext-slate-900 dark:text-white tracking-tight leading-tight">
                         {content.mission_title}
                     </h2>
                     <div className="w-20 h-1.5 bg-primary rounded-full" />
@@ -72,7 +72,7 @@ export default async function AboutPage() {
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(124,58,237,0.1),transparent_70%)]" />
         <div className="container relative z-10">
             <ScrollAnimation variant="fadeInUp" className="text-center mb-20">
-                <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-6">{content.stack_title}</h2>
+                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tighttracking-tight mb-6">{content.stack_title}</h2>
                 <p className="mx-auto max-w-2xl text-lg font-medium text-white">
                     {content.stack_description}
                 </p>

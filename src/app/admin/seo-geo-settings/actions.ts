@@ -5,51 +5,82 @@ import db from '@/lib/db';
 import { revalidatePath, unstable_cache, revalidateTag } from 'next/cache';
 import { cache } from 'react';
 import { PageSeoContent, defaultSeoSettings } from '@/types/seo';
+import { WEBSITE_URL } from '@/lib/config';
 
 const defaultContent: Record<string, PageSeoContent> = {
     home: {
         ...defaultSeoSettings,
+        canonical_url: WEBSITE_URL,
     },
     services: {
-        h1_title: 'Full-Spectrum Video Production Services',
-        paragraph: 'From concept to final cut, we provide comprehensive production services including TVCs, product shoots, and corporate documentaries.',
-        meta_title: 'Our Production Services | CineElite ADS',
-        meta_description: 'Explore our video production services: Ad filmmaking, corporate brand films, social media content, and high-end post-production.',
-        meta_keywords: 'ad filmmaking, corporate videos, product videography, post production services',
+        h1_title: 'Full-Spectrum Interior Design Services',
+        paragraph: 'From concept to final walkthrough, we provide comprehensive design services including space planning, renovation, and bespoke decor.',
+        meta_title: 'Our Design Services | FixBro Interiors',
+        meta_description: 'Explore our interior design services: Residential design, commercial interiors, kitchen renovations, and luxury decor consulting.',
+        meta_keywords: 'interior design services, home renovation, space planning, kitchen design, office interiors',
         schema_type: 'ProfessionalService',
+        canonical_url: `${WEBSITE_URL}/services`,
     },
     portfolio: {
-        h1_title: 'Our Cinematic Masterpieces',
-        paragraph: 'Explore a gallery of our most impactful work, ranging from high-budget TV commercials to viral digital campaigns.',
-        meta_title: 'Production Portfolio | CineElite ADS Showcase',
-        meta_description: 'Watch our latest ad films and commercials. See how we help brands tell their stories through high-end cinematic visuals.',
-        meta_keywords: 'video portfolio, ad showreel, commercial examples, cinematic work',
+        h1_title: 'Our Design Masterpieces',
+        paragraph: 'Explore a gallery of our most stunning work, ranging from luxury residential homes to modern commercial spaces.',
+        meta_title: 'Design Portfolio | FixBro Interiors Showcase',
+        meta_description: 'View our latest design projects. See how we transform spaces into beautiful, functional works of art.',
+        meta_keywords: 'design portfolio, interior design gallery, home renovation examples, commercial design showreel',
         schema_type: 'WebSite',
+        canonical_url: `${WEBSITE_URL}/portfolio`,
     },
     pricing: {
-        h1_title: 'Production Packages & Investment',
-        paragraph: 'Transparent pricing for world-class video production. We offer scalable packages tailored to your brand’s marketing goals.',
-        meta_title: 'Video Production Pricing | CineElite ADS',
-        meta_description: 'Find the right production package for your business. Affordable to premium ad film production rates and packages.',
-        meta_keywords: 'video production cost, ad film price, corporate video packages',
+        h1_title: 'Design Packages & Investment',
+        paragraph: 'Transparent pricing for world-class interior design. We offer scalable packages tailored to your vision and budget.',
+        meta_title: 'Design Packages | FixBro Interiors',
+        meta_description: 'Find the right design package for your home or business. Professional consultation to full turnkey renovation rates.',
+        meta_keywords: 'interior design cost, renovation price, design consultation packages',
         schema_type: 'WebSite',
+        canonical_url: `${WEBSITE_URL}/pricing`,
     },
     about: {
-        h1_title: 'Visionaries Behind the Lens',
-        paragraph: 'CineElite ADS is a collective of storytellers, directors, and artists dedicated to pushing the boundaries of visual advertising.',
-        meta_title: 'About CineElite ADS | Our Story & Vision',
-        meta_description: 'Learn about CineElite ADS, our mission to redefine advertising through cinema, and the team driving our creative success.',
-        meta_keywords: 'about video production company, creative agency team, film directors bangalore',
+        h1_title: 'Visionaries of Space & Style',
+        paragraph: 'FixBro Interiors is a collective of visionary designers, architects, and craftsmen dedicated to creating exceptional living spaces.',
+        meta_title: 'About FixBro Interiors | Our Vision & Craft',
+        meta_description: 'Learn about FixBro Interiors, our passion for design excellence, and the team creating your dream spaces.',
+        meta_keywords: 'about interior design firm, creative design team, interior designers bangalore',
         schema_type: 'Organization',
+        canonical_url: `${WEBSITE_URL}/about`,
     },
     contact: {
-        h1_title: 'Pitch Your Next Big Idea',
-        paragraph: 'Ready to create something legendary? Contact our production office today for a consultation or project quote.',
-        meta_title: 'Contact Our Studio | CineElite ADS',
-        meta_description: 'Get in touch with CineElite ADS for your next video production project. Available for global commissions and local shoots.',
-        meta_keywords: 'contact ad agency, hire video production, film studio contact',
+        h1_title: 'Design Your Dream Space',
+        paragraph: 'Ready to transform your home? Contact our design office today for a consultation or project quote.',
+        meta_title: 'Contact Our Designers | FixBro Interiors',
+        meta_description: 'Get in touch with FixBro Interiors for your next renovation project. Available for residential and commercial consultations.',
+        meta_keywords: 'contact interior designer, hire design firm, renovation consultation',
         schema_type: 'LocalBusiness',
+        canonical_url: `${WEBSITE_URL}/contact`,
     },
+    'privacy-policy': {
+        ...defaultSeoSettings,
+        h1_title: 'Privacy Policy',
+        meta_title: 'Privacy Policy | FixBro Interiors',
+        canonical_url: `${WEBSITE_URL}/privacy-policy`,
+    },
+    'terms': {
+        ...defaultSeoSettings,
+        h1_title: 'Terms of Service',
+        meta_title: 'Terms of Service | FixBro Interiors',
+        canonical_url: `${WEBSITE_URL}/terms`,
+    },
+    'refund-policy': {
+        ...defaultSeoSettings,
+        h1_title: 'Refund Policy',
+        meta_title: 'Refund Policy | FixBro Interiors',
+        canonical_url: `${WEBSITE_URL}/refund-policy`,
+    },
+    'cancellation-policy': {
+        ...defaultSeoSettings,
+        h1_title: 'Cancellation Policy',
+        meta_title: 'Cancellation Policy | FixBro Interiors',
+        canonical_url: `${WEBSITE_URL}/cancellation-policy`,
+    }
 };
 
 export const getSeoData = cache(async (pageSlug: string): Promise<PageSeoContent> => {
@@ -68,10 +99,11 @@ export const getSeoData = cache(async (pageSlug: string): Promise<PageSeoContent
                         meta_keywords: row.keywords || defaultSeoSettings.meta_keywords,
                         og_image: row.ogImage || defaultSeoSettings.og_image,
                         schema_type: row.schema_type || defaultSeoSettings.schema_type,
-                        canonical_url: row.canonical_url || defaultSeoSettings.canonical_url,
+                        canonical_url: row.canonical_url || (defaultContent[pageSlug]?.canonical_url || defaultSeoSettings.canonical_url),
                     };
                 } else {
                     const initialData = defaultContent[pageSlug] || defaultSeoSettings;
+                    // Auto-insert defaults if not found, making them editable in admin
                     await db.query(
                         'INSERT INTO page_seo (slug, title, description, keywords, ogImage, h1_title, paragraph, schema_type, canonical_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                         [

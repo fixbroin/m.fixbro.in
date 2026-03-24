@@ -1,7 +1,7 @@
 {
-  "name": "CineElite ADS",
-  "short_name": "CineElite",
-  "description": "High-impact cinematic advertising and web design services.",
+  "name": "FixBro Interiors",
+  "short_name": "FixBro",
+  "description": "Premium interior design and home renovation services.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
@@ -33,21 +33,21 @@
       "purpose": "maskable"
     }
   ],
-  "categories": ["business", "advertising", "design"],
+  "categories": ["business", "interior-design", "renovation"],
   "screenshots": [
     {
       "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "CineElite Dashboard"
+      "label": "FixBro Dashboard"
     },
     {
       "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "CineElite Mobile"
+      "label": "FixBro Mobile"
     }
   ]
 }

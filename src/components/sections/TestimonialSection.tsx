@@ -90,21 +90,21 @@ export default function TestimonialSection() {
     if (testimonials.length === 0) return null;
 
   return (
-    <section id="testimonials" className={cn("relative overflow-hidden py-24", !useVanta && 'bg-slate-50 dark:bg-black/20')}>
+    <section id="testimonials" className={cn("relative overflow-hidden py-8", !useVanta && 'bg-slate-50 dark:bg-black/20')}>
        {useVanta && <VantaBackground sectionConfig={sectionVantaConfig} />}
       
       <div className="container relative z-10">
         <ScrollAnimation as="div" variant="fadeInUp" className="text-center mb-16">
             <h2 className={cn(
-                "text-4xl md:text-5xl font-black tracking-tight mb-4",
+                "text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tighttracking-tight mb-4",
                 useVanta ? "text-white" : "text-slate-900 dark:text-white"
-            )}>Client Success Stories</h2>
+            )}>Customer Reviews</h2>
             <div className="w-20 h-1.5 bg-primary mx-auto rounded-full mb-6" />
             <p className={cn(
                 "mx-auto max-w-2xl text-lg font-medium",
                 useVanta ? "text-white" : "text-slate-600 dark:text-white"
             )}>
-                Experience the impact of our digital craftsmanship through the eyes of our partners.
+                See what our customers say about our interior work, quality, and service experience.
             </p>
         </ScrollAnimation>
 

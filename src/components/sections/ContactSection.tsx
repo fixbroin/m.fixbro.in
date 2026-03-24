@@ -23,7 +23,7 @@ export default async function ContactSection() {
   ].filter(item => item.value && item.value !== '');
 
   return (
-    <section id="contact" className="relative overflow-hidden py-24">
+    <section id="contact" className="relative overflow-hidden py-8">
       {useVanta && <VantaBackground sectionConfig={sectionVantaConfig} />}
       
       <div className="container relative z-10">
@@ -36,14 +36,14 @@ export default async function ContactSection() {
                     <span>Get in Touch</span>
                 </div>
                 <h2 className={cn(
-                    "text-4xl md:text-5xl font-black tracking-tight mb-6",
+                    "text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tighttracking-tight mb-6",
                     useVanta ? "text-white" : "text-slate-900 dark:text-white"
-                )}>Let&apos;s Build Something Extraordinary</h2>
+                )}>Start Your Home Interior Project</h2>
                 <p className={cn(
                     "text-lg font-medium leading-relaxed",
                     useVanta ? "text-white" : "text-slate-600 dark:text-white"
                 )}>
-                    Have a vision? We have the tools to make it a reality. Reach out for a free consultation or a project quote.
+                    Looking to upgrade your home? Get expert interior solutions including modular kitchen, wardrobes, furniture, and complete home interiors. Contact us for a free site visit and quotation.
                 </p>
             </ScrollAnimation>
 

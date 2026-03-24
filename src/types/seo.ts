@@ -11,11 +11,11 @@ export interface PageSeoContent {
 }
 
 export const defaultSeoSettings: PageSeoContent = {
-    h1_title: 'Cinematic Ads that Drive Business Growth',
-    paragraph: 'CineElite ADS is a premier video production house specializing in high-impact commercials, corporate storytelling, and digital ad campaigns that captivate audiences.',
-    meta_title: 'CineElite ADS | Premium Video Production & Advertising Agency',
-    meta_description: 'Award-winning video production agency specializing in TV commercials, social media ads, corporate brand films, and cinematic storytelling. We turn visions into cinematic reality.',
-    meta_keywords: 'video production company, ad film agency, commercial video production, corporate videos, digital marketing ads, cinematic production house, brand storytelling',
+    h1_title: 'Exquisite Interiors that Elevate Your Lifestyle',
+    paragraph: 'FixBro Interiors is a premier interior design firm specializing in high-impact residential and commercial spaces, home renovations, and bespoke decor that captivates.',
+    meta_title: 'FixBro Interiors | Premium Interior Design & Home Renovation',
+    meta_description: 'Award-winning interior design agency specializing in luxury residential, commercial, and bespoke renovations. We turn your dream spaces into reality.',
+    meta_keywords: 'interior design, home renovation, residential design, commercial interiors, luxury decor, modern architecture, bespoke furniture, space planning',
     og_image: '',
     schema_type: 'ProfessionalService',
     canonical_url: '',

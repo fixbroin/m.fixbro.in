@@ -23,7 +23,7 @@ export default async function WhyChooseUsSection() {
     };
 
   return (
-    <section id="why-choose-us" className="relative overflow-hidden py-24">
+    <section id="why-choose-us" className="relative overflow-hidden py-8">
        {useVanta && <VantaBackground sectionConfig={sectionVantaConfig} />}
       
       <div className="container relative z-10">
@@ -31,7 +31,7 @@ export default async function WhyChooseUsSection() {
           <div className="order-2 lg:order-1">
             <ScrollAnimation variant="fadeInUp" className="mb-12">
               <h2 className={cn(
-                "text-4xl md:text-5xl font-black tracking-tight mb-6",
+                "text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tighttracking-tight mb-6",
                 useVanta ? "text-white" : "text-slate-900 dark:text-white"
               )}>{content.title}</h2>
               <div className="w-20 h-1.5 bg-primary rounded-full mb-8" />
@@ -68,13 +68,11 @@ export default async function WhyChooseUsSection() {
             </div>
           </div>
 
-          <ScrollAnimation as="div" variant="slideInRight" delay={0.2} className="order-1 lg:order-2 relative h-[500px] lg:h-[600px] w-full z-10">
+          <ScrollAnimation as="div" variant="slideInRight" delay={0.2} className="order-1 lg:order-2 relative w-full z-10">
             <div className="absolute -inset-4 bg-primary/5 rounded-[3rem] blur-2xl" />
-            <div className="relative h-full w-full rounded-[2.5rem] overflow-hidden shadow-2xl border-8 border-white dark:border-[#161922]">
-                <PortfolioMedia item={mediaItem as any} />
+            <div className="relative w-full rounded-[2.5rem] overflow-hidden shadow-2xl border-8 border-white dark:border-[#161922]">
+                <PortfolioMedia item={mediaItem as any} fill={false} />
             </div>
-            
-            
           </ScrollAnimation>
         </div>
       </div>

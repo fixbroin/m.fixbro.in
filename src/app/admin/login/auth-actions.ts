@@ -7,7 +7,7 @@ import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 const SECRET_KEY = new TextEncoder().encode(
-  process.env.AUTH_SECRET || 'cineelite-ads-super-secret-key-12345'
+  process.env.AUTH_SECRET || 'fixbro-interiors-super-secret-key-12345'
 );
 
 export async function login(formData: any) {

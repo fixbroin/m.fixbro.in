@@ -127,6 +127,7 @@ CREATE TABLE IF NOT EXISTS pricing_plans (
     description TEXT,
     features JSON,
     isPopular BOOLEAN DEFAULT FALSE,
+    is_enabled BOOLEAN DEFAULT TRUE,
     buttonText VARCHAR(100),
     displayOrder INT DEFAULT 0,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP

@@ -9,18 +9,18 @@ interface JSONLDProps {
 }
 
 export default function JSONLD({ seoData, settings, pathname }: JSONLDProps) {
-    const host = typeof window !== 'undefined' ? window.location.origin : 'https://cineelite.com';
+    const host = typeof window !== 'undefined' ? window.location.origin : 'https://m.fixbro.in';
     const fullUrl = `${host}${pathname === '/' ? '' : pathname}`;
     
     const baseSchema: any = {
         "@context": "https://schema.org",
         "@type": seoData.schema_type || "ProfessionalService",
-        "name": settings.website_name,
+        "name": settings.website_name || "FixBro Interiors",
         "url": host,
         "logo": settings.logo || `${host}/android-chrome-192x192.png`,
         "description": seoData.meta_description,
-        "areaServed": "Worldwide",
-        "serviceType": "Video Production & Advertising",
+        "areaServed": "India",
+        "serviceType": "Interior Design & Home Renovation",
         "sameAs": [
             settings.facebook_url,
             settings.instagram_url,

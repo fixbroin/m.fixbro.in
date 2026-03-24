@@ -26,10 +26,19 @@ import JSONLD from '@/components/JSONLD';
 
 // Use generateMetadata for dynamic metadata
 export async function generateMetadata(): Promise<Metadata> {
-  const headersList = await headers();
-  const pathname = headersList.get('x-pathname') || '/';
-  const host = headersList.get('host') || 'cineelite.com';
-  const protocol = headersList.get('x-forwarded-proto') || 'https';
+  let pathname = '/';
+  let host = 'm.fixbro.in';
+  let protocol = 'https';
+  
+  try {
+    const headersList = await headers();
+    pathname = headersList.get('x-pathname') || '/';
+    host = headersList.get('host') || 'm.fixbro.in';
+    protocol = headersList.get('x-forwarded-proto') || 'https';
+  } catch (e) {
+    console.error('Error fetching headers in metadata:', e);
+  }
+  
   const fullBaseUrl = `${protocol}://${host}`;
   
   // Extract slug from pathname (e.g., /services -> services, / -> home)
@@ -39,9 +48,11 @@ export async function generateMetadata(): Promise<Metadata> {
   const settings = await getGeneralSettings();
   const seoData = await getSeoData(pageSlug);
   
-  const appName = settings?.website_name || 'CineElite ADS';
+  const appName = settings?.website_name || 'FixBro Interiors';
   const ogImage = seoData?.og_image || settings?.logo || `${fullBaseUrl}/android-chrome-192x192.png`;
   const canonical = seoData?.canonical_url || `${fullBaseUrl}${pathname === '/' ? '' : pathname}`;
+
+  const isAdmin = pathname.startsWith('/admin');
 
   return {
     metadataBase: new URL(fullBaseUrl),
@@ -54,6 +65,20 @@ export async function generateMetadata(): Promise<Metadata> {
     manifest: '/manifest.json',
     alternates: {
       canonical: canonical,
+    },
+    robots: {
+      index: !isAdmin,
+      follow: !isAdmin,
+      googleBot: {
+        index: !isAdmin,
+        follow: !isAdmin,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+    verification: {
+      google: settings?.google_site_verification || '',
     },
     openGraph: {
       title: seoData.meta_title,
@@ -112,8 +137,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headersList = await headers();
-  const pathname = headersList.get('x-pathname') || '';
+  let pathname = '';
+  try {
+    const headersList = await headers();
+    pathname = headersList.get('x-pathname') || '';
+  } catch (e) {
+    console.error('Error fetching headers in RootLayout:', e);
+  }
   const isAdminPage = pathname.startsWith('/admin');
 
   const settings = await getGeneralSettings();

@@ -36,13 +36,13 @@ export default async function PortfolioSection() {
     );
 
   return (
-    <section id="portfolio" className="relative overflow-hidden py-24 bg-slate-50/50 dark:bg-black/40">
+    <section id="portfolio" className="relative overflow-hidden py-8 bg-slate-50/50 dark:bg-black/40">
        {useVanta && <VantaBackground sectionConfig={sectionVantaConfig} />}
        
       <div className="container relative z-10">
         <ScrollAnimation variant="fadeInUp" className="text-center mb-20">
           <h2 className={cn(
-            "text-4xl md:text-5xl font-black tracking-tight mb-4",
+            "text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tighttracking-tight mb-4",
             useVanta ? "text-white" : "text-slate-900 dark:text-white"
           )}>{pageContent.title}</h2>
           <div className="w-20 h-1.5 bg-primary mx-auto rounded-full mb-6" />
