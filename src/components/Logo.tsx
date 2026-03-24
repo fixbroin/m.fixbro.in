@@ -16,6 +16,7 @@ export default function Logo({ appName, logoUrl }: { appName?: string, logoUrl?:
             alt={`${name} Logo`}
             fill
             className="object-contain"
+            unoptimized
           />
         </div>
       )}

@@ -47,6 +47,7 @@ export default async function AboutPage() {
                             alt="Our Mission"
                             fill
                             className="object-cover"
+                            unoptimized
                         />
                     </div>
                 </ScrollAnimation>

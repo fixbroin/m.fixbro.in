@@ -122,6 +122,7 @@ export default function PortfolioMedia({ item }: PortfolioMediaProps) {
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"
           data-ai-hint="portfolio item"
+          unoptimized
         />
       )}
     </div>

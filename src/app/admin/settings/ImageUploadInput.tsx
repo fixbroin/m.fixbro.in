@@ -166,7 +166,7 @@ export default function ImageUploadInput({
         );
     } else if (isValidImageUrl(value)) { 
         mediaPreview = (
-            <Image src={value} alt="Preview" fill className="object-contain" />
+            <Image src={value} alt="Preview" fill className="object-contain" unoptimized />
         );
     } else {
         mediaPreview = (
