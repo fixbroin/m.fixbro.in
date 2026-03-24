@@ -7,7 +7,7 @@ import {
   Home, Settings, Mail, ShoppingBag, 
   Globe, User, MessageSquare, 
   Database, Activity, Users, Bell, 
-  ChevronRight, ExternalLink, BookOpen
+  ChevronRight, ExternalLink, BookOpen, Archive
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 
@@ -29,6 +29,7 @@ const adminNavLinks = [
     ]},
     { group: "System", links: [
         { href: "/admin/settings", label: "Configuration", icon: Settings },
+        { href: "/admin/image-backup", label: "Media Backup", icon: Archive },
         { href: "/admin/database-tools", label: "Maintenance", icon: Database },
         { href: "/admin/deployment-guide", label: "Hosting Guide", icon: Globe },
         { href: "/admin/profile", label: "My Profile", icon: User },
