@@ -1,40 +1,26 @@
 
 require('dotenv').config();
-const { initializeApp, cert } = require('firebase-admin/app');
-const { getFirestore } = require('firebase-admin/firestore');
-const { Cursors } = require('google-gax');
+const mysql = require('mysql2/promise');
 const fs = require('fs');
 const path = require('path');
 
 // --- Configuration ---
-const WEBSITE_URL = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://my.fixbro.in'; // Reads from .env file
+const WEBSITE_URL = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://m.fixbro.in'; 
 const SITEMAP_PATH = path.join(__dirname, 'public', 'sitemap.xml');
+
+const dbConfig = {
+  host: process.env.MYSQL_HOST || 'localhost',
+  user: process.env.MYSQL_USER || 'root',
+  password: process.env.MYSQL_PASSWORD || '',
+  database: process.env.MYSQL_DATABASE || 'cineelite',
+};
+
 // --- End Configuration ---
 
-// Initialize Firebase Admin SDK
-try {
-    const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-    if (!serviceAccountKey) {
-        throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY is not set in the environment variables.');
-    }
-    const serviceAccount = JSON.parse(serviceAccountKey);
-
-    initializeApp({
-        credential: cert(serviceAccount)
-    });
-
-    console.log('Firebase Admin SDK initialized successfully.');
-} catch (error) {
-    console.error('Error initializing Firebase Admin SDK:', error.message);
-    process.exit(1);
-}
-
-const db = getFirestore();
-
-// Function to generate the sitemap
 async function generateSitemap() {
     console.log('Starting sitemap generation...');
 
+    let connection;
     try {
         // 1. Define static pages
         const staticPages = [
@@ -46,11 +32,21 @@ async function generateSitemap() {
             '/contact',
         ];
 
-        // 2. Fetch dynamic pages from Firestore
-        const legalPagesSnapshot = await db.collection('legal_pages').get();
-        const dynamicPages = legalPagesSnapshot.docs.map(doc => `/${doc.id}`);
-        
-        console.log(`Found ${staticPages.length} static pages and ${dynamicPages.length} dynamic pages.`);
+        let dynamicPages = [];
+
+        try {
+            connection = await mysql.createConnection(dbConfig);
+            console.log('Successfully connected to MySQL for sitemap generation.');
+
+            // 2. Fetch dynamic pages from MySQL
+            const [rows] = await connection.execute('SELECT slug FROM legal_pages');
+            dynamicPages = rows.map(row => `/${row.slug}`);
+            
+            console.log(`Found ${staticPages.length} static pages and ${dynamicPages.length} dynamic pages.`);
+        } catch (dbError) {
+            console.error('Error connecting to MySQL or fetching legal pages:', dbError.message);
+            console.warn('Proceeding with static pages only.');
+        }
 
         // 3. Combine and deduplicate pages
         const allPages = [...new Set([...staticPages, ...dynamicPages])];
@@ -75,7 +71,12 @@ async function generateSitemap() {
 
     } catch (error) {
         console.error('An error occurred during sitemap generation:', error);
-        process.exit(1);
+        // We don't necessarily want to fail the whole build if sitemap fails, 
+        // but since it's part of the build script, we'll keep it as is or log it.
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
     }
 }
 

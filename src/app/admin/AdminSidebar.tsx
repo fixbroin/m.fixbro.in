@@ -5,12 +5,11 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { 
   Home, Settings, Mail, ShoppingBag, 
-  Globe, User, Megaphone, MessageSquare, 
+  Globe, User, MessageSquare, 
   Database, Activity, Users, Bell, 
-  ChevronRight, ExternalLink
+  ChevronRight, ExternalLink, BookOpen
 } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
 
 const adminNavLinks = [
     { group: "Overview", links: [

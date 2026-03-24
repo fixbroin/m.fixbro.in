@@ -5,7 +5,6 @@
   "scripts": {
     "init-db": "npx tsx src/lib/init-db.ts",
     "predev": "npm run init-db",
-    
     "dev": "npx next dev --turbopack --port 3004 --hostname 0.0.0.0",
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
     "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
@@ -48,8 +47,6 @@
     "dotenv": "^16.5.0",
     "embla-carousel-autoplay": "^8.1.5",
     "embla-carousel-react": "^8.6.0",
-    "firebase": "^10.12.2",
-    "firebase-admin": "^12.2.0",
     "framer-motion": "^11.2.12",
     "genkit": "^1.14.1",
     "jose": "^6.2.2",

@@ -2,9 +2,7 @@
 'use client';
 
 import React, { ReactNode, useCallback, useEffect, useState } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
 import { v4 as uuidv4 } from 'uuid';
-import { auth } from '@/lib/firebase';
 import { AnalyticsContext } from './AnalyticsContext';
 
 const sendData = (url: string, data: any) => {
@@ -32,7 +30,6 @@ function getDeviceInfo(userAgent: string | null) {
 
 
 export default function AnalyticsProviderClient({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
   const [sessionId, setSessionId] = useState<string>('');
   
   useEffect(() => {
@@ -64,13 +61,6 @@ export default function AnalyticsProviderClient({ children }: { children: ReactN
     }
     
     trackVisitor();
-
-    // Listen for auth state changes
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-
-    return () => unsubscribe();
   }, []);
 
 
@@ -82,7 +72,7 @@ export default function AnalyticsProviderClient({ children }: { children: ReactN
       
       const eventData = {
         ...data,
-        userId: user?.uid || 'guest',
+        userId: 'guest',
         sessionId: sessionId,
         clientTimestamp: new Date().toISOString(),
       };
@@ -90,7 +80,7 @@ export default function AnalyticsProviderClient({ children }: { children: ReactN
       sendData('/api/track/event', { eventType, data: eventData });
 
     },
-    [user, sessionId]
+    [sessionId]
   );
 
   const pageview = useCallback(
@@ -126,7 +116,7 @@ export default function AnalyticsProviderClient({ children }: { children: ReactN
       trackEvent,
       pageview,
       sessionId,
-      userId: user?.uid || null,
+      userId: null,
   };
 
   return (

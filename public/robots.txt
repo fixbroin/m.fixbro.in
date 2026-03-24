@@ -2,4 +2,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://my.fixbro.in/sitemap.xml
+Sitemap: https://m.fixbro.in/sitemap.xml
