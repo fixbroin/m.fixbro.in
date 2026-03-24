@@ -139,7 +139,7 @@ export default function ImageUploadInput({
   const isValidImageUrl = (url: any): boolean => {
     if (!url || typeof url !== 'string') return false;
     // Local uploads start with /uploads/
-    if (url.startsWith('/uploads/') || url.startsWith('/') || url.startsWith('data:')) return true;
+    if (url.startsWith('/') || url.startsWith('data:')) return true;
     try {
       new URL(url);
       return true;
