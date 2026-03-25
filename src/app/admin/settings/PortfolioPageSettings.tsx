@@ -34,6 +34,8 @@ const portfolioItemSchema = z.object({
 });
 
 const formSchema = z.object({
+  h1_title: z.string().min(5, 'H1 Title must be at least 5 characters.'),
+  paragraph: z.string().min(10, 'Paragraph must be at least 10 characters.'),
   title: z.string().min(1, 'Title is required.'),
   subtitle: z.string().min(1, 'Subtitle is required.'),
   items: z.array(portfolioItemSchema),
@@ -46,6 +48,8 @@ export default function PortfolioPageSettings() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      h1_title: '',
+      paragraph: '',
       title: '',
       subtitle: '',
       items: [],
@@ -76,6 +80,8 @@ export default function PortfolioPageSettings() {
         })));
       }
       if (contentData) {
+        form.setValue('h1_title', contentData.h1_title || '');
+        form.setValue('paragraph', contentData.paragraph || '');
         form.setValue('title', contentData.title || '');
         form.setValue('subtitle', contentData.subtitle || '');
       }
@@ -85,8 +91,8 @@ export default function PortfolioPageSettings() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(async () => {
         try {
-            const { title, subtitle, items } = values;
-            await updatePortfolioPageContent({ title, subtitle });
+            const { h1_title, paragraph, title, subtitle, items } = values;
+            await updatePortfolioPageContent({ h1_title, paragraph, title, subtitle });
             await updatePortfolioItems(items as PortfolioItem[]);
             
             toast({
@@ -110,6 +116,8 @@ export default function PortfolioPageSettings() {
                 })));
             }
              if (contentData) {
+              form.setValue('h1_title', contentData.h1_title || '');
+              form.setValue('paragraph', contentData.paragraph || '');
               form.setValue('title', contentData.title || '');
               form.setValue('subtitle', contentData.subtitle || '');
             }
@@ -133,6 +141,38 @@ export default function PortfolioPageSettings() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             
+            {/* Header Content Section */}
+            <div className="space-y-4 rounded-lg border p-4">
+                <h3 className="text-lg font-semibold">Header Content</h3>
+                <Separator />
+                <FormField
+                    control={form.control}
+                    name="h1_title"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>H1 Title</FormLabel>
+                        <FormControl>
+                            <Input placeholder="Main heading for the page" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="paragraph"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Intro Paragraph</FormLabel>
+                        <FormControl>
+                            <Textarea placeholder="Introductory paragraph for the page" {...field} className="min-h-[100px]" />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </div>
+
             <div className="space-y-4 rounded-lg border p-4">
                 <h3 className="text-lg font-semibold">Homepage Section Content</h3>
                 <Separator />

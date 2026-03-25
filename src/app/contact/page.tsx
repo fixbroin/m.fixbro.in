@@ -1,14 +1,36 @@
 
+import { Metadata } from 'next';
 import { Phone, Mail, MapPin, Sparkles, Send } from 'lucide-react';
 import ContactForm from './ContactForm';
 import { getContactDetails } from '@/app/admin/settings/actions/contact-actions';
 import { getSeoData } from '../admin/seo-geo-settings/actions';
+import { getSectionSettings } from '../admin/settings/actions/section-actions';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import { cn } from '@/lib/utils';
+import { WEBSITE_URL } from '@/lib/config';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seoData = await getSeoData('contact');
+  const canonicalUrl = `${WEBSITE_URL}/contact`;
+  return {
+    title: seoData.meta_title,
+    description: seoData.meta_description,
+    keywords: seoData.meta_keywords,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: seoData.meta_title,
+      description: seoData.meta_description,
+      url: canonicalUrl,
+    },
+  };
+}
 
 export default async function ContactPage() {
   const contactInfo = await getContactDetails();
   const seoData = await getSeoData('contact');
+  const sectionSettings = await getSectionSettings();
 
   const contactDetails = [
     {
@@ -45,7 +67,7 @@ export default async function ContactPage() {
             <ScrollAnimation variant="fadeInUp">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-6">
                     <Send className="h-3 w-3" />
-                    <span>Global Communication</span>
+                    <span>{sectionSettings.contact_badge || 'Global Communication'}</span>
                 </div>
                 <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black tracking-tight text-slate-900 dark:text-white mb-6 leading-tight">
                     {seoData.h1_title}
@@ -66,12 +88,12 @@ export default async function ContactPage() {
                     <ScrollAnimation variant="slideInLeft" className="space-y-8">
                         <div className="space-y-4">
                             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tighttext-slate-900 dark:text-white tracking-tight leading-tight">
-                                Start Your Home Interior Project.
+                                {sectionSettings.contact_title || 'Start Your Home Interior Project.'}
                             </h2>
                             <div className="w-20 h-1.5 bg-primary rounded-full" />
                         </div>
                         <p className="text-lg font-medium text-slate-600 dark:text-white leading-relaxed">
-                            Looking to upgrade your home? Get expert interior solutions including modular kitchen, wardrobes, furniture, and complete home interiors. Contact us for a free site visit and quotation.
+                            {sectionSettings.contact_description || 'Looking to upgrade your home? Get expert interior solutions including modular kitchen, wardrobes, furniture, and complete home interiors. Contact us for a free site visit and quotation.'}
                         </p>
                     </ScrollAnimation>
 

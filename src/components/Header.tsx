@@ -82,8 +82,8 @@ function HeaderContent({ settings }: { settings?: GeneralSettings | null }) {
           <ThemeSwitcher />
           
           <Button asChild className="hidden md:flex h-11 px-6 rounded-full font-black text-xs uppercase tracking-widest group shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95">
-            <LoadingLink href="/contact">
-                Get Quote
+            <LoadingLink href={settings?.header_cta_link || "/contact"}>
+                {settings?.header_cta_text || "Get Quote"}
                 <ArrowRight className="ml-2 h-3 w-3 transition-transform group-hover:translate-x-1" />
             </LoadingLink>
           </Button>
@@ -105,39 +105,41 @@ function HeaderContent({ settings }: { settings?: GeneralSettings | null }) {
                 <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
               </SheetHeader>
               
-              <div className="flex flex-col h-[calc(100vh-80px)] overflow-y-auto">
-                <nav className="flex flex-col space-y-2 p-6">
-                  {navLinks.map((link, index) => (
-                    <LoadingLink
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setIsOpen(false)}
-                        className={cn(
-                            "group flex items-center justify-between p-4 rounded-2xl transition-all duration-300 active:bg-primary/5",
-                            pathname === link.href ? "bg-primary/10 text-primary" : "text-slate-900 dark:text-white"
-                        )}
-                        style={{ animationDelay: `${index * 50}ms` }}
-                    >
-                        <span className="text-2xl font-black uppercase tracking-tight">{link.label}</span>
-                        <ArrowRight className={cn(
-                            "h-6 w-6 transition-all duration-300",
-                            pathname === link.href ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0"
-                        )} />
-                    </LoadingLink>
-                  ))}
-                </nav>
-                
-                <div className="mt-auto p-8 space-y-6">
-                    <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-200 dark:via-white/10 to-transparent" />
+              <div className="flex flex-col h-[calc(100vh-100px)]">
+                <div className="flex-grow overflow-y-auto custom-scrollbar pb-20">
+                    <nav className="flex flex-col space-y-1 p-4">
+                    {navLinks.map((link, index) => (
+                        <LoadingLink
+                            key={link.href}
+                            href={link.href}
+                            onClick={() => setIsOpen(false)}
+                            className={cn(
+                                "group flex items-center justify-between p-3 rounded-xl transition-all duration-300 active:bg-primary/5 animate-mobile-menu-item",
+                                pathname === link.href ? "bg-primary/10 text-primary" : "text-slate-900 dark:text-white"
+                            )}
+                            style={{ animationDelay: `${index * 40}ms` }}
+                        >
+                            <span className="text-xl font-bold uppercase tracking-tight">{link.label}</span>
+                            <ArrowRight className={cn(
+                                "h-5 w-5 transition-all duration-300",
+                                pathname === link.href ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0"
+                            )} />
+                        </LoadingLink>
+                    ))}
+                    </nav>
                     
-                    <div className="space-y-4">
-                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-white/40 px-2 text-center">Ready to grow your brand?</p>
-                        <Button asChild size="lg" className="w-full h-16 rounded-2xl font-black text-lg shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all" onClick={() => setIsOpen(false)}>
-                            <LoadingLink href="/contact">
-                                Start Your Project
-                                <ArrowRight className="ml-2 h-5 w-5" />
-                            </LoadingLink>
-                        </Button>
+                    <div className="p-6 space-y-4">
+                        <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-200 dark:via-white/10 to-transparent" />
+                        
+                        <div className="space-y-3">
+                            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-white/40 px-2 text-center text-balance">Start Your Interior Project</p>
+                            <Button asChild size="lg" className="w-full h-14 rounded-xl font-black text-base shadow-xl shadow-primary/20 hover:scale-[1.01] active:scale-[0.98] transition-all" onClick={() => setIsOpen(false)}>
+                                <LoadingLink href={settings?.header_cta_link || "/contact"}>
+                                    {settings?.header_cta_text || "Start Your Project"}
+                                    <ArrowRight className="ml-2 h-4 w-4" />
+                                </LoadingLink>
+                            </Button>
+                        </div>
                     </div>
                 </div>
               </div>

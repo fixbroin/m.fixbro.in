@@ -23,36 +23,20 @@ import { cn } from '@/lib/utils';
 // export const revalidate = 86400;
 
 import JSONLD from '@/components/JSONLD';
+import { getContactDetails } from './admin/settings/actions/contact-actions';
+import { getLegalPages } from './admin/settings/actions/legal-actions';
+import { WEBSITE_URL } from '@/lib/config';
 
 // Use generateMetadata for dynamic metadata
 export async function generateMetadata(): Promise<Metadata> {
-  let pathname = '/';
-  let host = 'm.fixbro.in';
-  let protocol = 'https';
+  const fullBaseUrl = WEBSITE_URL;
   
-  try {
-    const headersList = await headers();
-    pathname = headersList.get('x-pathname') || '/';
-    host = headersList.get('host') || 'm.fixbro.in';
-    protocol = headersList.get('x-forwarded-proto') || 'https';
-  } catch (e) {
-    console.error('Error fetching headers in metadata:', e);
-  }
-  
-  const fullBaseUrl = `${protocol}://${host}`;
-  
-  // Extract slug from pathname (e.g., /services -> services, / -> home)
-  let pageSlug = pathname.split('/').filter(Boolean)[0] || 'home';
-  if (pathname.startsWith('/admin')) pageSlug = 'home'; // Admin pages use home SEO by default
-
   const settings = await getGeneralSettings();
-  const seoData = await getSeoData(pageSlug);
+  const seoData = await getSeoData('home');
   
   const appName = settings?.website_name || 'FixBro Interiors';
   const ogImage = seoData?.og_image || settings?.logo || `${fullBaseUrl}/android-chrome-192x192.png`;
-  const canonical = seoData?.canonical_url || `${fullBaseUrl}${pathname === '/' ? '' : pathname}`;
-
-  const isAdmin = pathname.startsWith('/admin');
+  const canonical = fullBaseUrl;
 
   return {
     metadataBase: new URL(fullBaseUrl),
@@ -67,11 +51,11 @@ export async function generateMetadata(): Promise<Metadata> {
       canonical: canonical,
     },
     robots: {
-      index: !isAdmin,
-      follow: !isAdmin,
+      index: true,
+      follow: true,
       googleBot: {
-        index: !isAdmin,
-        follow: !isAdmin,
+        index: true,
+        follow: true,
         'max-video-preview': -1,
         'max-image-preview': 'large',
         'max-snippet': -1,
@@ -137,28 +121,19 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let pathname = '';
-  try {
-    const headersList = await headers();
-    pathname = headersList.get('x-pathname') || '';
-  } catch (e) {
-    console.error('Error fetching headers in RootLayout:', e);
-  }
-  const isAdminPage = pathname.startsWith('/admin');
-
   const settings = await getGeneralSettings();
   const themeSettings = await getThemeSettings();
   const vantaSettings = await getVantaSettings();
+  const contactInfo = await getContactDetails();
+  const legalPages = await getLegalPages();
   
   console.log('🎨 Theme Settings Fetched:', themeSettings ? 'Yes' : 'No');
   
-  // Extract slug from pathname (e.g., /services -> services, / -> home)
-  let pageSlug = pathname.split('/').filter(Boolean)[0] || 'home';
-  if (pathname.startsWith('/admin')) pageSlug = 'home';
+  const pageSlug = 'home'; // Default to home for global LD JSON
   const seoData = await getSeoData(pageSlug);
 
-  // Only fetch marketing settings for non-admin pages
-  const marketingSettings = isAdminPage ? null : await getMarketingSettings();
+  // Fetch marketing settings. We will handle excluding them from admin via CSS or a simpler check if necessary.
+  const marketingSettings = await getMarketingSettings();
 
   // themeSettings IS already the themeColors object (light/dark palettes)
   const themeColors = themeSettings || {
@@ -207,7 +182,7 @@ export default async function RootLayout({
         )}
         <style dangerouslySetInnerHTML={{ __html: cssVariables }} />
 
-        <JSONLD seoData={seoData} settings={settings} pathname={pathname} />
+        <JSONLD seoData={seoData} settings={settings} contactInfo={contactInfo} pathname="/" />
 
         {/* Marketing Scripts Injection */}
         {marketingSettings?.googleTagManagerId?.enabled && marketingSettings.googleTagManagerId.value && (
@@ -289,8 +264,8 @@ export default async function RootLayout({
               <GlobalLoader />
               <Header settings={settings} />
               <main>{children}</main>
-              <Footer settings={settings} />
-              <FloatingActionButtons />
+              <Footer settings={settings} legalPages={legalPages} />
+              <FloatingActionButtons contactDetails={contactInfo} />
               <Toaster />
             </ThemeProvider>
           </AnalyticsProvider>

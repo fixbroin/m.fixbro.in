@@ -25,8 +25,13 @@ export default async function PrivacyPolicyPage() {
     <div className="container py-12 md:py-20">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl text-center">
-          {page.title}
+          {page.h1_title || page.title}
         </h1>
+        {page.paragraph && (
+          <p className="text-xl text-muted-foreground text-center mt-6">
+            {page.paragraph}
+          </p>
+        )}
         <div 
           className="prose prose-lg dark:prose-invert mt-12 mx-auto"
           dangerouslySetInnerHTML={{ __html: page.content.replace(/\n/g, '<br />') }}

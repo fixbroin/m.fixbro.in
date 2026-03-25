@@ -4,6 +4,7 @@ import db from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 import { revalidatePath, unstable_cache, revalidateTag } from 'next/cache';
 import { cache } from 'react';
+import { getSeoData, updateSeoData } from '../../seo-geo-settings/actions';
 
 export interface PortfolioItem {
     id?: string;
@@ -17,6 +18,8 @@ export interface PortfolioItem {
 }
 
 export interface PortfolioPageContent {
+    h1_title: string;
+    paragraph: string;
     title: string;
     subtitle: string;
 }
@@ -25,38 +28,57 @@ export const getPortfolioPageContent = cache(async (): Promise<PortfolioPageCont
     return await unstable_cache(
         async () => {
             try {
+                const seoData = await getSeoData('portfolio');
                 const settingsResult = await db.query('SELECT setting_value FROM settings WHERE setting_key = ?', ['portfolio_page']);
+                
+                let data: any = {};
                 if (settingsResult.length > 0) {
-                    return typeof settingsResult[0].setting_value === 'string'
+                    data = typeof settingsResult[0].setting_value === 'string'
                         ? JSON.parse(settingsResult[0].setting_value)
                         : settingsResult[0].setting_value;
-                } else {
-                    const defaultData: PortfolioPageContent = {
-                        title: 'Our Recent Work',
-                        subtitle: 'Check out some of the stunning websites we\'ve delivered to our clients.',
-                    };
-                    await db.query('INSERT INTO settings (setting_key, setting_value) VALUES (?, ?)', ['portfolio_page', JSON.stringify(defaultData)]);
-                    return defaultData;
                 }
+
+                return {
+                    h1_title: seoData.h1_title || '',
+                    paragraph: seoData.paragraph || '',
+                    title: data.title || 'Our Recent Work',
+                    subtitle: data.subtitle || 'Check out some of the stunning websites we\'ve delivered to our clients.',
+                };
             } catch (error) {
                 console.error("Failed to fetch portfolio page content:", error);
+                const seoData = await getSeoData('portfolio');
                 return {
+                    h1_title: seoData.h1_title || '',
+                    paragraph: seoData.paragraph || '',
                     title: 'Our Recent Work',
                     subtitle: 'Check out some of the stunning websites we\'ve delivered to our clients.',
                 };
             }
         },
         ['portfolio-page-content'],
-        { tags: ['settings', 'portfolio-page-content'], revalidate: 86400 }
+        { tags: ['settings', 'portfolio-page-content', 'seo-data-portfolio'], revalidate: 86400 }
     )();
 });
 
 export async function updatePortfolioPageContent(content: PortfolioPageContent): Promise<void> {
     try {
+        // Update SEO data (H1 and Paragraph)
+        const currentSeo = await getSeoData('portfolio');
+        await updateSeoData('portfolio', {
+            ...currentSeo,
+            h1_title: content.h1_title,
+            paragraph: content.paragraph,
+        });
+
+        const { h1_title, paragraph, ...settingsToSave } = content;
+
         await db.query('INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?',
-            ['portfolio_page', JSON.stringify(content), JSON.stringify(content)]);
+            ['portfolio_page', JSON.stringify(settingsToSave), JSON.stringify(settingsToSave)]);
+            
         revalidateTag('portfolio-page-content');
+        revalidateTag('seo-data-portfolio');
         revalidatePath('/'); // For home page portfolio section
+        revalidatePath('/portfolio');
     } catch (error) {
         console.error('Failed to update portfolio page content:', error);
         throw error;

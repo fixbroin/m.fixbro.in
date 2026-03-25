@@ -7,6 +7,8 @@ import { usePathname } from 'next/navigation';
 import type { GeneralSettings } from '@/app/admin/settings/actions/general-actions';
 import VantaBackground from './VantaBackground';
 import { getVantaSettings } from '@/app/admin/settings/actions/vanta-actions';
+import { getSectionSettings, SectionSettings } from '@/app/admin/settings/actions/section-actions';
+import { getLegalPages, LegalPage } from '@/app/admin/settings/actions/legal-actions';
 import { useEffect, useState } from 'react';
 import { VantaSettings } from '@/types/firestore';
 import ScrollAnimation from './ScrollAnimation';
@@ -24,25 +26,33 @@ const navLinks = [
 ];
 
 const legalLinks = [
-    { href: '/terms', label: 'Terms' },
-    { href: '/privacy-policy', label: 'Privacy' },
-    { href: '/cancellation-policy', label: 'Cancellation' },
-    { href: '/refund-policy', label: 'Refund' },
+    { href: '/terms', label: 'Terms and Conditions' },
+    { href: '/privacy-policy', label: 'Privacy Policy' },
+    { href: '/cancellation-policy', label: 'Cancellation Policy' },
+    { href: '/refund-policy', label: 'Refund Policy' },
 ];
 
-export default function Footer({ settings }: { settings: GeneralSettings | null }) {
+export default function Footer({ settings, legalPages: initialLegalPages }: { settings: GeneralSettings | null; legalPages: LegalPage[] }) {
   const pathname = usePathname();
   const { toast } = useToast();
+  const [mounted, setMounted] = useState(false);
   const [vantaSettings, setVantaSettings] = useState<VantaSettings | null>(null);
+  const [sectionSettings, setSectionSettings] = useState<SectionSettings | null>(null);
+  const [legalPages, setLegalPages] = useState<LegalPage[]>(initialLegalPages || []);
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    async function fetchVantaSettings() {
-        const settings = await getVantaSettings();
-        setVantaSettings(settings);
+    setMounted(true);
+    async function fetchData() {
+        const [vantaData, sectionData] = await Promise.all([
+            getVantaSettings(),
+            getSectionSettings(),
+        ]);
+        setVantaSettings(vantaData);
+        setSectionSettings(sectionData);
     }
-    fetchVantaSettings();
+    fetchData();
   }, [])
 
   const handleSubscribe = async (e: React.FormEvent) => {
@@ -99,12 +109,12 @@ export default function Footer({ settings }: { settings: GeneralSettings | null 
             <div className="bg-primary rounded-[3rem] p-8 md:p-16 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl shadow-primary/30 overflow-hidden relative group">
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                 <div className="text-center md:text-left relative z-10">
-                    <h2 className="text-3xl md:text-5xl font-black tracking-tight text-white mb-4">Transform Your <br className="hidden md:block" /> Home Interiors Today.</h2>
-                    <p className="text-white font-medium text-lg max-w-md">Book a consultation and get expert guidance for your modular kitchen, wardrobes, and complete home interiors.</p>
+                    <h2 className="text-3xl md:text-5xl font-black tracking-tight text-white mb-4">{sectionSettings?.footer_cta_title || 'Transform Your Home Interiors Today.'}</h2>
+                    <p className="text-white font-medium text-lg max-w-md">{sectionSettings?.footer_cta_description || 'Book a consultation and get expert guidance for your modular kitchen, wardrobes, and complete home interiors.'}</p>
                 </div>
                 <Button asChild size="lg" className="bg-white text-primary hover:bg-slate-50 h-16 px-10 rounded-full font-black text-lg group shadow-xl relative z-10">
                     <LoadingLink href="/contact">
-                        Book Site Visit
+                        {sectionSettings?.footer_cta_button || 'Book Site Visit'}
                         <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                     </LoadingLink>
                 </Button>
@@ -164,16 +174,23 @@ export default function Footer({ settings }: { settings: GeneralSettings | null 
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
           <p className="text-sm font-medium text-white">
-            &copy; {new Date().getFullYear()} {settings?.website_name || 'FixBro Interiors'}. Engineered with precision.
+            &copy; {new Date().getFullYear()} {settings?.website_name || 'FixBro Interiors'}. {mounted && sectionSettings?.footer_copyright_text ? sectionSettings.footer_copyright_text : 'Engineered with precision.'}
           </p>
            <ul className="flex flex-wrap justify-center gap-x-8 gap-y-4">
-              {legalLinks.map((link) => (
-                <li key={link.href}>
-                  <LoadingLink href={link.href} className="text-sm font-bold uppercase tracking-widest text-white hover:text-primary transition-colors">
-                    {link.label}
-                  </LoadingLink>
-                </li>
-              ))}
+              {legalLinks.map((link) => {
+                // Find the dynamic title if it exists, otherwise use default label
+                // We use legalPages directly (which is now initialized from server props)
+                const dynamicPage = legalPages.find(p => `/${p.slug}` === link.href);
+                const displayLabel = dynamicPage ? dynamicPage.title : link.label;
+                
+                return (
+                  <li key={link.href}>
+                    <LoadingLink href={link.href} className="text-sm font-bold uppercase tracking-widest text-white hover:text-primary transition-colors">
+                      {displayLabel}
+                    </LoadingLink>
+                  </li>
+                );
+              })}
             </ul>
         </div>
       </div>

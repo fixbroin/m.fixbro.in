@@ -1,10 +1,30 @@
 
+import { Metadata } from 'next';
 import Image from 'next/image';
 import { getAboutPageContent } from '@/app/admin/settings/actions/about-actions';
 import { getSeoData } from '../admin/seo-geo-settings/actions';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import { Check, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { WEBSITE_URL } from '@/lib/config';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seoData = await getSeoData('about');
+  const canonicalUrl = `${WEBSITE_URL}/about`;
+  return {
+    title: seoData.meta_title,
+    description: seoData.meta_description,
+    keywords: seoData.meta_keywords,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: seoData.meta_title,
+      description: seoData.meta_description,
+      url: canonicalUrl,
+    },
+  };
+}
 
 export default async function AboutPage() {
   const content = await getAboutPageContent();

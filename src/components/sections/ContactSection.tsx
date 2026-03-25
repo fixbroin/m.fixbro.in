@@ -6,11 +6,13 @@ import { getContactDetails } from '@/app/admin/settings/actions/contact-actions'
 import ScrollAnimation from '../ScrollAnimation';
 import { cn } from '@/lib/utils';
 import { Mail, MessageSquare, Phone, Send } from 'lucide-react';
+import { getSectionSettings } from '@/app/admin/settings/actions/section-actions';
 
 export default async function ContactSection() {
-  const [vantaSettings, contactInfo] = await Promise.all([
+  const [vantaSettings, contactInfo, sectionSettings] = await Promise.all([
     getVantaSettings(),
-    getContactDetails()
+    getContactDetails(),
+    getSectionSettings()
   ]);
 
   const sectionVantaConfig = vantaSettings?.sections?.contact;
@@ -33,17 +35,17 @@ export default async function ContactSection() {
             <ScrollAnimation variant="fadeInUp">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-4">
                     <Send className="h-3 w-3" />
-                    <span>Get in Touch</span>
+                    <span>{sectionSettings.contact_badge || 'Get in Touch'}</span>
                 </div>
                 <h2 className={cn(
                     "text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tighttracking-tight mb-6",
                     useVanta ? "text-white" : "text-slate-900 dark:text-white"
-                )}>Start Your Home Interior Project</h2>
+                )}>{sectionSettings.contact_title || 'Start Your Home Interior Project'}</h2>
                 <p className={cn(
                     "text-lg font-medium leading-relaxed",
                     useVanta ? "text-white" : "text-slate-600 dark:text-white"
                 )}>
-                    Looking to upgrade your home? Get expert interior solutions including modular kitchen, wardrobes, furniture, and complete home interiors. Contact us for a free site visit and quotation.
+                    {sectionSettings.contact_description || 'Looking to upgrade your home? Get expert interior solutions including modular kitchen, wardrobes, furniture, and complete home interiors. Contact us for a free site visit and quotation.'}
                 </p>
             </ScrollAnimation>
 

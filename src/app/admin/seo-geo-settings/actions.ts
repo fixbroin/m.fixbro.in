@@ -92,8 +92,8 @@ export const getSeoData = cache(async (pageSlug: string): Promise<PageSeoContent
                 if (rows && rows.length > 0) {
                     const row = rows[0];
                     return {
-                        h1_title: row.h1_title || defaultSeoSettings.h1_title,
-                        paragraph: row.paragraph || defaultSeoSettings.paragraph,
+                        h1_title: row.h1_title ?? defaultSeoSettings.h1_title,
+                        paragraph: row.paragraph ?? defaultSeoSettings.paragraph,
                         meta_title: row.title || defaultSeoSettings.meta_title,
                         meta_description: row.description || defaultSeoSettings.meta_description,
                         meta_keywords: row.keywords || defaultSeoSettings.meta_keywords,

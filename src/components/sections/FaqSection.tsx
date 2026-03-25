@@ -11,10 +11,12 @@ import { getVantaSettings } from '@/app/admin/settings/actions/vanta-actions';
 import ScrollAnimation from '../ScrollAnimation';
 import { cn } from '@/lib/utils';
 import { HelpCircle } from 'lucide-react';
+import { getSectionSettings } from '@/app/admin/settings/actions/section-actions';
 
 export default async function FaqSection() {
   const faqs = await getFaqs();
   const vantaSettings = await getVantaSettings();
+  const sectionSettings = await getSectionSettings();
   const sectionVantaConfig = vantaSettings?.sections?.faq;
   const useVanta = vantaSettings.globalEnable && sectionVantaConfig?.enabled;
 
@@ -26,18 +28,18 @@ export default async function FaqSection() {
         <ScrollAnimation variant="fadeInUp" className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-4">
             <HelpCircle className="h-3 w-3" />
-            <span>Support Center</span>
+            <span>{sectionSettings.faq_badge || 'Support Center'}</span>
           </div>
           <h2 className={cn(
             "text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tighttracking-tight mb-4",
             useVanta ? "text-white" : "text-slate-900 dark:text-white"
-          )}>Frequently Asked Questions</h2>
+          )}>{sectionSettings.faq_title || 'Frequently Asked Questions'}</h2>
           <div className="w-20 h-1.5 bg-primary mx-auto rounded-full mb-6" />
           <p className={cn(
             "mx-auto max-w-2xl text-lg font-medium",
             useVanta ? "text-white" : "text-slate-600 dark:text-white"
           )}>
-            Get answers to common questions about our interior services, pricing, and project process.
+            {sectionSettings.faq_subtitle || 'Get answers to common questions about our interior services, pricing, and project process.'}
           </p>
         </ScrollAnimation>
 

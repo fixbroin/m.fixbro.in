@@ -1,8 +1,28 @@
 
+import { Metadata } from 'next';
 import PricingSection from '@/components/sections/PricingSection';
 import { getSeoData } from '../admin/seo-geo-settings/actions';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import { Sparkles } from 'lucide-react';
+import { WEBSITE_URL } from '@/lib/config';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seoData = await getSeoData('pricing');
+  const canonicalUrl = `${WEBSITE_URL}/pricing`;
+  return {
+    title: seoData.meta_title,
+    description: seoData.meta_description,
+    keywords: seoData.meta_keywords,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: seoData.meta_title,
+      description: seoData.meta_description,
+      url: canonicalUrl,
+    },
+  };
+}
 
 export default async function PricingPage() {
   const seoData = await getSeoData('pricing');

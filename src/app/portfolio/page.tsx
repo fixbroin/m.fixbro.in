@@ -1,10 +1,30 @@
 
+import { Metadata } from 'next';
 import { getPortfolioItems } from '../admin/settings/actions/portfolio-actions';
 import { getSeoData } from '../admin/seo-geo-settings/actions';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import PortfolioMedia from '@/components/PortfolioMedia';
 import { Sparkles, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { WEBSITE_URL } from '@/lib/config';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seoData = await getSeoData('portfolio');
+  const canonicalUrl = `${WEBSITE_URL}/portfolio`;
+  return {
+    title: seoData.meta_title,
+    description: seoData.meta_description,
+    keywords: seoData.meta_keywords,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: seoData.meta_title,
+      description: seoData.meta_description,
+      url: canonicalUrl,
+    },
+  };
+}
 
 export default async function PortfolioPage() {
   const portfolioItems = await getPortfolioItems();

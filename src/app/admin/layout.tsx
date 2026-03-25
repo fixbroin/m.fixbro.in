@@ -3,6 +3,8 @@ import { Metadata } from 'next';
 import { APP_NAME } from '@/lib/config';
 import AuthGuard from './AuthGuard';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: `Admin | ${APP_NAME}`,
   robots: {

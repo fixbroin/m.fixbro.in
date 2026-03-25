@@ -1,4 +1,5 @@
 
+import { Metadata } from 'next';
 import { getServices } from '@/app/admin/settings/actions/services-actions';
 import { getSeoData } from '../admin/seo-geo-settings/actions';
 import ScrollAnimation from '@/components/ScrollAnimation';
@@ -7,6 +8,25 @@ import PortfolioMedia from '@/components/PortfolioMedia';
 import { Button } from '@/components/ui/button';
 import { Check, Sparkles, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { WEBSITE_URL } from '@/lib/config';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seoData = await getSeoData('services');
+  const canonicalUrl = `${WEBSITE_URL}/services`;
+  return {
+    title: seoData.meta_title,
+    description: seoData.meta_description,
+    keywords: seoData.meta_keywords,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: seoData.meta_title,
+      description: seoData.meta_description,
+      url: canonicalUrl,
+    },
+  };
+}
 
 export default async function ServicesPage() {
   const services = await getServices();

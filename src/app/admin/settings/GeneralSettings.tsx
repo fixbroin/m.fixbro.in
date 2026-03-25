@@ -20,10 +20,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { getGeneralSettings, updateGeneralSettings } from './actions/general-actions';
 import ImageUploadInput from './ImageUploadInput';
-import { Facebook, Instagram, Linkedin, Twitter, Youtube, Globe, Share2, Sparkles, Save } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, Twitter, Youtube, Globe, Share2, Sparkles, Save, MousePointerClick } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { motion } from 'framer-motion';
+import { Separator } from '@/components/ui/separator';
 
 const loaderTypes = [
   "pulse", "typing", "bars", "gradient", "orbit", "dots", "progress", 
@@ -41,6 +42,8 @@ const formSchema = z.object({
   linkedin_url: z.string().url().optional().or(z.literal('')),
   youtube_url: z.string().url().optional().or(z.literal('')),
   loaderType: z.string(),
+  header_cta_text: z.string().min(1, 'CTA Text is required'),
+  header_cta_link: z.string().min(1, 'CTA Link is required'),
 });
 
 export default function GeneralSettings() {
@@ -60,6 +63,8 @@ export default function GeneralSettings() {
       linkedin_url: '',
       youtube_url: '',
       loaderType: 'pulse',
+      header_cta_text: 'Get Quote',
+      header_cta_link: '/contact',
     },
   });
 
@@ -78,6 +83,8 @@ export default function GeneralSettings() {
           linkedin_url: data.linkedin_url || '',
           youtube_url: data.youtube_url || '',
           loaderType: data.loaderType || 'pulse',
+          header_cta_text: data.header_cta_text || 'Get Quote',
+          header_cta_link: data.header_cta_link || '/contact',
         });
       }
     });
@@ -183,6 +190,51 @@ export default function GeneralSettings() {
                                     </FormItem>
                                 )}
                             />
+                        </CardContent>
+                    </Card>
+
+                    <Card className="bg-card text-card-foreground border-border shadow-sm dark:shadow-2xl overflow-hidden">
+                        <CardHeader className="pb-4 bg-slate-50/50 dark:bg-white/[0.02] border-b border-border">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                                    <MousePointerClick className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <CardTitle className="text-xl text-foreground font-bold">Header Call to Action (CTA)</CardTitle>
+                                    <CardDescription className="text-muted-foreground">Configure the main button in your website header.</CardDescription>
+                                </div>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="space-y-6 pt-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <FormField
+                                    control={form.control}
+                                    name="header_cta_text"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel className="text-slate-700 dark:text-gray-300 font-semibold">Button Text</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="Get Quote" {...field} className="bg-slate-50 dark:bg-white/5 border-border text-foreground h-11 focus-visible:ring-primary/20 transition-all" />
+                                        </FormControl>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="header_cta_link"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel className="text-slate-700 dark:text-gray-300 font-semibold">Button Link (URL)</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="/contact" {...field} className="bg-slate-50 dark:bg-white/5 border-border text-foreground h-11 focus-visible:ring-primary/20 transition-all" />
+                                        </FormControl>
+                                        <FormDescription className="text-[11px]">Internal (e.g. /contact) or external (https://...)</FormDescription>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                         </CardContent>
                     </Card>
 

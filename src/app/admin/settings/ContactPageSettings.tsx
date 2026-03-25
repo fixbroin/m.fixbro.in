@@ -25,6 +25,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const formSchema = z.object({
+  h1_title: z.string().min(5, 'H1 Title must be at least 5 characters.'),
+  paragraph: z.string().min(10, 'Paragraph must be at least 10 characters.'),
   email: z.string().email(),
   phone: z.string().min(1),
   location: z.string().min(1),
@@ -32,7 +34,7 @@ const formSchema = z.object({
   whatsAppNumber: z.string().min(10).describe("Include country code, e.g., 91..."),
   whatsAppMessage: z.string().optional(),
   buttonPosition: z.enum(['bottom-right', 'bottom-left']),
-  animationStyle: z.enum(['none', 'shake', 'pulse', 'bounce', 'tada', 'jello', 'swing']),
+  animationStyle: z.enum(['none', 'shake', 'pulse-fab', 'bounce-fab', 'tada', 'jello', 'swing', 'wobble', 'heartbeat', 'rubberBand', 'flash', 'flip', 'float', 'glow', 'ring', 'shimmer', 'vibrate', 'pop', 'expand', 'shrink', 'spin-slow']),
 });
 
 export default function ContactPageSettings() {
@@ -42,6 +44,8 @@ export default function ContactPageSettings() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      h1_title: '',
+      paragraph: '',
       email: '',
       phone: '',
       location: '',
@@ -58,6 +62,8 @@ export default function ContactPageSettings() {
       const data = await getContactDetails();
       if (data) {
         form.reset({
+          h1_title: data.h1_title || '',
+          paragraph: data.paragraph || '',
           email: data.email || '',
           phone: data.phone || '',
           location: data.location || '',
@@ -65,7 +71,7 @@ export default function ContactPageSettings() {
           whatsAppNumber: data.whatsAppNumber || '',
           whatsAppMessage: data.whatsAppMessage || '',
           buttonPosition: data.buttonPosition || 'bottom-right',
-          animationStyle: data.animationStyle || 'shake',
+          animationStyle: (data.animationStyle as any) || 'shake',
         });
       }
     });
@@ -99,6 +105,38 @@ export default function ContactPageSettings() {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+
+            {/* Header Content Section */}
+            <div className="space-y-4 rounded-lg border p-4">
+                <h3 className="text-lg font-semibold">Header Content</h3>
+                <Separator />
+                <FormField
+                    control={form.control}
+                    name="h1_title"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>H1 Title</FormLabel>
+                        <FormControl>
+                            <Input placeholder="Main heading for the page" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="paragraph"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Intro Paragraph</FormLabel>
+                        <FormControl>
+                            <Textarea placeholder="Introductory paragraph for the page" {...field} className="min-h-[100px]" />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </div>
 
             <div className="space-y-4 rounded-lg border p-4">
                 <h3 className="text-lg font-semibold">Contact Information</h3>
@@ -221,7 +259,7 @@ export default function ContactPageSettings() {
                     render={({ field }) => (
                         <FormItem>
                         <FormLabel>Button Animation</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                             <SelectTrigger>
                                 <SelectValue placeholder="Select an animation" />
@@ -230,11 +268,25 @@ export default function ContactPageSettings() {
                             <SelectContent>
                                 <SelectItem value="none">None</SelectItem>
                                 <SelectItem value="shake">Shake</SelectItem>
-                                <SelectItem value="pulse">Pulse</SelectItem>
-                                <SelectItem value="bounce">Bounce</SelectItem>
+                                <SelectItem value="pulse-fab">Pulse</SelectItem>
+                                <SelectItem value="bounce-fab">Bounce</SelectItem>
                                 <SelectItem value="tada">Tada</SelectItem>
                                 <SelectItem value="jello">Jello</SelectItem>
                                 <SelectItem value="swing">Swing</SelectItem>
+                                <SelectItem value="wobble">Wobble</SelectItem>
+                                <SelectItem value="heartbeat">Heartbeat</SelectItem>
+                                <SelectItem value="rubberBand">Rubber Band</SelectItem>
+                                <SelectItem value="flash">Flash</SelectItem>
+                                <SelectItem value="flip">Flip</SelectItem>
+                                <SelectItem value="float">Float</SelectItem>
+                                <SelectItem value="glow">Glow</SelectItem>
+                                <SelectItem value="ring">Ring</SelectItem>
+                                <SelectItem value="shimmer">Shimmer</SelectItem>
+                                <SelectItem value="vibrate">Vibrate</SelectItem>
+                                <SelectItem value="pop">Pop</SelectItem>
+                                <SelectItem value="expand">Expand</SelectItem>
+                                <SelectItem value="shrink">Shrink</SelectItem>
+                                <SelectItem value="spin-slow">Slow Spin</SelectItem>
                             </SelectContent>
                         </Select>
                         <FormDescription>Choose an animation to attract attention.</FormDescription>

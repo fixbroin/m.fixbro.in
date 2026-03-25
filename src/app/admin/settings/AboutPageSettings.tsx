@@ -24,6 +24,8 @@ import { getAboutPageContent, updateAboutPageContent, AboutPageContent } from '.
 import ImageUploadInput from './ImageUploadInput';
 
 const formSchema = z.object({
+    h1_title: z.string().min(5, 'H1 Title must be at least 5 characters.'),
+    paragraph: z.string().min(10, 'Paragraph must be at least 10 characters.'),
     mission_title: z.string().min(5),
     mission_description: z.string().min(10),
     mission_image: z.string().optional(),
@@ -39,6 +41,8 @@ export default function AboutPageSettings() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      h1_title: '',
+      paragraph: '',
       mission_title: '',
       mission_description: '',
       mission_image: '',
@@ -58,6 +62,8 @@ export default function AboutPageSettings() {
         const data = await getAboutPageContent();
         if (data) {
             form.reset({
+                h1_title: data.h1_title || '',
+                paragraph: data.paragraph || '',
                 mission_title: data.mission_title || '',
                 mission_description: data.mission_description || '',
                 mission_image: data.mission_image || '',
@@ -98,6 +104,38 @@ export default function AboutPageSettings() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             
+            {/* Header Content Section */}
+            <div className="space-y-4 rounded-lg border p-4">
+                <h3 className="text-lg font-semibold">Header Content</h3>
+                <Separator />
+                <FormField
+                    control={form.control}
+                    name="h1_title"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>H1 Title</FormLabel>
+                        <FormControl>
+                            <Input placeholder="Main heading for the page" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="paragraph"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Intro Paragraph</FormLabel>
+                        <FormControl>
+                            <Textarea placeholder="Introductory paragraph for the page" {...field} className="min-h-[100px]" />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </div>
+
             <div className="space-y-4 rounded-lg border p-4">
                 <h3 className="text-lg font-semibold">Mission Section</h3>
                 <Separator />

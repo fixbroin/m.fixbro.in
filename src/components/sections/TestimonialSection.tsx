@@ -11,6 +11,7 @@ import type { VantaSettings } from '@/types/firestore';
 import ScrollAnimation from '../ScrollAnimation';
 import { cn } from '@/lib/utils';
 import Autoplay from "embla-carousel-autoplay";
+import { getSectionSettings, SectionSettings } from '@/app/admin/settings/actions/section-actions';
 import {
   Carousel,
   CarouselContent,
@@ -63,20 +64,25 @@ const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
 export default function TestimonialSection() {
     const [testimonials, setTestimonials] = React.useState<Testimonial[]>([]);
     const [vantaSettings, setVantaSettings] = React.useState<VantaSettings | null>(null);
+    const [sectionSettings, setSectionSettings] = React.useState<SectionSettings | null>(null);
+    const [mounted, setMounted] = React.useState(false);
 
     const plugin = React.useRef(
         Autoplay({ delay: 3000, stopOnInteraction: false, stopOnMouseEnter: false })
     );
 
     React.useEffect(() => {
+        setMounted(true);
         async function fetchData() {
             try {
-                const [testimonialsData, vantaData] = await Promise.all([
+                const [testimonialsData, vantaData, sectionData] = await Promise.all([
                     getTestimonials(),
-                    getVantaSettings()
+                    getVantaSettings(),
+                    getSectionSettings()
                 ]);
                 setTestimonials(testimonialsData);
                 setVantaSettings(vantaData);
+                setSectionSettings(sectionData);
             } catch (error) {
                 console.error("Failed to load testimonials:", error);
             }
@@ -98,13 +104,13 @@ export default function TestimonialSection() {
             <h2 className={cn(
                 "text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tighttracking-tight mb-4",
                 useVanta ? "text-white" : "text-slate-900 dark:text-white"
-            )}>Customer Reviews</h2>
+            )}>{mounted && sectionSettings?.review_title ? sectionSettings.review_title : 'Customer Reviews'}</h2>
             <div className="w-20 h-1.5 bg-primary mx-auto rounded-full mb-6" />
             <p className={cn(
                 "mx-auto max-w-2xl text-lg font-medium",
                 useVanta ? "text-white" : "text-slate-600 dark:text-white"
             )}>
-                See what our customers say about our interior work, quality, and service experience.
+                {mounted && sectionSettings?.review_subtitle ? sectionSettings.review_subtitle : 'See what our customers say about our interior work, quality, and service experience.'}
             </p>
         </ScrollAnimation>
 

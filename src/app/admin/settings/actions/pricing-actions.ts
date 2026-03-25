@@ -4,6 +4,7 @@ import db from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 import { revalidatePath, unstable_cache, revalidateTag } from 'next/cache';
 import { cache } from 'react';
+import { getSeoData, updateSeoData } from '../../seo-geo-settings/actions';
 
 export interface PlanFeature {
     id?: string;
@@ -24,6 +25,8 @@ export interface PricingPlan {
 }
 
 export interface PricingPageContent {
+    h1_title: string;
+    paragraph: string;
     title: string;
     subtitle: string;
 }
@@ -32,37 +35,55 @@ export const getPricingPageContent = cache(async (): Promise<PricingPageContent>
     return await unstable_cache(
         async () => {
             try {
+                const seoData = await getSeoData('pricing');
                 const settingsResult = await db.query('SELECT setting_value FROM settings WHERE setting_key = ?', ['pricing_page']);
+                
+                let data: any = {};
                 if (settingsResult.length > 0) {
-                    return typeof settingsResult[0].setting_value === 'string'
+                    data = typeof settingsResult[0].setting_value === 'string'
                         ? JSON.parse(settingsResult[0].setting_value)
                         : settingsResult[0].setting_value;
-                } else {
-                    const defaultData: PricingPageContent = {
-                        title: 'Flexible Pricing Plans',
-                        subtitle: 'Choose a plan that fits your needs. All plans include one year of free support.',
-                    };
-                    await db.query('INSERT INTO settings (setting_key, setting_value) VALUES (?, ?)', ['pricing_page', JSON.stringify(defaultData)]);
-                    return defaultData;
                 }
+
+                return {
+                    h1_title: seoData.h1_title || '',
+                    paragraph: seoData.paragraph || '',
+                    title: data.title || 'Flexible Pricing Plans',
+                    subtitle: data.subtitle || 'Choose a plan that fits your needs. All plans include one year of free support.',
+                };
             } catch (error) {
                 console.error("Failed to fetch pricing page content:", error);
+                const seoData = await getSeoData('pricing');
                 return {
+                    h1_title: seoData.h1_title || '',
+                    paragraph: seoData.paragraph || '',
                     title: 'Flexible Pricing Plans',
                     subtitle: 'Choose a plan that fits your needs. All plans include one year of free support.',
                 };
             }
         },
         ['pricing-page-content'],
-        { tags: ['settings', 'pricing-page-content'], revalidate: 86400 }
+        { tags: ['settings', 'pricing-page-content', 'seo-data-pricing'], revalidate: 86400 }
     )();
 });
 
 export async function updatePricingPageContent(content: PricingPageContent): Promise<void> {
     try {
+        // Update SEO data (H1 and Paragraph)
+        const currentSeo = await getSeoData('pricing');
+        await updateSeoData('pricing', {
+            ...currentSeo,
+            h1_title: content.h1_title,
+            paragraph: content.paragraph,
+        });
+
+        const { h1_title, paragraph, ...settingsToSave } = content;
+
         await db.query('INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?',
-            ['pricing_page', JSON.stringify(content), JSON.stringify(content)]);
+            ['pricing_page', JSON.stringify(settingsToSave), JSON.stringify(settingsToSave)]);
+            
         revalidateTag('pricing-page-content');
+        revalidateTag('seo-data-pricing');
         revalidatePath('/pricing');
         revalidatePath('/');
     } catch (error) {

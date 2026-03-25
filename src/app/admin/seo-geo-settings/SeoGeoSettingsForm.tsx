@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -131,36 +130,6 @@ export default function SeoGeoSettingsForm() {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-6">
-                        <h3 className="text-lg font-semibold border-b border-border pb-2 text-foreground">On-Page Content</h3>
-                        <FormField
-                        control={form.control}
-                        name="h1_title"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel className="text-muted-foreground">H1 Title</FormLabel>
-                            <FormControl>
-                                <Input placeholder="Main heading for the page" {...field} className="bg-muted border-border text-foreground h-11 focus-visible:ring-primary/30" />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                        />
-                        <FormField
-                        control={form.control}
-                        name="paragraph"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel className="text-muted-foreground">Intro Paragraph</FormLabel>
-                            <FormControl>
-                                <Textarea placeholder="Introductory paragraph for the page" {...field} className="bg-muted border-border text-foreground min-h-[100px] focus-visible:ring-primary/30" />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                        />
-                    </div>
-
-                    <div className="space-y-6">
                         <h3 className="text-lg font-semibold border-b border-border pb-2 text-foreground">Meta Tags (Google)</h3>
                         <FormField
                         control={form.control}
@@ -191,38 +160,29 @@ export default function SeoGeoSettingsForm() {
                         )}
                         />
                     </div>
+                    <div className="space-y-6">
+                        <h3 className="text-lg font-semibold border-b border-border pb-2 text-foreground">Technical & Advanced SEO</h3>
+                        <div className="grid grid-cols-1 gap-6">
+                            <FormField
+                                control={form.control}
+                                name="meta_keywords"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel className="text-muted-foreground">Meta Keywords</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Comma, separated, keywords" {...field} className="bg-muted border-border text-foreground h-11 focus-visible:ring-primary/30" />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                    </div>
                 </div>
 
-                <div className="space-y-6">
-                    <h3 className="text-lg font-semibold border-b border-border pb-2 text-foreground">Technical & Advanced SEO</h3>
+                <div className="space-y-6 pt-6">
+                    <h3 className="text-lg font-semibold border-b border-border pb-2 text-foreground">Social & Schema Data</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                            control={form.control}
-                            name="meta_keywords"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel className="text-muted-foreground">Meta Keywords</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Comma, separated, keywords" {...field} className="bg-muted border-border text-foreground h-11 focus-visible:ring-primary/30" />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="canonical_url"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel className="text-muted-foreground">Canonical URL</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="https://example.com/page" {...field} className="bg-muted border-border text-foreground h-11 focus-visible:ring-primary/30" />
-                                </FormControl>
-                                <FormDescription className="text-muted-foreground text-[11px]">Leave empty to use page defaults.</FormDescription>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
                         <FormField
                             control={form.control}
                             name="og_image"

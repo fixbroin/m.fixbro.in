@@ -1,10 +1,10 @@
-
 'use server';
 
 import db from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 import { revalidatePath, unstable_cache, revalidateTag } from 'next/cache';
 import { cache } from 'react';
+import { getSeoData, updateSeoData } from '../../seo-geo-settings/actions';
 
 export interface ServiceFeature {
     id?: string;
@@ -24,6 +24,8 @@ export interface Service {
 }
 
 export interface ServicesPageContent {
+    h1_title: string;
+    paragraph: string;
     title: string;
     subtitle: string;
 }
@@ -32,45 +34,58 @@ export const getServicesPageContent = cache(async (): Promise<ServicesPageConten
     return await unstable_cache(
         async () => {
             try {
+                const seoData = await getSeoData('services');
                 const rows: any = await db.query(
                     'SELECT setting_value FROM settings WHERE setting_key = ?',
                     ['services_page']
                 );
                 
+                let data: any = {};
                 if (rows && rows.length > 0) {
                     const settingValue = rows[0].setting_value;
-                    return (typeof settingValue === 'string' ? JSON.parse(settingValue) : settingValue) as ServicesPageContent;
-                } else {
-                    const defaultData: ServicesPageContent = {
-                        title: 'Our Services',
-                        subtitle: 'We offer a wide range of web development services to meet your business needs.',
-                    };
-                    await db.query(
-                        'INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?',
-                        ['services_page', JSON.stringify(defaultData), JSON.stringify(defaultData)]
-                    );
-                    return defaultData;
+                    data = typeof settingValue === 'string' ? JSON.parse(settingValue) : settingValue;
                 }
+
+                return {
+                    h1_title: seoData.h1_title || '',
+                    paragraph: seoData.paragraph || '',
+                    title: data.title || 'Our Services',
+                    subtitle: data.subtitle || 'We offer a wide range of web development services to meet your business needs.',
+                };
             } catch (error) {
                 console.error("Failed to fetch services page content:", error);
+                const seoData = await getSeoData('services');
                 return {
+                    h1_title: seoData.h1_title || '',
+                    paragraph: seoData.paragraph || '',
                     title: 'Our Services',
                     subtitle: 'We offer a wide range of web development services to meet your business needs.',
                 };
             }
         },
         ['services-page-content'],
-        { tags: ['settings', 'services-page-content'], revalidate: 86400 }
+        { tags: ['settings', 'services-page-content', 'seo-data-services'], revalidate: 86400 }
     )();
 });
 
 export async function updateServicesPageContent(content: ServicesPageContent): Promise<void> {
     try {
+        // Update SEO data (H1 and Paragraph)
+        const currentSeo = await getSeoData('services');
+        await updateSeoData('services', {
+            ...currentSeo,
+            h1_title: content.h1_title,
+            paragraph: content.paragraph,
+        });
+
+        const { h1_title, paragraph, ...settingsToSave } = content;
+
         await db.query(
             'INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?',
-            ['services_page', JSON.stringify(content), JSON.stringify(content)]
+            ['services_page', JSON.stringify(settingsToSave), JSON.stringify(settingsToSave)]
         );
         revalidateTag('services-page-content');
+        revalidateTag('seo-data-services');
         revalidatePath('/services');
         revalidatePath('/');
     } catch (error) {

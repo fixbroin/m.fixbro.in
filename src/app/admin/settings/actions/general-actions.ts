@@ -1,4 +1,3 @@
-
 'use server';
 
 import db from '@/lib/db';
@@ -18,6 +17,8 @@ export interface GeneralSettings {
     youtube_url: string;
     loaderType: string;
     google_site_verification?: string;
+    header_cta_text?: string;
+    header_cta_link?: string;
 }
 
 export const getGeneralSettings = cache(async (): Promise<GeneralSettings> => {
@@ -39,6 +40,8 @@ export const getGeneralSettings = cache(async (): Promise<GeneralSettings> => {
                         youtube_url: data.youtube_url || '',
                         loaderType: data.loaderType || 'pulse',
                         google_site_verification: data.google_site_verification || '',
+                        header_cta_text: data.header_cta_text || 'Get Quote',
+                        header_cta_link: data.header_cta_link || '/contact',
                     };
                 } else {
                     const defaultData: GeneralSettings = {
@@ -53,6 +56,8 @@ export const getGeneralSettings = cache(async (): Promise<GeneralSettings> => {
                         youtube_url: '',
                         loaderType: 'pulse',
                         google_site_verification: '',
+                        header_cta_text: 'Get Quote',
+                        header_cta_link: '/contact',
                     };
                     await db.query('INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)', 
                         ['general_settings', JSON.stringify(defaultData)]);
@@ -72,6 +77,8 @@ export const getGeneralSettings = cache(async (): Promise<GeneralSettings> => {
                     youtube_url: '',
                     loaderType: 'pulse',
                     google_site_verification: '',
+                    header_cta_text: 'Get Quote',
+                    header_cta_link: '/contact',
                 };
             }
         },

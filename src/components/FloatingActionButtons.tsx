@@ -2,9 +2,9 @@
 'use client'
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { getContactDetails, ContactDetails } from '@/app/admin/settings/actions/contact-actions';
+import { ContactDetails } from '@/app/admin/settings/actions/contact-actions';
 import { useEffect, useState } from 'react';
-import { Phone, MessageCircle, Download } from 'lucide-react';
+import { Phone, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const WhatsAppIcon = () => (
@@ -18,36 +18,21 @@ const WhatsAppIcon = () => (
     </svg>
   );
 
-function FloatingButtons() {
-    const [contactDetails, setContactDetails] = useState<ContactDetails | null>(null);
+function FloatingButtons({ details }: { details: ContactDetails }) {
     const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
     const [showInstallBtn, setShowInstallBtn] = useState(false);
 
     useEffect(() => {
-        async function fetchDetails() {
-            const details = await getContactDetails();
-            if(details) {
-                setContactDetails(details);
-            }
-        }
-        fetchDetails();
-
         const handleBeforeInstallPrompt = (e: any) => {
-            // Prevent Chrome 67 and earlier from automatically showing the prompt
             e.preventDefault();
-            // Stash the event so it can be triggered later.
             setDeferredPrompt(e);
-            // Update UI to notify the user they can add to home screen
             setShowInstallBtn(true);
-
-            // 🕒 Auto-hide after 10 seconds if not clicked
             setTimeout(() => {
                 setShowInstallBtn(false);
             }, 10000);
         };
 
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
         return () => {
             window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
         };
@@ -55,9 +40,7 @@ function FloatingButtons() {
 
     const handleInstallClick = async () => {
         if (!deferredPrompt) return;
-        // Show the prompt
         deferredPrompt.prompt();
-        // Wait for the user to respond to the prompt
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
             setShowInstallBtn(false);
@@ -65,12 +48,12 @@ function FloatingButtons() {
         setDeferredPrompt(null);
     };
     
-    if (!contactDetails || !contactDetails.enableFloatingButtons) {
+    if (!details || !details.enableFloatingButtons) {
         return null;
     }
 
-    const whatsappLink = `https://wa.me/${contactDetails.whatsAppNumber}?text=${encodeURIComponent(contactDetails.whatsAppMessage)}`;
-    const callLink = `tel:${contactDetails.phone}`;
+    const whatsappLink = `https://wa.me/${details.whatsAppNumber}?text=${encodeURIComponent(details.whatsAppMessage)}`;
+    const callLink = `tel:${details.phone}`;
     
     const positionClasses = {
         'bottom-right': 'right-6',
@@ -79,19 +62,33 @@ function FloatingButtons() {
     
     const animationClasses: Record<string, string> = {
         shake: 'animate-shake',
-        pulse: 'animate-pulse-fab',
-        bounce: 'animate-bounce-fab',
+        'pulse-fab': 'animate-pulse-fab',
+        'bounce-fab': 'animate-bounce-fab',
         tada: 'animate-tada',
         jello: 'animate-jello',
         swing: 'animate-swing',
+        wobble: 'animate-wobble',
+        heartbeat: 'animate-heartbeat',
+        rubberBand: 'animate-rubberBand',
+        flash: 'animate-flash',
+        flip: 'animate-flip',
+        float: 'animate-float',
+        glow: 'animate-glow',
+        ring: 'animate-ring',
+        shimmer: 'animate-shimmer',
+        vibrate: 'animate-vibrate',
+        pop: 'animate-pop',
+        expand: 'animate-expand',
+        shrink: 'animate-shrink',
+        'spin-slow': 'animate-spin-slow',
         none: '',
     };
-    const animationClass = contactDetails.animationStyle ? animationClasses[contactDetails.animationStyle] : '';
+    const animationClass = details.animationStyle ? animationClasses[details.animationStyle] : '';
 
      return (
         <div className={cn(
             "fixed bottom-6 z-50 flex flex-col items-center gap-3",
-            positionClasses[contactDetails.buttonPosition]
+            positionClasses[details.buttonPosition]
         )}>
             {showInstallBtn && (
                 <button 
@@ -130,12 +127,12 @@ function FloatingButtons() {
     );
 }
   
-export default function FloatingActionButtons() {
+export default function FloatingActionButtons({ contactDetails }: { contactDetails: ContactDetails }) {
     const pathname = usePathname();
 
     if (pathname.startsWith('/admin')) {
         return null;
     }
 
-    return <FloatingButtons />;
+    return <FloatingButtons details={contactDetails} />;
 }

@@ -18,14 +18,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { submitContactForm } from './actions';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useAnalytics } from '@/context/AnalyticsContext';
+import { getSectionSettings, SectionSettings } from '@/app/admin/settings/actions/section-actions';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
-  phone: z.string().optional(),
+  phone: z.string().min(10, { message: 'Phone number must be at least 10 characters.' }),
   budget: z.string().optional(),
   message: z.string().min(10, { message: 'Message must be at least 10 characters.' }),
 });
@@ -33,7 +34,16 @@ const formSchema = z.object({
 export default function ContactForm() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sectionSettings, setSectionSettings] = useState<SectionSettings | null>(null);
   const { trackEvent } = useAnalytics();
+
+  useEffect(() => {
+    async function fetchSettings() {
+      const settings = await getSectionSettings();
+      setSectionSettings(settings);
+    }
+    fetchSettings();
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -71,7 +81,7 @@ export default function ContactForm() {
   return (
     <Card className="w-full shadow-lg">
       <CardHeader>
-        <CardTitle className="text-2xl">Book Consultation</CardTitle>
+        <CardTitle className="text-2xl">{sectionSettings?.contact_form_title || 'Book Consultation'}</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -149,7 +159,7 @@ export default function ContactForm() {
             />
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isSubmitting ? 'Sending...' : 'Book Site Visit'}
+              {isSubmitting ? 'Sending...' : (sectionSettings?.contact_form_button || 'Book Site Visit')}
             </Button>
           </form>
         </Form>

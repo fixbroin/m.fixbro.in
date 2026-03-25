@@ -20,22 +20,31 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { getLegalPages, updateLegalPageContent, LegalPage } from './actions/legal-actions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
 
 const formSchema = z.object({
+  h1_title: z.string().min(1, 'H1 Title is required.'),
+  paragraph: z.string().optional(),
+  title: z.string().min(1, 'Title is required.'),
   content: z.string().min(10, 'Content must be at least 10 characters.'),
 });
 
 interface LegalPageFormProps {
   page: LegalPage;
+  onSuccess: () => void;
 }
 
-function LegalPageForm({ page }: LegalPageFormProps) {
+function LegalPageForm({ page, onSuccess }: LegalPageFormProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      h1_title: page.h1_title || '',
+      paragraph: page.paragraph || '',
+      title: page.title || '',
       content: page.content || '',
     },
   });
@@ -43,15 +52,22 @@ function LegalPageForm({ page }: LegalPageFormProps) {
   function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(async () => {
       try {
-        await updateLegalPageContent({ slug: page.slug, content: values.content });
+        await updateLegalPageContent({ 
+            slug: page.slug, 
+            title: values.title, 
+            content: values.content,
+            h1_title: values.h1_title,
+            paragraph: values.paragraph
+        });
         toast({
           title: 'Success!',
-          description: `${page.title} has been updated.`,
+          description: `${values.title} has been updated.`,
         });
+        onSuccess();
       } catch (error) {
         toast({
           title: 'Error',
-          description: `Failed to update ${page.title}.`,
+          description: `Failed to update ${values.title}.`,
           variant: 'destructive',
         });
       }
@@ -61,12 +77,59 @@ function LegalPageForm({ page }: LegalPageFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-4 rounded-lg border p-4">
+            <h3 className="text-lg font-semibold">Header Content</h3>
+            <Separator />
+            <FormField
+                control={form.control}
+                name="h1_title"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>H1 Title</FormLabel>
+                    <FormControl>
+                        <Input placeholder="Main heading for the page" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+            />
+            <FormField
+                control={form.control}
+                name="paragraph"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Intro Paragraph</FormLabel>
+                    <FormControl>
+                        <Textarea placeholder="Introductory paragraph for the page" {...field} className="min-h-[100px]" />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+            />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="title"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Navigation / Page Title</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder={`Enter title for ${page.title}...`}
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="content"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Page Content</FormLabel>
+              <FormLabel>Full Legal Content</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder={`Enter content for ${page.title}...`}
@@ -91,15 +154,15 @@ export default function LegalPagesSettings() {
   const [pages, setPages] = React.useState<LegalPage[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
-  React.useEffect(() => {
-    async function loadPages() {
-      setIsLoading(true);
-      const data = await getLegalPages();
-      setPages(data);
-      setIsLoading(false);
-    }
-    loadPages();
+  const loadPages = React.useCallback(async () => {
+    const data = await getLegalPages();
+    setPages(data);
+    setIsLoading(false);
   }, []);
+
+  React.useEffect(() => {
+    loadPages();
+  }, [loadPages]);
 
   if (isLoading) {
     return <p>Loading legal pages settings...</p>;
@@ -109,18 +172,18 @@ export default function LegalPagesSettings() {
     <Card>
       <CardHeader>
         <CardTitle>Legal Pages</CardTitle>
-        <CardDescription>Manage the content for your Terms of Service and Privacy Policy pages.</CardDescription>
+        <CardDescription>Manage the header content and full legal text for your policy pages.</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue={pages[0]?.slug || 'terms'}>
-          <TabsList>
+          <TabsList className="h-auto flex-wrap justify-start bg-muted/50 p-1 rounded-xl">
             {pages.map(page => (
-              <TabsTrigger key={page.slug} value={page.slug}>{page.title}</TabsTrigger>
+              <TabsTrigger key={page.slug} value={page.slug} className="rounded-lg">{page.title}</TabsTrigger>
             ))}
           </TabsList>
           {pages.map(page => (
-            <TabsContent key={page.slug} value={page.slug}>
-              <LegalPageForm page={page} />
+            <TabsContent key={page.slug} value={page.slug} className="mt-6">
+              <LegalPageForm page={page} onSuccess={loadPages} />
             </TabsContent>
           ))}
         </Tabs>
