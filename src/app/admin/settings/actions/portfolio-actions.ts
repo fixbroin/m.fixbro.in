@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { revalidatePath, unstable_cache, revalidateTag } from 'next/cache';
 import { cache } from 'react';
 import { getSeoData, updateSeoData } from '../../seo-geo-settings/actions';
+import { deleteFile } from '@/lib/storage-actions';
 
 export interface PortfolioItem {
     id?: string;
@@ -110,6 +111,15 @@ export const getPortfolioItems = cache(async (): Promise<PortfolioItem[]> => {
 
 export async function updatePortfolioItems(items: Omit<PortfolioItem, 'id' | 'createdAt'>[]): Promise<void> {
     try {
+        const oldItems = await getPortfolioItems();
+        const newUrls = new Set(items.map(i => i.mediaUrl).filter(Boolean));
+
+        for (const old of oldItems) {
+            if (old.mediaUrl && !newUrls.has(old.mediaUrl)) {
+                await deleteFile(old.mediaUrl);
+            }
+        }
+
         await db.query('DELETE FROM portfolio_items');
 
         for (const item of items) {

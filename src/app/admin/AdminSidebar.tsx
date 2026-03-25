@@ -7,7 +7,8 @@ import {
   Home, Settings, Mail, ShoppingBag, 
   Globe, User, MessageSquare, 
   Database, Activity, Users, Bell, 
-  ChevronRight, ExternalLink, BookOpen, Archive
+  ChevronRight, ExternalLink, BookOpen, Archive,
+  MousePointerClick
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 
@@ -21,6 +22,7 @@ const adminNavLinks = [
         { href: "/admin/notifications", label: "Announcements", icon: Bell },
         { href: "/admin/submissions", label: "Inbox", icon: Mail },
         { href: "/admin/marketing", label: "Subscribers", icon: Users },
+        { href: "/admin/popups", label: "Popups", icon: MousePointerClick },
         { href: "/admin/testimonials", label: "Reviews", icon: MessageSquare },
     ]},
     { group: "Business", links: [

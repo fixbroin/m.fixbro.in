@@ -184,3 +184,36 @@ CREATE TABLE IF NOT EXISTS page_seo (
     canonical_url VARCHAR(255),
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS popups (
+    id VARCHAR(36) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    type VARCHAR(50) NOT NULL, -- welcome, exit, promotion, newsletter, custom
+    trigger_type VARCHAR(50) NOT NULL, -- on_load, delay, scroll, exit
+    trigger_value INT DEFAULT 0, -- seconds or scroll percentage
+    pages JSON, -- Array of page slugs or ['all']
+    devices VARCHAR(50) DEFAULT 'all', -- mobile, desktop, all
+    title VARCHAR(255),
+    description TEXT,
+    media_type VARCHAR(50) DEFAULT 'image', -- image, video
+    media_url VARCHAR(255),
+    cta_text VARCHAR(100),
+    cta_link VARCHAR(255),
+    show_form BOOLEAN DEFAULT FALSE,
+    form_fields JSON, -- {name: boolean, email: boolean, phone: boolean}
+    frequency VARCHAR(50) DEFAULT 'once', -- once, daily, always
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS popup_leads (
+    id VARCHAR(36) PRIMARY KEY,
+    popup_id VARCHAR(36),
+    name VARCHAR(255),
+    email VARCHAR(255),
+    phone VARCHAR(50),
+    page_url VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (popup_id) REFERENCES popups(id) ON DELETE SET NULL
+);

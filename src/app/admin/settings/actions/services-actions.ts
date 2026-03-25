@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { revalidatePath, unstable_cache, revalidateTag } from 'next/cache';
 import { cache } from 'react';
 import { getSeoData, updateSeoData } from '../../seo-geo-settings/actions';
+import { deleteFile } from '@/lib/storage-actions';
 
 export interface ServiceFeature {
     id?: string;
@@ -150,6 +151,16 @@ export const getServices = cache(async (): Promise<Service[]> => {
 
 export async function updateServices(services: Omit<Service, 'id' | 'createdAt'>[]): Promise<void> {
     try {
+        // Get existing services to check for files to delete
+        const oldServices = await getServices();
+        const newUrls = new Set(services.map(s => s.mediaUrl).filter(Boolean));
+
+        for (const old of oldServices) {
+            if (old.mediaUrl && !newUrls.has(old.mediaUrl)) {
+                await deleteFile(old.mediaUrl);
+            }
+        }
+
         // Delete all existing services
         await db.query('DELETE FROM services');
 

@@ -26,6 +26,7 @@ import JSONLD from '@/components/JSONLD';
 import { getContactDetails } from './admin/settings/actions/contact-actions';
 import { getLegalPages } from './admin/settings/actions/legal-actions';
 import { WEBSITE_URL } from '@/lib/config';
+import PopupManager from '@/components/PopupManager';
 
 // Use generateMetadata for dynamic metadata
 export async function generateMetadata(): Promise<Metadata> {
@@ -266,6 +267,7 @@ export default async function RootLayout({
               <main>{children}</main>
               <Footer settings={settings} legalPages={legalPages} />
               <FloatingActionButtons contactDetails={contactInfo} />
+              <PopupManager />
               <Toaster />
             </ThemeProvider>
           </AnalyticsProvider>

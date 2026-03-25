@@ -7,6 +7,7 @@ import { revalidatePath, unstable_cache, revalidateTag } from 'next/cache';
 import { cache } from 'react';
 import * as z from 'zod';
 import { notFound } from 'next/navigation';
+import { deleteFile } from '@/lib/storage-actions';
 
 // The schema is now defined in TestimonialForm.tsx
 const testimonialSchema = z.object({
@@ -133,6 +134,11 @@ export async function updateTestimonial(id: string, data: TestimonialFormData) {
 
 export async function deleteTestimonial(id: string) {
   try {
+    const testimonial = await getTestimonial(id);
+    if (testimonial && testimonial.image) {
+      await deleteFile(testimonial.image);
+    }
+
     await db.query('DELETE FROM testimonials WHERE id = ?', [id]);
     revalidateTag('testimonials-list');
     revalidatePath('/admin/testimonials');
