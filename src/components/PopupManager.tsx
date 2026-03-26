@@ -192,38 +192,41 @@ export default function PopupManager() {
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogContent className="p-0 overflow-hidden border-none shadow-2xl rounded-2xl max-h-[92vh] flex flex-col">
-                <div className="relative overflow-y-auto flex-1 custom-scrollbar">
-                    {activePopup.media_type === 'image' && activePopup.media_url && (
-                        <div className="w-full aspect-square relative overflow-hidden bg-muted">
-                            <img 
-                                src={activePopup.media_url} 
-                                alt={activePopup.title} 
-                                className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                        </div>
-                    )}
+            <DialogContent className={cn(
+                "p-0 border-none shadow-2xl rounded-2xl overflow-hidden transition-all duration-500",
+                activePopup.media_type !== 'none' ? "sm:max-w-[850px]" : "sm:max-w-md"
+            )}>
+                <div className="relative overflow-y-auto flex-1 custom-scrollbar flex flex-col sm:flex-row">
+                    {activePopup.media_type !== 'none' && (
+                        <div className="w-full sm:w-1/2 bg-muted flex-shrink-0 relative overflow-hidden flex flex-col justify-center">
+                            {activePopup.media_type === 'image' && activePopup.media_url && (
+                                <div className="w-full aspect-square">
+                                    <img 
+                                        src={activePopup.media_url} 
+                                        alt={activePopup.title} 
+                                        className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                                    />
+                                </div>
+                            )}
 
-                    {activePopup.media_type === 'video' && activePopup.media_url && (
-                        <div className="w-full aspect-video relative overflow-hidden bg-black">
-                            <video 
-                                src={activePopup.media_url} 
-                                autoPlay 
-                                muted 
-                                loop 
-                                playsInline
-                                className="w-full h-full object-contain"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none">
-                                <Play className="w-12 h-12 text-white/30" />
-                            </div>
+                            {activePopup.media_type === 'video' && activePopup.media_url && (
+                                <div className="w-full h-full aspect-video sm:aspect-auto sm:min-h-[400px] bg-black">
+                                    <video 
+                                        src={activePopup.media_url} 
+                                        autoPlay 
+                                        muted 
+                                        loop 
+                                        playsInline
+                                        className="w-full h-full object-contain"
+                                    />
+                                </div>
+                            )}
                         </div>
                     )}
 
                     <div className={cn(
-                        "p-5 sm:p-8 space-y-4",
-                        activePopup.media_type !== 'none' && "relative -mt-8 bg-card rounded-t-[2rem] shadow-[-10px_-10px_30px_rgba(0,0,0,0.1)]"
+                        "p-6 sm:p-10 space-y-4 bg-card flex flex-col justify-center",
+                        activePopup.media_type !== 'none' ? "w-full sm:w-1/2" : "w-full"
                     )}>
                         <div className="space-y-1">
                             <DialogTitle className="text-xl sm:text-3xl font-black tracking-tight text-foreground leading-tight">

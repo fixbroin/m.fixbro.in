@@ -20,10 +20,10 @@ function parsePrice(price: string): number {
 
 const PricingCard = ({ plan, onBookNowClick }: { plan: PricingPlan; onBookNowClick: () => void }) => {
     const isCustom = !plan.is_enabled;
-    const buttonLabel = isCustom ? (plan.buttonText || 'Contact Us') : 'Choose Plan';
+    const buttonLabel = isCustom ? 'Contact Us' : 'Choose Plan';
     const linkHref = isCustom 
         ? '/contact' 
-        : `/checkout?plan=${encodeURIComponent(plan.title)}&price=${parsePrice(plan.price)}`;
+        : `/checkout?plan=${encodeURIComponent(plan.title)}&price=${parsePrice(plan.value)}`;
     
     return (
         <ScrollAnimation as="div" variant="fadeInUp">
@@ -60,11 +60,11 @@ const PricingCard = ({ plan, onBookNowClick }: { plan: PricingPlan; onBookNowCli
                     <div className="mb-8 flex items-baseline gap-1">
                         {plan.is_enabled ? (
                             <>
-                                <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight">{plan.price}</span>
+                                <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight">{plan.value}</span>
                                 <span className={cn("text-sm font-bold opacity-60")}>/project</span>
                             </>
                         ) : (
-                            <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight">{plan.buttonText || 'Contact Us'}</span>
+                            <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight">{plan.value}</span>
                         )}
                     </div>
 

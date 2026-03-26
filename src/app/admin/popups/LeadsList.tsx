@@ -180,7 +180,7 @@ export default function LeadsList({ leads, isLoading, onRefresh }: LeadsListProp
 
             {/* View Lead Dialog */}
             <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-                <DialogContent className="sm:max-w-[500px]">
+                <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Lead Details</DialogTitle>
                         <DialogDescription>

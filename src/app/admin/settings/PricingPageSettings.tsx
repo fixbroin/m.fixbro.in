@@ -29,11 +29,10 @@ const planFeatureSchema = z.object({
 
 const planSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
-  price: z.string().min(1, 'Price is required.'),
+  value: z.string().min(1, 'Value (Price or Text) is required.'),
   description: z.string().min(1, 'Description is required.'),
   is_featured: z.boolean(),
   is_enabled: z.boolean(),
-  buttonText: z.string().optional(),
   features: z.array(planFeatureSchema),
   displayOrder: z.coerce.number().int().min(0, 'Display order must be a positive number.'),
 });
@@ -77,11 +76,10 @@ export default function PricingPageSettings() {
         form.setValue('plans', plansData.map(p => ({
           ...p,
           title: p.title || '',
-          price: p.price || '',
+          value: p.value || '',
           description: p.description || '',
           is_featured: !!p.is_featured,
           is_enabled: p.is_enabled !== false,
-          buttonText: p.buttonText || '',
           features: p.features || [],
           displayOrder: p.displayOrder ?? 0
         })));
@@ -116,7 +114,6 @@ export default function PricingPageSettings() {
                  ...p, 
                  is_featured: !!p.is_featured,
                  is_enabled: p.is_enabled !== false,
-                 buttonText: p.buttonText || ''
                 })) );
             }
             if (contentData) {
@@ -272,35 +269,20 @@ export default function PricingPageSettings() {
                       </FormItem>
                     )}
                   />
-                  {form.watch(`plans.${index}.is_enabled`) ? (
-                    <FormField
-                      control={form.control}
-                      name={`plans.${index}.price`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Price</FormLabel>
-                          <FormControl>
-                            <Input placeholder="e.g., ₹9999" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  ) : (
-                    <FormField
-                      control={form.control}
-                      name={`plans.${index}.buttonText`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Button Text</FormLabel>
-                          <FormControl>
-                            <Input placeholder="e.g., Contact Us" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  )}
+                  
+                  <FormField
+                    control={form.control}
+                    name={`plans.${index}.value`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{form.watch(`plans.${index}.is_enabled`) ? 'Price' : 'Display Text (e.g. Get Quote)'}</FormLabel>
+                        <FormControl>
+                          <Input placeholder={form.watch(`plans.${index}.is_enabled`) ? "e.g., ₹9999" : "e.g., Get Quote"} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <FormField
                     control={form.control}
                     name={`plans.${index}.description`}

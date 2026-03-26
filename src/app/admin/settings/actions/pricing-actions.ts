@@ -14,11 +14,10 @@ export interface PlanFeature {
 export interface PricingPlan {
     id?: string;
     title: string;
-    price: string;
+    value: string;
     description: string;
     is_featured: boolean;
     is_enabled: boolean;
-    buttonText?: string;
     features: PlanFeature[];
     displayOrder: number;
     createdAt?: string;
@@ -102,26 +101,25 @@ export const getPricingPlans = cache(async (): Promise<PricingPlan[]> => {
                 if (plans.length === 0) {
                     const defaultPlans = [
                         {
-                            id: uuidv4(), title: 'Basic', price: '₹4999', description: 'Perfect for personal sites or small businesses.', is_featured: false, displayOrder: 1,
+                            id: uuidv4(), title: 'Basic', value: '₹4999', description: 'Perfect for personal sites or small businesses.', is_featured: false, displayOrder: 1,
                             features: [{ name: 'Up to 5 Pages' }, { name: 'Responsive Design' }]
                         },
                         {
-                            id: uuidv4(), title: 'Business Pro', price: '₹9999', description: 'Ideal for growing businesses and professionals.', is_featured: true, displayOrder: 2,
+                            id: uuidv4(), title: 'Business Pro', value: '₹9999', description: 'Ideal for growing businesses and professionals.', is_featured: true, displayOrder: 2,
                             features: [{ name: 'Up to 10 Pages' }, { name: 'Blog Integration' }]
                         }
                     ];
                     for (const plan of defaultPlans) {
-                        await db.query('INSERT INTO pricing_plans (id, title, price, description, isPopular, is_enabled, buttonText, features, displayOrder) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                            [plan.id, plan.title, plan.price, plan.description, plan.is_featured, true, 'Choose Plan', JSON.stringify(plan.features), plan.displayOrder]);
+                        await db.query('INSERT INTO pricing_plans (id, title, value, description, isPopular, is_enabled, features, displayOrder) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                            [plan.id, plan.title, plan.value, plan.description, plan.is_featured, true, JSON.stringify(plan.features), plan.displayOrder]);
                     }
-                    return defaultPlans.map(p => ({ ...p, createdAt: new Date().toISOString() }));
+                    return defaultPlans.map(p => ({ ...p, createdAt: new Date().toISOString(), is_enabled: true }));
                 }
 
                 return plans.map((plan: any) => ({
                     ...plan,
                     is_featured: !!plan.isPopular,
                     is_enabled: plan.is_enabled === undefined ? true : !!plan.is_enabled,
-                    buttonText: plan.buttonText || '',
                     features: typeof plan.features === 'string' ? JSON.parse(plan.features) : plan.features,
                     createdAt: plan.createdAt instanceof Date ? plan.createdAt.toISOString() : plan.createdAt
                 }));
@@ -140,8 +138,8 @@ export async function updatePricingPlans(plans: Omit<PricingPlan, 'id'|'createdA
         await db.query('DELETE FROM pricing_plans');
 
         for (const plan of plans) {
-            await db.query('INSERT INTO pricing_plans (id, title, price, description, isPopular, is_enabled, buttonText, features, displayOrder) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                [uuidv4(), plan.title, plan.price, plan.description, plan.is_featured, plan.is_enabled, plan.buttonText || null, JSON.stringify(plan.features), plan.displayOrder]);
+            await db.query('INSERT INTO pricing_plans (id, title, value, description, isPopular, is_enabled, features, displayOrder) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                [uuidv4(), plan.title, plan.value, plan.description, plan.is_featured, plan.is_enabled, JSON.stringify(plan.features), plan.displayOrder]);
         }
 
         revalidateTag('pricing-plans');

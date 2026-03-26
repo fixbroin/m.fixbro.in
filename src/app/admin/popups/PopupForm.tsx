@@ -160,7 +160,7 @@ export default function PopupForm({ isOpen, onClose, popup }: PopupFormProps) {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-h-[95vh] overflow-y-auto p-0 gap-0 border-none sm:rounded-2xl">
+            <DialogContent className="p-0 gap-0 border-none">
                 <DialogHeader className="px-6 py-6 border-b sticky top-0 bg-background z-10">
                     <DialogTitle className="text-2xl font-bold">{popup ? 'Edit Popup' : 'Create New Popup'}</DialogTitle>
                 </DialogHeader>

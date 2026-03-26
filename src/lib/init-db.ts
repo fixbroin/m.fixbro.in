@@ -73,7 +73,19 @@ async function init() {
 
     await ensureColumn('pricing_plans', 'displayOrder', 'INT DEFAULT 0');
     await ensureColumn('pricing_plans', 'is_enabled', 'BOOLEAN DEFAULT TRUE');
-    await ensureColumn('pricing_plans', 'buttonText', 'VARCHAR(100)');
+    await ensureColumn('pricing_plans', 'value', "VARCHAR(255) DEFAULT ''");
+    
+    // Migration: if price exists and value is empty, copy price to value
+    try {
+        const [cols]: any = await connection.query(`SHOW COLUMNS FROM \`pricing_plans\` LIKE 'price'`);
+        if (cols.length > 0) {
+            await connection.query(`UPDATE pricing_plans SET value = price WHERE value = '' OR value IS NULL`);
+            console.log('✅ Migrated pricing_plans.price to value.');
+        }
+    } catch (e) {
+        console.error('❌ Error during pricing_plans migration:', e);
+    }
+
     await ensureColumn('faqs', 'displayOrder', 'INT DEFAULT 0');
     await ensureColumn('portfolio_items', 'mediaType', "VARCHAR(50) DEFAULT 'image'");
     await ensureColumn('portfolio_items', 'displayOrder', 'INT DEFAULT 0');
