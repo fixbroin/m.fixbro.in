@@ -26,6 +26,7 @@ const formSchema = z.object({
   enable_online_payments: z.boolean(),
   razorpay_key_id: z.string().optional(),
   razorpay_key_secret: z.string().optional(),
+  razorpay_webhook_secret: z.string().optional(),
   enable_pay_later: z.boolean(),
 });
 
@@ -33,6 +34,8 @@ export default function PaymentGatewaySettings() {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [showSecret, setShowSecret] = useState(false);
+  const [showWebhookSecret, setShowWebhookSecret] = useState(false);
+  const [webhookUrl, setWebhookUrl] = useState('');
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -40,11 +43,15 @@ export default function PaymentGatewaySettings() {
       enable_online_payments: true,
       razorpay_key_id: '',
       razorpay_key_secret: '',
+      razorpay_webhook_secret: '',
       enable_pay_later: false,
     },
   });
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+        setWebhookUrl(`${window.location.origin}/api/razorpay/webhook`);
+    }
     async function loadSettings() {
         const data = await getPaymentSettings();
         if (data) {
@@ -52,6 +59,7 @@ export default function PaymentGatewaySettings() {
                 enable_online_payments: data.enable_online_payments ?? true,
                 razorpay_key_id: data.razorpay_key_id || '',
                 razorpay_key_secret: data.razorpay_key_secret || '',
+                razorpay_webhook_secret: data.razorpay_webhook_secret || '',
                 enable_pay_later: data.enable_pay_later ?? false,
             });
         }
@@ -75,6 +83,7 @@ export default function PaymentGatewaySettings() {
                   enable_online_payments: data.enable_online_payments ?? true,
                   razorpay_key_id: data.razorpay_key_id || '',
                   razorpay_key_secret: data.razorpay_key_secret || '',
+                  razorpay_webhook_secret: data.razorpay_webhook_secret || '',
                   enable_pay_later: data.enable_pay_later ?? false,
                 });
             }
@@ -119,7 +128,8 @@ export default function PaymentGatewaySettings() {
               )}
             />
 
-            <div className="space-y-4 rounded-lg border p-4">
+            <div className="space-y-4 rounded-lg border p-4 bg-muted/30">
+                <h3 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground">Razorpay Credentials</h3>
                 <FormField
                     control={form.control}
                     name="razorpay_key_id"
@@ -157,8 +167,60 @@ export default function PaymentGatewaySettings() {
                                 )}
                             </Button>
                         </div>
-                         <FormDescription>
-                            Your saved key secret is securely masked. Click the eye icon to reveal.
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </div>
+
+            <div className="space-y-4 rounded-lg border p-4 border-primary/20 bg-primary/5">
+                <h3 className="font-semibold text-sm uppercase tracking-wider text-primary">Webhook Settings</h3>
+                <div className="space-y-2">
+                    <FormLabel>Webhook URL</FormLabel>
+                    <div className="flex gap-2">
+                        <Input value={webhookUrl} readOnly className="bg-muted" />
+                        <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={() => {
+                                navigator.clipboard.writeText(webhookUrl);
+                                toast({ title: "Copied!", description: "Webhook URL copied to clipboard." });
+                            }}
+                        >
+                            Copy
+                        </Button>
+                    </div>
+                    <p className="text-[0.8rem] text-muted-foreground">
+                        Configure this URL in your Razorpay Dashboard under Webhooks.
+                    </p>
+                </div>
+
+                <FormField
+                    control={form.control}
+                    name="razorpay_webhook_secret"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Webhook Secret (Optional but Recommended)</FormLabel>
+                        <div className="relative">
+                            <FormControl>
+                                <Input type={showWebhookSecret ? "text" : "password"} placeholder="Enter webhook secret" {...field} className="pr-10" />
+                            </FormControl>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                onClick={() => setShowWebhookSecret(!showWebhookSecret)}
+                            >
+                                {showWebhookSecret ? (
+                                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                ) : (
+                                    <Eye className="h-4 w-4 text-muted-foreground" />
+                                )}
+                            </Button>
+                        </div>
+                        <FormDescription>
+                            Must match the secret set in Razorpay dashboard for security.
                         </FormDescription>
                         <FormMessage />
                         </FormItem>

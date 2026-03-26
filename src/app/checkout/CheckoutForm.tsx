@@ -113,7 +113,13 @@ export default function CheckoutForm({ planTitle, planPrice }: CheckoutFormProps
       return;
     }
     
-    const orderResponse = await createRazorpayOrder({ amount: planPrice });
+    const orderResponse = await createRazorpayOrder({ 
+      amount: planPrice,
+      customer_name: values.name,
+      customer_email: values.email,
+      customer_phone: values.phone,
+      plan_title: planTitle
+    });
 
     if (!orderResponse.success || !orderResponse.order) {
       toast({ title: 'Error', description: orderResponse.error || 'Could not create payment order.', variant: 'destructive' });

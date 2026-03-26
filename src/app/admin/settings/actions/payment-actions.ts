@@ -8,6 +8,7 @@ import { revalidatePath } from 'next/cache';
 export interface PaymentSettings {
     razorpay_key_id: string;
     razorpay_key_secret: string;
+    razorpay_webhook_secret: string;
     enable_online_payments: boolean;
     enable_pay_later: boolean;
 }
@@ -16,6 +17,7 @@ export async function getPaymentSettings(): Promise<PaymentSettings> {
     const defaultData: PaymentSettings = {
         razorpay_key_id: 'rzp_test_12345',
         razorpay_key_secret: 'your_secret_key',
+        razorpay_webhook_secret: '',
         enable_online_payments: true,
         enable_pay_later: false,
     };
@@ -27,6 +29,7 @@ export async function getPaymentSettings(): Promise<PaymentSettings> {
             return {
                 razorpay_key_id: data.razorpay_key_id || '',
                 razorpay_key_secret: data.razorpay_key_secret || '',
+                razorpay_webhook_secret: data.razorpay_webhook_secret || '',
                 enable_online_payments: data.enable_online_payments === true,
                 enable_pay_later: data.enable_pay_later === true,
             } as PaymentSettings;
@@ -54,6 +57,10 @@ export async function updatePaymentSettings(settings: PaymentSettings): Promise<
         // If the user submits a blank secret, keep the existing one.
         if (!settings.razorpay_key_secret) {
             dataToUpdate.razorpay_key_secret = existingData.razorpay_key_secret || '';
+        }
+        
+        if (!settings.razorpay_webhook_secret) {
+            dataToUpdate.razorpay_webhook_secret = existingData.razorpay_webhook_secret || '';
         }
 
         const mergedData = { ...existingData, ...dataToUpdate };

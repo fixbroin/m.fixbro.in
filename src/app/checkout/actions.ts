@@ -48,7 +48,7 @@ export async function saveOrder(payload: SaveOrderPayload): Promise<{success: bo
         const { customer_name, customer_email, plan_title, amount, razorpay_payment_id, razorpay_order_id, razorpay_signature, status } = validated.data;
         
         // Security check for completed payments
-        if (status === 'completed') {
+        if (status === 'completed' && razorpay_signature !== 'WEBHOOK_VERIFIED') {
             const paymentSettings = await getPaymentSettings();
             if (!paymentSettings?.razorpay_key_secret) {
                 return { success: false, error: 'Payment secret not configured.' };
@@ -208,7 +208,19 @@ export async function getOrders(): Promise<Order[]> {
     }
 }
 
-export async function createRazorpayOrder({ amount }: { amount: number }): Promise<{ success: boolean; order?: any; error?: string }> {
+export async function createRazorpayOrder({ 
+    amount, 
+    customer_name, 
+    customer_email, 
+    customer_phone, 
+    plan_title 
+}: { 
+    amount: number,
+    customer_name: string,
+    customer_email: string,
+    customer_phone: string,
+    plan_title: string
+}): Promise<{ success: boolean; order?: any; error?: string }> {
     try {
         const paymentSettings = await getPaymentSettings();
         if (!paymentSettings || !paymentSettings.razorpay_key_id || !paymentSettings.razorpay_key_secret) {
@@ -225,6 +237,13 @@ export async function createRazorpayOrder({ amount }: { amount: number }): Promi
             currency: "INR",
             receipt: `receipt_order_${Date.now()}`,
             payment_capture: 1, // Enable auto-capture
+            notes: {
+                customer_name,
+                customer_email,
+                customer_phone,
+                plan_title,
+                amount
+            }
         };
 
         const order = await instance.orders.create(options);
