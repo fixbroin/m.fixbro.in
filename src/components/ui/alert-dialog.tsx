@@ -37,7 +37,7 @@ const AlertDialogContent = React.forwardRef<
       <AlertDialogPrimitive.Content
         ref={ref}
         className={cn(
-          "pointer-events-auto relative z-50 flex w-full max-w-[calc(100vw-16px)] sm:max-w-2xl flex-col border bg-background p-6 sm:p-8 shadow-xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 rounded-2xl sm:rounded-3xl max-h-full overflow-hidden",
+          "pointer-events-auto relative z-50 flex w-full max-w-[calc(100vw-16px)] sm:max-w-2xl flex-col border bg-background p-3 sm:p-4 shadow-xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 rounded-2xl sm:rounded-3xl max-h-full overflow-hidden",
           className
         )}
         {...props}

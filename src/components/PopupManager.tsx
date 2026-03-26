@@ -186,6 +186,8 @@ export default function PopupManager() {
 
     if (isAdmin || !activePopup) return null;
 
+    const hasMedia = activePopup.media_type !== 'none' && activePopup.media_url;
+
     const formFields = typeof activePopup.form_fields === 'string' 
         ? JSON.parse(activePopup.form_fields) 
         : (activePopup.form_fields || {});
@@ -194,10 +196,10 @@ export default function PopupManager() {
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogContent className={cn(
                 "p-0 border-none shadow-2xl rounded-2xl overflow-hidden transition-all duration-500",
-                activePopup.media_type !== 'none' ? "sm:max-w-[850px]" : "sm:max-w-md"
+                hasMedia ? "sm:max-w-[850px]" : "sm:max-w-md"
             )}>
                 <div className="relative overflow-y-auto flex-1 custom-scrollbar flex flex-col sm:flex-row">
-                    {activePopup.media_type !== 'none' && (
+                    {hasMedia && (
                         <div className="w-full sm:w-1/2 bg-muted flex-shrink-0 relative overflow-hidden flex flex-col justify-center">
                             {activePopup.media_type === 'image' && activePopup.media_url && (
                                 <div className="w-full aspect-square">
@@ -226,7 +228,7 @@ export default function PopupManager() {
 
                     <div className={cn(
                         "p-6 sm:p-10 space-y-4 bg-card flex flex-col justify-center",
-                        activePopup.media_type !== 'none' ? "w-full sm:w-1/2" : "w-full"
+                        hasMedia ? "w-full sm:w-1/2" : "w-full"
                     )}>
                         <div className="space-y-1">
                             <DialogTitle className="text-xl sm:text-3xl font-black tracking-tight text-foreground leading-tight">

@@ -23,7 +23,9 @@ const TABLES_TO_MANAGE = [
     'portfolio_items',
     'faqs',
     'legal_pages',
-    'page_seo'
+    'page_seo',
+    'popups',
+    'popup_leads'
 ];
 
 export async function exportDatabase(): Promise<Record<string, any[]>> {
@@ -55,11 +57,16 @@ export async function clearTable(tableName: string): Promise<{ success: boolean;
         if (!TABLES_TO_MANAGE.includes(tableName)) {
             throw new Error("Invalid table name.");
         }
+        // Disable foreign key checks temporarily to clear tables with relationships
+        await db.query('SET FOREIGN_KEY_CHECKS = 0');
         await db.query(`DELETE FROM ${tableName}`);
+        await db.query('SET FOREIGN_KEY_CHECKS = 1');
         revalidatePath('/', 'layout');
         return { success: true };
     } catch (error: any) {
         console.error(`Error clearing table ${tableName}:`, error);
+        // Ensure FK checks are re-enabled even on error
+        try { await db.query('SET FOREIGN_KEY_CHECKS = 1'); } catch (e) {}
         return { success: false, error: error.message };
     }
 }
@@ -68,6 +75,9 @@ export async function clearTable(tableName: string): Promise<{ success: boolean;
 export async function importDatabase(jsonData: string): Promise<{ success: boolean; error?: string }> {
   try {
     const data = JSON.parse(jsonData) as Record<string, any[]>;
+
+    // Disable foreign key checks for the duration of the import
+    await db.query('SET FOREIGN_KEY_CHECKS = 0');
 
     for (const tableName of Object.keys(data)) {
         if (!TABLES_TO_MANAGE.includes(tableName)) {
@@ -88,25 +98,39 @@ export async function importDatabase(jsonData: string): Promise<{ success: boole
         for (const row of tableData) {
             const cleanRow: Record<string, any> = {};
             for (const key in row) {
-                if (row[key] !== undefined) {
-                    // Stringify JSON columns for safety, mysql2 might handle it but this is more explicit
-                    // Most tables have JSON columns in MySQL schema.
-                    if (typeof row[key] === 'object' && row[key] !== null) {
-                        cleanRow[key] = JSON.stringify(row[key]);
+                const value = row[key];
+                if (value !== undefined && value !== null) {
+                    // Convert ISO strings (e.g., 2026-03-24T05:23:51.000Z) back to MySQL format (2026-03-24 05:23:51)
+                    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(value)) {
+                        cleanRow[key] = value.slice(0, 19).replace('T', ' ');
+                    } else if (typeof value === 'object') {
+                        // Stringify JSON columns for safety
+                        cleanRow[key] = JSON.stringify(value);
                     } else {
-                        cleanRow[key] = row[key];
+                        cleanRow[key] = value;
                     }
+                } else if (value === null) {
+                    cleanRow[key] = null;
                 }
             }
-            await db.query(`INSERT INTO ${tableName} SET ?`, [cleanRow]);
+            
+            if (Object.keys(cleanRow).length > 0) {
+              await db.query(`INSERT INTO ${tableName} SET ?`, [cleanRow]);
+            }
         }
     }
+
+    // Re-enable foreign key checks
+    await db.query('SET FOREIGN_KEY_CHECKS = 1');
 
     // Revalidate all paths to reflect changes
     revalidatePath('/', 'layout');
 
     return { success: true };
   } catch (error: any) {
+    // Ensure FK checks are re-enabled even on error
+    try { await db.query('SET FOREIGN_KEY_CHECKS = 1'); } catch (e) {}
+    
     console.error("Error importing database:", error);
     if (error instanceof SyntaxError) {
         return { success: false, error: "Invalid JSON file format." };
