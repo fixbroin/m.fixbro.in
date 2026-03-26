@@ -79,11 +79,26 @@ async function init() {
     try {
         const [cols]: any = await connection.query(`SHOW COLUMNS FROM \`pricing_plans\` LIKE 'price'`);
         if (cols.length > 0) {
+            // Copy price to value if value is empty
             await connection.query(`UPDATE pricing_plans SET value = price WHERE value = '' OR value IS NULL`);
             console.log('✅ Migrated pricing_plans.price to value.');
+            
+            // Drop price column
+            await connection.query(`ALTER TABLE pricing_plans DROP COLUMN price`);
+            console.log('✅ Dropped pricing_plans.price column.');
+        }
+
+        const [btnCols]: any = await connection.query(`SHOW COLUMNS FROM \`pricing_plans\` LIKE 'buttonText'`);
+        if (btnCols.length > 0) {
+            // If it's disabled, we might want to preserve buttonText into value if value is empty
+            await connection.query(`UPDATE pricing_plans SET value = buttonText WHERE (value = '' OR value IS NULL) AND is_enabled = FALSE`);
+            
+            // Drop buttonText column
+            await connection.query(`ALTER TABLE pricing_plans DROP COLUMN buttonText`);
+            console.log('✅ Dropped pricing_plans.buttonText column.');
         }
     } catch (e) {
-        console.error('❌ Error during pricing_plans migration:', e);
+        console.error('❌ Error during pricing_plans migration/cleanup:', e);
     }
 
     await ensureColumn('faqs', 'displayOrder', 'INT DEFAULT 0');
