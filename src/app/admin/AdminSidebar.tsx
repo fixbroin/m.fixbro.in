@@ -95,19 +95,8 @@ export default function AdminSidebar({ className, onLinkClick }: AdminSidebarPro
             </div>
 
             <div className="p-4 mt-auto border-t border-border space-y-2">
-                <Link 
-                    href="/docs" 
-                    target="_blank"
-                    className="flex items-center justify-between w-full p-3 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors text-xs text-primary font-black shadow-sm border border-primary/20"
-                >
-                    <div className="flex items-center gap-2">
-                        <BookOpen className="h-4 w-4" />
-                        <span>Documentation</span>
-                    </div>
-                    <ExternalLink className="h-3 w-3" />
-                </Link>
-                <Link 
-                    href="/" 
+                <Link
+                    href="/"
                     target="_blank"
                     className="flex items-center justify-between w-full p-3 rounded-xl bg-card hover:bg-muted transition-colors text-xs text-muted-foreground hover:text-foreground shadow-sm border border-border hover:border-border"
                 >
@@ -117,7 +106,6 @@ export default function AdminSidebar({ className, onLinkClick }: AdminSidebarPro
                     </div>
                     <ChevronRight className="h-3 w-3" />
                 </Link>
-            </div>
-        </aside>
+            </div>        </aside>
     )
 }
