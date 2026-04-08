@@ -62,7 +62,7 @@ export const getPricingPageContent = cache(async (): Promise<PricingPageContent>
             }
         },
         ['pricing-page-content'],
-        { tags: ['settings', 'pricing-page-content', 'seo-data-pricing'], revalidate: 86400 }
+        { tags: ['settings', 'pricing-page-content', 'seo-data-pricing'], revalidate: false }
     )();
 });
 
@@ -129,7 +129,7 @@ export const getPricingPlans = cache(async (): Promise<PricingPlan[]> => {
             }
         },
         ['pricing-plans'],
-        { tags: ['settings', 'pricing-plans'], revalidate: 86400 }
+        { tags: ['settings', 'pricing-plans'], revalidate: false }
     )();
 });
 

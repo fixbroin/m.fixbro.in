@@ -122,21 +122,26 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const settings = await getGeneralSettings();
-  const themeSettings = await getThemeSettings();
-  const vantaSettings = await getVantaSettings();
-  const contactInfo = await getContactDetails();
-  const legalPages = await getLegalPages();
-  
-  console.log('🎨 Theme Settings Fetched:', themeSettings ? 'Yes' : 'No');
-  
-  const pageSlug = 'home'; // Default to home for global LD JSON
-  const seoData = await getSeoData(pageSlug);
-
-  // Fetch marketing settings. We will handle excluding them from admin via CSS or a simpler check if necessary.
-  const marketingSettings = await getMarketingSettings();
+  const [
+    settings,
+    themeSettings,
+    vantaSettings,
+    contactInfo,
+    legalPages,
+    marketingSettings,
+    seoData
+  ] = await Promise.all([
+    getGeneralSettings(),
+    getThemeSettings(),
+    getVantaSettings(),
+    getContactDetails(),
+    getLegalPages(),
+    getMarketingSettings(),
+    getSeoData('home')
+  ]);
 
   // themeSettings IS already the themeColors object (light/dark palettes)
+
   const themeColors = themeSettings || {
     light: DEFAULT_LIGHT_THEME_COLORS_HSL,
     dark: DEFAULT_DARK_THEME_COLORS_HSL

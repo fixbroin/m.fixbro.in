@@ -11,14 +11,11 @@ export const getThemeSettings = cache(async (): Promise<ThemeColors | null> => {
     return await unstable_cache(
         async () => {
             try {
-                console.log('🔄 Fetching theme settings from MySQL...');
                 const rows = await db.query<RowDataPacket[]>('SELECT setting_value FROM settings WHERE setting_key = ?', ['theme_settings']);
                 if (rows.length > 0) {
                     const data = typeof rows[0].setting_value === 'string' ? JSON.parse(rows[0].setting_value) : rows[0].setting_value;
-                    console.log('✅ Theme settings found.');
                     return (data as GlobalWebSettings).themeColors || null;
                 }
-                console.log('ℹ️ No theme settings found in MySQL.');
                 return null;
             } catch (error) {
                 console.error("❌ Failed to fetch theme settings:", error);
@@ -26,7 +23,7 @@ export const getThemeSettings = cache(async (): Promise<ThemeColors | null> => {
             }
         },
         ['theme-settings-data'],
-        { tags: ['settings', 'theme-settings'], revalidate: 86400 }
+        { tags: ['settings', 'theme-settings'], revalidate: false }
     )();
 });
 

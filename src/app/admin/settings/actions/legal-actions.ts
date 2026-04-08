@@ -54,7 +54,7 @@ export const getLegalPages = cache(async (): Promise<LegalPage[]> => {
             }
         },
         ['legal-pages'],
-        { tags: ['legal-pages', 'seo-data'], revalidate: 86400 }
+        { tags: ['legal-pages', 'seo-data'], revalidate: false }
     )();
 });
 
@@ -75,7 +75,7 @@ export const getLegalPageContent = cache(async (slug: string): Promise<LegalPage
             }
         },
         [`legal-page-${slug}`],
-        { tags: [`legal-page-${slug}`, 'legal-pages', `seo-data-${slug}`], revalidate: 86400 }
+        { tags: [`legal-page-${slug}`, 'legal-pages', `seo-data-${slug}`], revalidate: false }
     )();
 });
 

@@ -68,7 +68,7 @@ export const getFaqs = cache(async (): Promise<FaqItem[]> => {
             }
         },
         ['faqs-list'],
-        { tags: ['settings', 'faqs-list'], revalidate: 86400 }
+        { tags: ['settings', 'faqs-list'], revalidate: false }
     )();
 });
 

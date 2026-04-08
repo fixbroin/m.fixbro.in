@@ -65,7 +65,7 @@ export const getServicesPageContent = cache(async (): Promise<ServicesPageConten
             }
         },
         ['services-page-content'],
-        { tags: ['settings', 'services-page-content', 'seo-data-services'], revalidate: 86400 }
+        { tags: ['settings', 'services-page-content', 'seo-data-services'], revalidate: false }
     )();
 });
 
@@ -145,7 +145,7 @@ export const getServices = cache(async (): Promise<Service[]> => {
             }
         },
         ['services-list'],
-        { tags: ['settings', 'services-list'], revalidate: 86400 }
+        { tags: ['settings', 'services-list'], revalidate: false }
     )();
 });
 

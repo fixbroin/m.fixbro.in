@@ -83,7 +83,7 @@ export const getGeneralSettings = cache(async (): Promise<GeneralSettings> => {
             }
         },
         ['general-settings'],
-        { tags: ['settings', 'general-settings'], revalidate: 86400 }
+        { tags: ['settings', 'general-settings'], revalidate: false }
     )();
 });
 

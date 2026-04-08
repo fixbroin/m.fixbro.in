@@ -57,7 +57,7 @@ export const getPortfolioPageContent = cache(async (): Promise<PortfolioPageCont
             }
         },
         ['portfolio-page-content'],
-        { tags: ['settings', 'portfolio-page-content', 'seo-data-portfolio'], revalidate: 86400 }
+        { tags: ['settings', 'portfolio-page-content', 'seo-data-portfolio'], revalidate: false }
     )();
 });
 
@@ -105,7 +105,7 @@ export const getPortfolioItems = cache(async (): Promise<PortfolioItem[]> => {
             }
         },
         ['portfolio-items'],
-        { tags: ['settings', 'portfolio-items'], revalidate: 86400 }
+        { tags: ['settings', 'portfolio-items'], revalidate: false }
     )();
 });
 

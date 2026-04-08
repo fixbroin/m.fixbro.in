@@ -41,6 +41,8 @@ const formSchema = z.object({
   contact_badge: z.string().min(1, "Required"),
   contact_title: z.string().min(1, "Required"),
   contact_description: z.string().min(1, "Required"),
+  contact_h1: z.string().min(1, "Required"),
+  contact_h1_paragraph: z.string().min(1, "Required"),
   contact_form_title: z.string().min(1, "Required"),
   contact_form_button: z.string().min(1, "Required"),
 

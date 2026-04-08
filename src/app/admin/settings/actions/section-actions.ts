@@ -133,7 +133,7 @@ export const getSectionSettings = cache(async (): Promise<SectionSettings> => {
             }
         },
         ['section-settings'],
-        { tags: ['settings', 'section-settings'], revalidate: 86400 }
+        { tags: ['settings', 'section-settings'], revalidate: false }
     )();
 });
 

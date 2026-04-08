@@ -55,7 +55,7 @@ export const getHomePageContent = cache(async (): Promise<HomePageContent | null
             }
         },
         ['home-page-content'],
-        { tags: ['settings', 'home-page-content', 'seo-data-home'], revalidate: 86400 }
+        { tags: ['settings', 'home-page-content', 'seo-data-home'], revalidate: false }
     )();
 });
 

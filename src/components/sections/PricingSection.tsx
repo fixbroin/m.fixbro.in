@@ -137,7 +137,7 @@ export default function PricingSection() {
         trackEvent('user_action', {
             action: 'book_now_click',
             planTitle: plan.title,
-            planPrice: plan.price
+            planPrice: plan.value
         });
     };
 

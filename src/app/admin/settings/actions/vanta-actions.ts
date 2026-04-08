@@ -56,7 +56,7 @@ export const getVantaSettings = cache(async (): Promise<VantaSettings> => {
             }
         },
         ['vanta-settings'],
-        { tags: ['settings', 'vanta-settings'], revalidate: 86400 }
+        { tags: ['settings', 'vanta-settings'], revalidate: false }
     )();
 });
 

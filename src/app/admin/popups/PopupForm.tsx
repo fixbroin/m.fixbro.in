@@ -26,6 +26,32 @@ import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Upload, X, Loader2 } from "lucide-react";
 
+interface PopupFormFields {
+    name: boolean;
+    email: boolean;
+    phone: boolean;
+}
+
+interface PopupFormData {
+    name: string;
+    type: string;
+    trigger_type: string;
+    trigger_value: number;
+    pages: string[];
+    devices: string;
+    title: string;
+    description: string;
+    media_type: 'image' | 'video' | 'none';
+    media_url: string;
+    cta_text: string;
+    cta_link: string;
+    show_form: boolean;
+    form_fields: PopupFormFields;
+    frequency: string;
+    is_active: boolean;
+    id?: number;
+}
+
 interface PopupFormProps {
     isOpen: boolean;
     onClose: () => void;
@@ -37,7 +63,7 @@ export default function PopupForm({ isOpen, onClose, popup }: PopupFormProps) {
     const [isSaving, setIsSaving] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     
-    const [formData, setFormData] = useState<any>({
+    const [formData, setFormData] = useState<PopupFormData>({
         name: '',
         type: 'welcome',
         trigger_type: 'on_load',
@@ -131,7 +157,7 @@ export default function PopupForm({ isOpen, onClose, popup }: PopupFormProps) {
                     await deleteFile(oldUrl);
                 }
                 
-                setFormData(prev => ({ ...prev, media_url: res.url }));
+                setFormData(prev => ({ ...prev, media_url: res.url || '' }));
                 toast({ title: "Success", description: "Media uploaded successfully." });
             } else {
                 toast({ title: "Upload Failed", description: res.error || "Failed to upload file.", variant: "destructive" });

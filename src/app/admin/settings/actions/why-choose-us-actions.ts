@@ -82,7 +82,7 @@ export const getWhyChooseUsContent = cache(async (): Promise<WhyChooseUsContent>
             }
         },
         ['why-choose-us-content'],
-        { tags: ['settings', 'why-choose-us-content'], revalidate: 86400 }
+        { tags: ['settings', 'why-choose-us-content'], revalidate: false }
     )();
 });
 

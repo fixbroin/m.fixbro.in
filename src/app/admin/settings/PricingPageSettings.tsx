@@ -319,7 +319,7 @@ export default function PricingPageSettings() {
               ))}
             </div>
 
-            <Button type="button" variant="outline" onClick={() => append({ title: '', price: '0', description: '', is_featured: false, is_enabled: true, buttonText: 'Contact Us', features: [], displayOrder: fields.length + 1 })}>
+            <Button type="button" variant="outline" onClick={() => append({ title: '', value: '0', description: '', is_featured: false, is_enabled: true, features: [], displayOrder: fields.length + 1 })}>
                 Add Pricing Plan
             </Button>
             

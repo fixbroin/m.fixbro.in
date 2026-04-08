@@ -65,7 +65,7 @@ export const getMarketingSettings = cache(async (): Promise<MarketingSettings> =
             }
         },
         ['marketing-settings'],
-        { tags: ['settings', 'marketing-settings'], revalidate: 86400 }
+        { tags: ['settings', 'marketing-settings'], revalidate: false }
     )();
 });
 

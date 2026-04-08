@@ -61,7 +61,7 @@ export const getContactDetails = cache(async (): Promise<ContactDetails> => {
             }
         },
         ['contact-details'],
-        { tags: ['settings', 'contact-details', 'seo-data-contact'], revalidate: 86400 }
+        { tags: ['settings', 'contact-details', 'seo-data-contact'], revalidate: false }
     )();
 });
 

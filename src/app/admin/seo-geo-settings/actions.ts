@@ -126,7 +126,7 @@ export const getSeoData = cache(async (pageSlug: string): Promise<PageSeoContent
             }
         },
         [`seo-data-${pageSlug}`],
-        { tags: ['settings', 'seo-data', `seo-data-${pageSlug}`], revalidate: 86400 }
+        { tags: ['settings', 'seo-data', `seo-data-${pageSlug}`], revalidate: false }
     )();
 });
 

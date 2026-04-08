@@ -88,7 +88,7 @@ export const getTestimonials = cache(async (): Promise<Testimonial[]> => {
             }
         },
         ['testimonials-list'],
-        { tags: ['settings', 'testimonials-list'], revalidate: 86400 }
+        { tags: ['settings', 'testimonials-list'], revalidate: false }
     )();
 });
 
