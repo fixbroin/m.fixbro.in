@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useForm } from 'react-hook-form';
@@ -20,11 +19,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { getGeneralSettings, updateGeneralSettings } from './actions/general-actions';
 import ImageUploadInput from './ImageUploadInput';
-import { Facebook, Instagram, Linkedin, Twitter, Youtube, Globe, Share2, Sparkles, Save, MousePointerClick } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, Twitter, Youtube, Globe, Share2, Sparkles, Save, MousePointerClick, Coins } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { motion } from 'framer-motion';
-import { Separator } from '@/components/ui/separator';
 
 const loaderTypes = [
   "pulse", "typing", "bars", "gradient", "orbit", "dots", "progress", 
@@ -42,6 +40,8 @@ const formSchema = z.object({
   linkedin_url: z.string().url().optional().or(z.literal('')),
   youtube_url: z.string().url().optional().or(z.literal('')),
   loaderType: z.string(),
+  currency_symbol: z.string().min(1, 'Currency symbol is required'),
+  currency_code: z.string().min(1, 'Currency code is required'),
   header_cta_text: z.string().min(1, 'CTA Text is required'),
   header_cta_link: z.string().min(1, 'CTA Link is required'),
 });
@@ -63,6 +63,8 @@ export default function GeneralSettings() {
       linkedin_url: '',
       youtube_url: '',
       loaderType: 'pulse',
+      currency_symbol: '₹',
+      currency_code: 'INR',
       header_cta_text: 'Get Quote',
       header_cta_link: '/contact',
     },
@@ -83,6 +85,8 @@ export default function GeneralSettings() {
           linkedin_url: data.linkedin_url || '',
           youtube_url: data.youtube_url || '',
           loaderType: data.loaderType || 'pulse',
+          currency_symbol: data.currency_symbol || '₹',
+          currency_code: data.currency_code || 'INR',
           header_cta_text: data.header_cta_text || 'Get Quote',
           header_cta_link: data.header_cta_link || '/contact',
         });
@@ -101,9 +105,9 @@ export default function GeneralSettings() {
         } catch (error) {
             toast({
                 title: 'Update Failed',
-                description: 'Could not sync settings with the cloud.',
+                description: 'Could not sync settings with the database.',
                 variant: 'destructive',
-            })
+            });
         }
     });
   }
@@ -117,8 +121,9 @@ export default function GeneralSettings() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 text-foreground">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Left Column: Branding */}
+                {/* Left Column: Branding, Currency, CTA & Experience */}
                 <div className="lg:col-span-2 space-y-8">
+                    {/* Identity & Branding */}
                     <Card className="bg-card text-card-foreground border-border shadow-sm dark:shadow-2xl overflow-hidden">
                         <CardHeader className="pb-4 bg-slate-50/50 dark:bg-white/[0.02] border-b border-border">
                             <div className="flex items-center gap-3">
@@ -131,7 +136,7 @@ export default function GeneralSettings() {
                                 </div>
                             </div>
                         </CardHeader>
-                        <CardContent className="space-y-6 pt-6">
+                        <CardContent className="pt-6 space-y-6">
                             <FormField
                                 control={form.control}
                                 name="website_name"
@@ -139,7 +144,7 @@ export default function GeneralSettings() {
                                     <FormItem>
                                     <FormLabel className="text-slate-700 dark:text-gray-300 font-semibold">Website Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Fixbro" {...field} className="bg-slate-50 dark:bg-white/5 border-border text-foreground h-11 focus-visible:ring-primary/20 transition-all" />
+                                        <Input placeholder="Fixbro Interiors" {...field} className="bg-slate-50 dark:bg-white/5 border-border text-foreground h-11 focus-visible:ring-primary/20 transition-all" />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -156,7 +161,7 @@ export default function GeneralSettings() {
                                         <FormControl>
                                         <ImageUploadInput id="logo-upload" value={field.value} onChange={field.onChange} folder="site" />
                                         </FormControl>
-                                        <FormDescription className="text-white dark:text-gray-500 text-[11px]">Recommended: Transparent PNG, max 40px height.</FormDescription>
+                                        <FormDescription className="text-slate-500 text-[11px]">Recommended: Transparent PNG, max 40px height.</FormDescription>
                                         <FormMessage />
                                         </FormItem>
                                     )}
@@ -170,7 +175,7 @@ export default function GeneralSettings() {
                                         <FormControl>
                                         <ImageUploadInput id="favicon-upload" value={field.value} onChange={field.onChange} folder="site" />
                                         </FormControl>
-                                        <FormDescription className="text-white dark:text-gray-500 text-[11px]">Best: 32x32px .png or .ico file.</FormDescription>
+                                        <FormDescription className="text-slate-500 text-[11px]">Best: 32x32px .png or .ico file.</FormDescription>
                                         <FormMessage />
                                         </FormItem>
                                     )}
@@ -184,7 +189,7 @@ export default function GeneralSettings() {
                                     <FormItem>
                                     <FormLabel className="text-slate-700 dark:text-gray-300 font-semibold">Footer Tagline</FormLabel>
                                     <FormControl>
-                                        <Textarea placeholder="Crafting modern digital experiences..." {...field} className="bg-slate-50 dark:bg-white/5 border-border text-foreground min-h-[100px] focus-visible:ring-primary/20 transition-all" />
+                                        <Textarea placeholder="Transforming spaces with precision and style..." {...field} className="bg-slate-50 dark:bg-white/5 border-border text-foreground min-h-[100px] focus-visible:ring-primary/20 transition-all" />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -193,6 +198,54 @@ export default function GeneralSettings() {
                         </CardContent>
                     </Card>
 
+                    {/* Currency & Localization */}
+                    <Card className="bg-card text-card-foreground border-border shadow-sm dark:shadow-2xl overflow-hidden">
+                        <CardHeader className="pb-4 bg-slate-50/50 dark:bg-white/[0.02] border-b border-border">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
+                                    <Coins className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <CardTitle className="text-xl text-foreground font-bold">Currency & Localization</CardTitle>
+                                    <CardDescription className="text-muted-foreground">Global currency configuration across checkout, pricing, and orders.</CardDescription>
+                                </div>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="pt-6 space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="currency_symbol"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-slate-700 dark:text-gray-300 font-semibold">Currency Symbol</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g. ₹, $, €, £, AED" {...field} className="bg-slate-50 dark:bg-white/5 border-border text-foreground h-11 focus-visible:ring-primary/20 transition-all font-mono" />
+                                            </FormControl>
+                                            <FormDescription className="text-[11px]">Symbol displayed in pricing plans, summary & checkout</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="currency_code"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-slate-700 dark:text-gray-300 font-semibold">Currency Code (ISO)</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g. INR, USD, EUR, GBP, AED" {...field} className="bg-slate-50 dark:bg-white/5 border-border text-foreground h-11 focus-visible:ring-primary/20 transition-all font-mono uppercase" />
+                                            </FormControl>
+                                            <FormDescription className="text-[11px]">3-letter standard code for payment gateways</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Header CTA */}
                     <Card className="bg-card text-card-foreground border-border shadow-sm dark:shadow-2xl overflow-hidden">
                         <CardHeader className="pb-4 bg-slate-50/50 dark:bg-white/[0.02] border-b border-border">
                             <div className="flex items-center gap-3">
@@ -205,14 +258,14 @@ export default function GeneralSettings() {
                                 </div>
                             </div>
                         </CardHeader>
-                        <CardContent className="space-y-6 pt-6">
+                        <CardContent className="pt-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <FormField
                                     control={form.control}
                                     name="header_cta_text"
                                     render={({ field }) => (
                                         <FormItem>
-                                        <FormLabel className="text-slate-700 dark:text-gray-300 font-semibold">Button Text</FormLabel>
+                                        <FormLabel className="text-slate-700 dark:text-gray-300 font-semibold">Button Label</FormLabel>
                                         <FormControl>
                                             <Input placeholder="Get Quote" {...field} className="bg-slate-50 dark:bg-white/5 border-border text-foreground h-11 focus-visible:ring-primary/20 transition-all" />
                                         </FormControl>
@@ -225,7 +278,7 @@ export default function GeneralSettings() {
                                     name="header_cta_link"
                                     render={({ field }) => (
                                         <FormItem>
-                                        <FormLabel className="text-slate-700 dark:text-gray-300 font-semibold">Button Link (URL)</FormLabel>
+                                        <FormLabel className="text-slate-700 dark:text-gray-300 font-semibold">Target Destination</FormLabel>
                                         <FormControl>
                                             <Input placeholder="/contact" {...field} className="bg-slate-50 dark:bg-white/5 border-border text-foreground h-11 focus-visible:ring-primary/20 transition-all" />
                                         </FormControl>
@@ -238,6 +291,7 @@ export default function GeneralSettings() {
                         </CardContent>
                     </Card>
 
+                    {/* Experience Settings */}
                     <Card className="bg-card text-card-foreground border-border shadow-sm dark:shadow-2xl overflow-hidden">
                         <CardHeader className="pb-4 bg-slate-50/50 dark:bg-white/[0.02] border-b border-border">
                             <div className="flex items-center gap-3">
@@ -293,13 +347,13 @@ export default function GeneralSettings() {
                                 </div>
                             </div>
                         </CardHeader>
-                        <CardContent className="space-y-4 pt-6">
+                        <CardContent className="pt-6 space-y-4">
                             <FormField
                                 control={form.control}
                                 name="facebook_url"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel className="text-[10px] text-white dark:text-gray-500 flex items-center gap-2 font-bold uppercase tracking-wider"><Facebook size={12} className="text-[#1877F2]"/> Facebook</FormLabel>
+                                    <FormLabel className="text-[10px] text-slate-500 flex items-center gap-2 font-bold uppercase tracking-wider"><Facebook size={12} className="text-[#1877F2]"/> Facebook</FormLabel>
                                     <FormControl>
                                         <Input {...field} className="bg-slate-50 dark:bg-white/5 border-border text-foreground h-10 text-sm focus-visible:ring-primary/20 transition-all" />
                                     </FormControl>
@@ -312,7 +366,7 @@ export default function GeneralSettings() {
                                 name="instagram_url"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel className="text-[10px] text-white dark:text-gray-500 flex items-center gap-2 font-bold uppercase tracking-wider"><Instagram size={12} className="text-[#E4405F]"/> Instagram</FormLabel>
+                                    <FormLabel className="text-[10px] text-slate-500 flex items-center gap-2 font-bold uppercase tracking-wider"><Instagram size={12} className="text-[#E4405F]"/> Instagram</FormLabel>
                                     <FormControl>
                                         <Input {...field} className="bg-slate-50 dark:bg-white/5 border-border text-foreground h-10 text-sm focus-visible:ring-primary/20 transition-all" />
                                     </FormControl>
@@ -325,7 +379,7 @@ export default function GeneralSettings() {
                                 name="twitter_url"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel className="text-[10px] text-white dark:text-gray-500 flex items-center gap-2 font-bold uppercase tracking-wider"><Twitter size={12} className="text-[#1DA1F2]"/> Twitter (X)</FormLabel>
+                                    <FormLabel className="text-[10px] text-slate-500 flex items-center gap-2 font-bold uppercase tracking-wider"><Twitter size={12} className="text-[#1DA1F2]"/> Twitter / X</FormLabel>
                                     <FormControl>
                                         <Input {...field} className="bg-slate-50 dark:bg-white/5 border-border text-foreground h-10 text-sm focus-visible:ring-primary/20 transition-all" />
                                     </FormControl>
@@ -338,7 +392,7 @@ export default function GeneralSettings() {
                                 name="linkedin_url"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel className="text-[10px] text-white dark:text-gray-500 flex items-center gap-2 font-bold uppercase tracking-wider"><Linkedin size={12} className="text-[#0A66C2]"/> LinkedIn</FormLabel>
+                                    <FormLabel className="text-[10px] text-slate-500 flex items-center gap-2 font-bold uppercase tracking-wider"><Linkedin size={12} className="text-[#0A66C2]"/> LinkedIn</FormLabel>
                                     <FormControl>
                                         <Input {...field} className="bg-slate-50 dark:bg-white/5 border-border text-foreground h-10 text-sm focus-visible:ring-primary/20 transition-all" />
                                     </FormControl>
@@ -351,7 +405,7 @@ export default function GeneralSettings() {
                                 name="youtube_url"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel className="text-[10px] text-white dark:text-gray-500 flex items-center gap-2 font-bold uppercase tracking-wider"><Youtube size={12} className="text-[#FF0000]"/> YouTube</FormLabel>
+                                    <FormLabel className="text-[10px] text-slate-500 flex items-center gap-2 font-bold uppercase tracking-wider"><Youtube size={12} className="text-[#FF0000]"/> YouTube</FormLabel>
                                     <FormControl>
                                         <Input {...field} className="bg-slate-50 dark:bg-white/5 border-border text-foreground h-10 text-sm focus-visible:ring-primary/20 transition-all" />
                                     </FormControl>

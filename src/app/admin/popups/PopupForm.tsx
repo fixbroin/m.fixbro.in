@@ -150,13 +150,8 @@ export default function PopupForm({ isOpen, onClose, popup }: PopupFormProps) {
         uploadFormData.append('file', file);
 
         try {
-            const res = await uploadFile(uploadFormData);
+            const res = await uploadFile(uploadFormData, oldUrl);
             if (res.success && res.url) {
-                // Delete old file if it exists and is local
-                if (oldUrl) {
-                    await deleteFile(oldUrl);
-                }
-                
                 setFormData(prev => ({ ...prev, media_url: res.url || '' }));
                 toast({ title: "Success", description: "Media uploaded successfully." });
             } else {

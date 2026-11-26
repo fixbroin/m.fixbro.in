@@ -6,6 +6,7 @@ Welcome to the FixBro Interiors Next.js + MySQL template documentation.
 
 - **[Installation & VPS Deployment Guide](./guide-how-to-install.md)** — Step-by-step instructions to set up MySQL, configure `.env`, initialize the database, and deploy to a Linux VPS with PM2, Nginx, and SSL.
 - **[`example.env`](./example.env)** — Reference environment variables template. Copy to `.env` in the project root before running `npm run init-db`.
+- **[`example.nginx.conf`](./example.nginx.conf)** — Production Nginx reverse proxy config with HTTPS, `/uploads/` direct serving, `/sw.js` no-cache, and security headers.
 
 ## Quick Overview
 

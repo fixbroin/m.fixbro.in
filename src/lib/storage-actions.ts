@@ -9,7 +9,42 @@ const ALLOWED_EXTENSIONS = new Set([
   '.png', '.jpg', '.jpeg', '.webp', '.gif', '.ico', '.avif', '.mp4', '.webm', '.mov'
 ]);
 
-export async function uploadFile(formData: FormData, folder: string = 'general'): Promise<{ success: boolean; url?: string; error?: string }> {
+function extractLocalUploadPath(url?: string | null): string | null {
+  if (!url) return null;
+  if (url.startsWith('/uploads/')) return url;
+  try {
+    const parsed = new URL(url);
+    if (parsed.pathname.startsWith('/uploads/')) {
+      return parsed.pathname;
+    }
+  } catch {
+    // Not a full URL
+  }
+  return null;
+}
+
+async function removeLocalUploadIfExists(url?: string | null): Promise<void> {
+  const localPath = extractLocalUploadPath(url);
+  if (!localPath) return;
+
+  const relativePath = localPath.replace(/^\/+/, '');
+  const filePath = path.resolve(process.cwd(), 'public', relativePath);
+
+  // Prevent path traversal outside public/uploads
+  if (!filePath.startsWith(UPLOAD_DIR + path.sep)) {
+    throw new Error('Invalid file path.');
+  }
+
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+}
+
+export async function uploadFile(
+  formData: FormData,
+  folder: string = 'general',
+  oldUrl?: string
+): Promise<{ success: boolean; url?: string; error?: string }> {
   try {
     await requireAdmin();
 
@@ -48,6 +83,12 @@ export async function uploadFile(formData: FormData, folder: string = 'general')
     fs.writeFileSync(filePath, buffer);
 
     const publicUrl = `/uploads/${safeFolder}/${fileName}`;
+
+    // Replace existing uploaded file if present and different from the newly written path
+    if (oldUrl && extractLocalUploadPath(oldUrl) !== publicUrl) {
+      await removeLocalUploadIfExists(oldUrl);
+    }
+
     return { success: true, url: publicUrl };
 
   } catch (error: any) {
@@ -59,23 +100,7 @@ export async function uploadFile(formData: FormData, folder: string = 'general')
 export async function deleteFile(url: string): Promise<{ success: boolean; error?: string }> {
   try {
     await requireAdmin();
-
-    if (!url || !url.startsWith('/uploads/')) {
-      return { success: true }; // Not a local upload
-    }
-
-    const relativePath = url.replace(/^\/+/, '');
-    const filePath = path.resolve(process.cwd(), 'public', relativePath);
-
-    // Prevent path traversal outside public/uploads
-    if (!filePath.startsWith(UPLOAD_DIR + path.sep)) {
-      return { success: false, error: 'Invalid file path.' };
-    }
-
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
-
+    await removeLocalUploadIfExists(url);
     return { success: true };
   } catch (error: any) {
     console.error('Local delete error:', error);

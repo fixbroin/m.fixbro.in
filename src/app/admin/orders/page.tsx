@@ -1,4 +1,3 @@
-
 import { Metadata } from 'next';
 import { ShoppingBag } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { APP_NAME } from '@/lib/config';
 import { getOrders } from '@/app/checkout/actions';
+import { getGeneralSettings } from '@/app/admin/settings/actions/general-actions';
 import { cn } from '@/lib/utils';
 import OrdersTableActions from './OrdersTableActions';
 
@@ -18,13 +18,18 @@ export const metadata: Metadata = {
 };
 
 export default async function OrdersPage() {
-  const orders = await getOrders();
+  const [orders, generalSettings] = await Promise.all([
+    getOrders(),
+    getGeneralSettings(),
+  ]);
+
+  const currencySymbol = generalSettings?.currency_symbol || '₹';
 
   return (
     <div className="w-full">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Orders</h1>
-        <p className="text-muted-foreground">Here are all the successful payments from your customers.</p>
+        <h1 className="text-3xl font-bold">Orders & Bookings</h1>
+        <p className="text-muted-foreground">Manage client consultation bookings and orders placed on your website.</p>
       </div>
 
       <Card>
@@ -61,18 +66,18 @@ export default async function OrdersPage() {
                     {order.plan_title}
                   </TableCell>
                   <TableCell>
-                    ₹{Number(order.amount).toLocaleString()}
+                    {currencySymbol}{Number(order.amount).toLocaleString()}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    <Badge variant={order.status === 'completed' ? 'default' : 'destructive'}>
-                        {order.status}
+                    <Badge variant={order.status === 'completed' ? 'default' : order.status === 'pending' ? 'secondary' : 'destructive'}>
+                        {order.status === 'pending' ? 'Pending (Pay Later)' : order.status}
                     </Badge>
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     {order.created_at}
                   </TableCell>
                    <TableCell>
-                    <OrdersTableActions order={order} />
+                    <OrdersTableActions order={order} currencySymbol={currencySymbol} />
                   </TableCell>
                 </TableRow>
               ))}

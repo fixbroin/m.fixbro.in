@@ -4,23 +4,30 @@ import { APP_NAME } from '@/lib/config';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, IndianRupee, ShoppingBag } from 'lucide-react';
+import { Users, Coins, ShoppingBag } from 'lucide-react';
 import { getDashboardSubmissionStats } from '@/app/contact/actions';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import SubmissionsTableActions from '../submissions/SubmissionsTableActions';
 import { getOrderSummaryStats } from '@/app/checkout/actions';
+import { getGeneralSettings } from '@/app/admin/settings/actions/general-actions';
 
 export const metadata: Metadata = {
   title: `Dashboard | Admin | ${APP_NAME}`,
 };
 
 export default async function AdminDashboardPage() {
-  const [{ totalCount: totalSubmissions, recentSubmissions }, { completedCount, totalRevenue }] = await Promise.all([
+  const [
+    { totalCount: totalSubmissions, recentSubmissions }, 
+    { completedCount, totalRevenue },
+    generalSettings
+  ] = await Promise.all([
     getDashboardSubmissionStats(),
     getOrderSummaryStats(),
+    getGeneralSettings(),
   ]);
 
+  const currencySymbol = generalSettings?.currency_symbol || '₹';
 
   return (
     <div className="w-full space-y-8">
@@ -33,12 +40,12 @@ export default async function AdminDashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <IndianRupee className="h-4 w-4 text-muted-foreground" />
+            <Coins className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₹{totalRevenue.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{currencySymbol}{totalRevenue.toLocaleString()}</div>
              <p className="text-xs text-muted-foreground">
-              From successful payments.
+              From completed orders.
             </p>
           </CardContent>
         </Card>

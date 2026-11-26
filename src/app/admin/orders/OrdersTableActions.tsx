@@ -11,9 +11,10 @@ import { Eye, Trash } from "lucide-react";
 
 interface OrdersTableActionsProps {
   order: Order;
+  currencySymbol?: string;
 }
 
-export default function OrdersTableActions({ order }: OrdersTableActionsProps) {
+export default function OrdersTableActions({ order, currencySymbol = '₹' }: OrdersTableActionsProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -51,7 +52,7 @@ export default function OrdersTableActions({ order }: OrdersTableActionsProps) {
             <p><strong>Customer Name:</strong> {order.customer_name}</p>
             <p><strong>Email:</strong> {order.customer_email}</p>
             <p><strong>Plan:</strong> {order.plan_title}</p>
-            <p><strong>Amount:</strong> ₹{Number(order.amount).toLocaleString()}</p>
+            <p><strong>Amount:</strong> {currencySymbol}{Number(order.amount).toLocaleString()}</p>
             <p><strong>Status:</strong> <span className="capitalize">{order.status}</span></p>
             <p><strong>Payment ID:</strong> {order.razorpay_payment_id}</p>
             <p><strong>Order ID:</strong> {order.razorpay_order_id || 'N/A'}</p>

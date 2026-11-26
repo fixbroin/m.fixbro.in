@@ -27,6 +27,7 @@ import { getContactDetails } from './admin/settings/actions/contact-actions';
 import { getLegalPages } from './admin/settings/actions/legal-actions';
 import { WEBSITE_URL } from '@/lib/config';
 import PopupManager from '@/components/PopupManager';
+import MediaProtection from '@/components/MediaProtection';
 
 // Use generateMetadata for dynamic metadata
 export async function generateMetadata(): Promise<Metadata> {
@@ -273,6 +274,7 @@ export default async function RootLayout({
               <Suspense fallback={null}>
                 <AnalyticsTracker />
               </Suspense>
+              <MediaProtection />
               <GlobalLoader />
               <Header settings={settings} />
               <main>{children}</main>

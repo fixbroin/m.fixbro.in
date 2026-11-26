@@ -7,6 +7,7 @@ import * as z from 'zod';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import { getPaymentSettingsInternal } from '@/lib/server-settings';
+import { getGeneralSettings } from '@/app/admin/settings/actions/general-actions';
 import { persistVerifiedOrder } from '@/lib/order-service';
 import { requireAdmin } from '@/lib/auth';
 
@@ -15,10 +16,11 @@ export interface SaveOrderPayload {
     customer_email: string;
     plan_title: string;
     amount: number;
-    razorpay_payment_id: string;
-    razorpay_order_id: string;
-    razorpay_signature: string;
-    status: 'completed' | 'failed';
+    payment_method?: string;
+    razorpay_payment_id?: string;
+    razorpay_order_id?: string;
+    razorpay_signature?: string;
+    status: 'completed' | 'failed' | 'pending';
 }
 
 const orderSchema = z.object({
@@ -26,10 +28,11 @@ const orderSchema = z.object({
     customer_email: z.string().email(),
     plan_title: z.string(),
     amount: z.number(),
-    razorpay_payment_id: z.string(),
-    razorpay_order_id: z.string(),
+    payment_method: z.string().optional(),
+    razorpay_payment_id: z.string().optional().nullable(),
+    razorpay_order_id: z.string().optional().nullable(),
     razorpay_signature: z.string().optional().nullable(),
-    status: z.enum(['completed', 'failed']),
+    status: z.enum(['completed', 'failed', 'pending']),
 });
 
 
@@ -41,16 +44,37 @@ export async function saveOrder(payload: SaveOrderPayload): Promise<{success: bo
     }
 
     try {
-        const { customer_name, customer_email, plan_title, amount, razorpay_payment_id, razorpay_order_id, razorpay_signature, status } = validated.data;
+        const { 
+            customer_name, 
+            customer_email, 
+            plan_title, 
+            amount, 
+            payment_method, 
+            razorpay_payment_id, 
+            razorpay_order_id, 
+            razorpay_signature, 
+            status 
+        } = validated.data;
         
+        const paymentSettings = await getPaymentSettingsInternal();
+
+        // Security check for pending (Pay Later) bookings
+        if (status === 'pending') {
+            if (!paymentSettings?.enable_pay_later) {
+                return { success: false, error: 'Pay Later option is currently not available.' };
+            }
+        }
+
         // Security check for completed payments (never allow bypass from client-callable Server Action)
         if (status === 'completed') {
-            const paymentSettings = await getPaymentSettingsInternal();
+            if (!paymentSettings?.enable_online_payments) {
+                return { success: false, error: 'Online payments are currently disabled.' };
+            }
             if (!paymentSettings?.razorpay_key_secret) {
                 return { success: false, error: 'Payment secret not configured.' };
             }
-            if (!razorpay_signature) {
-                return { success: false, error: 'Payment verification failed. Missing signature.' };
+            if (!razorpay_signature || !razorpay_order_id || !razorpay_payment_id) {
+                return { success: false, error: 'Payment verification failed. Missing transaction data.' };
             }
             
             const generated_signature = crypto
@@ -68,8 +92,9 @@ export async function saveOrder(payload: SaveOrderPayload): Promise<{success: bo
             customer_email,
             plan_title,
             amount,
-            razorpay_payment_id,
-            razorpay_order_id,
+            payment_method: payment_method || (status === 'pending' ? 'pay_later' : 'razorpay'),
+            razorpay_payment_id: razorpay_payment_id || '',
+            razorpay_order_id: razorpay_order_id || '',
             status,
         });
 
@@ -89,7 +114,7 @@ export interface Order {
     amount: number;
     razorpay_payment_id: string;
     razorpay_order_id?: string;
-    status: 'completed' | 'failed';
+    status: 'completed' | 'failed' | 'pending';
     created_at: string;
 }
 
@@ -155,9 +180,12 @@ export async function createRazorpayOrder({
             key_secret: paymentSettings.razorpay_key_secret,
         });
 
+        const generalSettings = await getGeneralSettings();
+        const currencyCode = (generalSettings?.currency_code || "INR").toUpperCase();
+
         const options = {
-            amount: amount * 100, // amount in the smallest currency unit
-            currency: "INR",
+            amount: Math.round(amount * 100), // amount in the smallest currency unit
+            currency: currencyCode,
             receipt: `receipt_order_${Date.now()}`,
             payment_capture: 1, // Enable auto-capture
             notes: {

@@ -5,6 +5,7 @@ import { after } from 'next/server';
 import nodemailer from 'nodemailer';
 import { getEmailSettingsInternal } from '@/lib/server-settings';
 import { getContactDetails } from '@/app/admin/settings/actions/contact-actions';
+import { getGeneralSettings } from '@/app/admin/settings/actions/general-actions';
 import { APP_NAME } from '@/lib/config';
 import { createNotification } from '@/app/admin/notifications/actions';
 
@@ -13,9 +14,10 @@ export interface VerifiedOrderInput {
   customer_email: string;
   plan_title: string;
   amount: number;
-  razorpay_payment_id: string;
-  razorpay_order_id: string;
-  status: 'completed' | 'failed';
+  payment_method?: string;
+  razorpay_payment_id?: string;
+  razorpay_order_id?: string;
+  status: 'completed' | 'failed' | 'pending';
 }
 
 async function sendOrderConfirmationEmails(orderDetails: {
@@ -23,13 +25,19 @@ async function sendOrderConfirmationEmails(orderDetails: {
   customer_email: string;
   plan_title: string;
   amount: number;
-  razorpay_order_id: string;
+  payment_method?: string;
+  order_id?: string;
+  status?: string;
 }) {
   try {
-    const [emailSettings, contactDetails] = await Promise.all([
+    const [emailSettings, contactDetails, generalSettings] = await Promise.all([
       getEmailSettingsInternal(),
       getContactDetails(),
+      getGeneralSettings(),
     ]);
+
+    const currencySymbol = generalSettings?.currency_symbol || '₹';
+    const isPayLater = orderDetails.status === 'pending' || orderDetails.payment_method === 'pay_later';
 
     if (
       !emailSettings.smtp_host ||
@@ -55,17 +63,19 @@ async function sendOrderConfirmationEmails(orderDetails: {
       transporter.sendMail({
         from: `"${APP_NAME}" <${emailSettings.smtp_sender_email}>`,
         to: contactDetails.email,
-        subject: `New Order Received - ${orderDetails.plan_title}`,
+        subject: `New ${isPayLater ? 'Consultation Booking (Pay Later)' : 'Paid Order'} - ${orderDetails.plan_title}`,
         html: `
           <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-              <h2 style="color: #333;">New Order Notification</h2>
+              <h2 style="color: #333;">New Order / Booking Notification</h2>
               <p>A new order has been placed on your website.</p>
               <hr>
               <p><strong>Customer Name:</strong> ${orderDetails.customer_name}</p>
               <p><strong>Customer Email:</strong> <a href="mailto:${orderDetails.customer_email}">${orderDetails.customer_email}</a></p>
-              <p><strong>Plan Purchased:</strong> ${orderDetails.plan_title}</p>
-              <p><strong>Amount:</strong> ₹${orderDetails.amount.toLocaleString()}</p>
-              <p><strong>Razorpay Order ID:</strong> ${orderDetails.razorpay_order_id}</p>
+              <p><strong>Plan:</strong> ${orderDetails.plan_title}</p>
+              <p><strong>Amount:</strong> ${currencySymbol}${orderDetails.amount.toLocaleString()}</p>
+              <p><strong>Payment Method:</strong> ${isPayLater ? 'Pay Later / Offline Consultation' : 'Online Payment (Razorpay)'}</p>
+              <p><strong>Status:</strong> ${orderDetails.status || (isPayLater ? 'Pending' : 'Completed')}</p>
+              ${orderDetails.order_id ? `<p><strong>Order Reference:</strong> ${orderDetails.order_id}</p>` : ''}
               <hr>
               <p style="font-size: 0.9em; color: #888;">This email was sent from the automated system on ${APP_NAME}.</p>
           </div>
@@ -74,18 +84,20 @@ async function sendOrderConfirmationEmails(orderDetails: {
       transporter.sendMail({
         from: `"${APP_NAME}" <${emailSettings.smtp_sender_email}>`,
         to: orderDetails.customer_email,
-        subject: `Your Order Confirmation from ${APP_NAME}`,
+        subject: `Your Booking Confirmation from ${APP_NAME}`,
         html: `
           <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-              <h2 style="color: #333;">Thank You For Your Order, ${orderDetails.customer_name}!</h2>
-              <p>We have successfully received your payment. Here are the details of your purchase:</p>
+              <h2 style="color: #333;">Thank You For Your Booking, ${orderDetails.customer_name}!</h2>
+              <p>${isPayLater ? 'We have received your consultation booking. Our design team will contact you to confirm details.' : 'We have successfully received your payment. Here are your booking details:'}</p>
               <div style="padding: 15px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
                   <p><strong>Plan:</strong> ${orderDetails.plan_title}</p>
-                  <p><strong>Amount Paid:</strong> ₹${orderDetails.amount.toLocaleString()}</p>
-                  <p><strong>Order ID:</strong> ${orderDetails.razorpay_order_id}</p>
+                  <p><strong>Amount:</strong> ${currencySymbol}${orderDetails.amount.toLocaleString()}</p>
+                  <p><strong>Payment Method:</strong> ${isPayLater ? 'Pay Later / Offline' : 'Online Payment'}</p>
+                  <p><strong>Status:</strong> ${isPayLater ? 'Pending Confirmation' : 'Paid / Confirmed'}</p>
+                  ${orderDetails.order_id ? `<p><strong>Order ID:</strong> ${orderDetails.order_id}</p>` : ''}
               </div>
               <hr style="margin: 20px 0;">
-              <p>We will get started on your project right away. If you have any questions, please feel free to contact us.</p>
+              <p>We are excited to help you transform your space. If you have any questions, feel free to reach out.</p>
               <p>Best Regards,</p>
               <p><strong>The ${APP_NAME} Team</strong></p>
           </div>
@@ -98,22 +110,34 @@ async function sendOrderConfirmationEmails(orderDetails: {
 }
 
 /**
- * Persists an already-verified order to MySQL and dispatches notifications/emails.
- * Must only be called from server-side code after signature verification.
+ * Persists an order to MySQL and dispatches notifications/emails.
  */
 export async function persistVerifiedOrder(input: VerifiedOrderInput): Promise<void> {
-  const { customer_name, customer_email, plan_title, amount, razorpay_payment_id, razorpay_order_id, status } = input;
+  const { 
+    customer_name, 
+    customer_email, 
+    plan_title, 
+    amount, 
+    payment_method, 
+    razorpay_payment_id, 
+    razorpay_order_id, 
+    status 
+  } = input;
   const id = uuidv4();
+  const method = payment_method || (razorpay_payment_id ? 'razorpay' : 'pay_later');
 
   await db.query(
     'INSERT INTO orders (id, customer_name, customer_email, plan_title, plan_price, payment_method, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    [id, customer_name, customer_email, plan_title, amount.toString(), razorpay_payment_id, status]
+    [id, customer_name, customer_email, plan_title, amount.toString(), method, status]
   );
+
+  const generalSettings = await getGeneralSettings();
+  const currencySymbol = generalSettings?.currency_symbol || '₹';
 
   if (status === 'completed') {
     await createNotification({
       type: 'order',
-      message: `${customer_name} just purchased the ${plan_title} for ₹${amount.toLocaleString()}.`,
+      message: `${customer_name} just purchased ${plan_title} for ${currencySymbol}${amount.toLocaleString()} (Paid Online).`,
     });
 
     after(() =>
@@ -122,7 +146,26 @@ export async function persistVerifiedOrder(input: VerifiedOrderInput): Promise<v
         customer_email,
         plan_title,
         amount,
-        razorpay_order_id,
+        payment_method: method,
+        order_id: razorpay_order_id || id,
+        status: 'completed',
+      })
+    );
+  } else if (status === 'pending') {
+    await createNotification({
+      type: 'order',
+      message: `${customer_name} booked consultation for ${plan_title} (${currencySymbol}${amount.toLocaleString()} - Pay Later).`,
+    });
+
+    after(() =>
+      sendOrderConfirmationEmails({
+        customer_name,
+        customer_email,
+        plan_title,
+        amount,
+        payment_method: 'pay_later',
+        order_id: id,
+        status: 'pending',
       })
     );
   }

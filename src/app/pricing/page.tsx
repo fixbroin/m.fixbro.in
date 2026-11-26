@@ -2,6 +2,7 @@
 import { Metadata } from 'next';
 import PricingSection from '@/components/sections/PricingSection';
 import { getSeoData } from '../admin/seo-geo-settings/actions';
+import { getPricingPageContent } from '../admin/settings/actions/pricing-actions';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import { Sparkles } from 'lucide-react';
 import { WEBSITE_URL } from '@/lib/config';
@@ -25,7 +26,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PricingPage() {
-  const seoData = await getSeoData('pricing');
+  const [seoData, pageContent] = await Promise.all([
+    getSeoData('pricing'),
+    getPricingPageContent(),
+  ]);
+
   return (
     <main className="overflow-hidden">
       {/* Header */}
@@ -58,8 +63,12 @@ export default async function PricingPage() {
       <section className="py-24 bg-slate-900 text-white">
         <div className="container text-center">
             <ScrollAnimation variant="fadeInUp" className="max-w-4xl mx-auto">
-                <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-8">No hidden fees. Just <span className="text-primary">pure results.</span></h2>
-                <p className="text-white text-lg font-medium leading-relaxed">All our plans include a dedicated project manager, 24/7 technical support, and a 100% satisfaction guarantee. We build for the long term.</p>
+                <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-8">
+                  {pageContent.trust_title || 'No hidden fees. Just transparent quality.'}
+                </h2>
+                <p className="text-white text-lg font-medium leading-relaxed">
+                  {pageContent.trust_description || 'All our interior plans include a dedicated project manager, complete turnkey execution support, and a 100% satisfaction guarantee.'}
+                </p>
             </ScrollAnimation>
         </div>
       </section>

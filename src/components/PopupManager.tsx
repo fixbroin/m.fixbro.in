@@ -206,6 +206,8 @@ export default function PopupManager() {
                                     <img 
                                         src={activePopup.media_url} 
                                         alt={activePopup.title} 
+                                        draggable={false}
+                                        onContextMenu={(e) => e.preventDefault()}
                                         className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                                     />
                                 </div>
@@ -219,6 +221,9 @@ export default function PopupManager() {
                                         muted 
                                         loop 
                                         playsInline
+                                        controlsList="nodownload"
+                                        disablePictureInPicture
+                                        onContextMenu={(e) => e.preventDefault()}
                                         className="w-full h-full object-contain"
                                     />
                                 </div>

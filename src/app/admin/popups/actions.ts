@@ -7,9 +7,9 @@ import { cache } from 'react';
 import { uploadFile as libUploadFile, deleteFile as libDeleteFile } from '@/lib/storage-actions';
 import { requireAdmin } from '@/lib/auth';
 
-export async function uploadFile(formData: FormData) {
+export async function uploadFile(formData: FormData, oldUrl?: string) {
     await requireAdmin();
-    return await libUploadFile(formData, 'popups');
+    return await libUploadFile(formData, 'popups', oldUrl);
 }
 
 export async function deleteFile(url: string) {

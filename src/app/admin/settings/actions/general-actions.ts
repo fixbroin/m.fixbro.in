@@ -17,6 +17,8 @@ export interface GeneralSettings {
     linkedin_url: string;
     youtube_url: string;
     loaderType: string;
+    currency_symbol?: string;
+    currency_code?: string;
     google_site_verification?: string;
     header_cta_text?: string;
     header_cta_link?: string;
@@ -40,6 +42,8 @@ export const getGeneralSettings = cache(async (): Promise<GeneralSettings> => {
                         linkedin_url: data.linkedin_url || '',
                         youtube_url: data.youtube_url || '',
                         loaderType: data.loaderType || 'pulse',
+                        currency_symbol: data.currency_symbol || '₹',
+                        currency_code: data.currency_code || 'INR',
                         google_site_verification: data.google_site_verification || '',
                         header_cta_text: data.header_cta_text || 'Get Quote',
                         header_cta_link: data.header_cta_link || '/contact',
@@ -56,6 +60,8 @@ export const getGeneralSettings = cache(async (): Promise<GeneralSettings> => {
                         linkedin_url: '',
                         youtube_url: '',
                         loaderType: 'pulse',
+                        currency_symbol: '₹',
+                        currency_code: 'INR',
                         google_site_verification: '',
                         header_cta_text: 'Get Quote',
                         header_cta_link: '/contact',
@@ -77,6 +83,8 @@ export const getGeneralSettings = cache(async (): Promise<GeneralSettings> => {
                     linkedin_url: '',
                     youtube_url: '',
                     loaderType: 'pulse',
+                    currency_symbol: '₹',
+                    currency_code: 'INR',
                     google_site_verification: '',
                     header_cta_text: 'Get Quote',
                     header_cta_link: '/contact',

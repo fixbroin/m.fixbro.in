@@ -802,9 +802,15 @@ sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com</pre>
           <li>Go to <strong>Profile</strong> (<code class="inline">/admin/profile</code>) and immediately change your <strong>admin email</strong> and <strong>password</strong>.</li>
           <li>Open <strong>Settings</strong> (<code class="inline">/admin/settings</code>) to configure:
             <ul>
-              <li><strong>General Settings:</strong> Brand name, logo, favicon, social links.</li>
-              <li><strong>Email (SMTP):</strong> Host, port, username, password, sender email.</li>
-              <li><strong>Payment Gateway (Razorpay):</strong> Key ID, Key Secret, Webhook Secret.</li>
+              <li><strong>General Settings &amp; Localization:</strong> Brand name, logo, favicon, social links, and <strong>Multi-Currency Settings</strong> (set your currency symbol e.g., <code class="inline">$</code>, <code class="inline">€</code>, <code class="inline">£</code>, <code class="inline">₹</code>, <code class="inline">AED</code> and 3-letter currency code e.g., <code class="inline">USD</code>, <code class="inline">EUR</code>, <code class="inline">INR</code>).</li>
+              <li><strong>Payment Gateway &amp; Offline Bookings:</strong>
+                <ul>
+                  <li><strong>Razorpay:</strong> Key ID, Key Secret, Webhook Secret with an active toggle to enable/disable online checkout.</li>
+                  <li><strong>Pay Later / Offline Consultations:</strong> Toggle offline consultation bookings allowing clients to book design visits and pay in person.</li>
+                </ul>
+              </li>
+              <li><strong>Pricing &amp; Trust Banner:</strong> Customize pricing tiers, plan features, and the dynamic Trust &amp; Guarantee banner.</li>
+              <li><strong>Email (SMTP):</strong> Host, port, username, password, sender email for instant booking confirmations and inquiry alerts.</li>
             </ul>
           </li>
           <li>In your Razorpay Dashboard, set the Webhook URL to:

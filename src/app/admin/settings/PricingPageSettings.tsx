@@ -42,6 +42,8 @@ const formSchema = z.object({
   paragraph: z.string().min(10, 'Paragraph must be at least 10 characters.'),
   title: z.string().min(1, "Title is required"),
   subtitle: z.string().min(1, "Subtitle is required"),
+  trust_title: z.string().optional(),
+  trust_description: z.string().optional(),
   plans: z.array(planSchema),
 });
 
@@ -56,6 +58,8 @@ export default function PricingPageSettings() {
       paragraph: '',
       title: '',
       subtitle: '',
+      trust_title: '',
+      trust_description: '',
       plans: [],
     },
   });
@@ -89,6 +93,8 @@ export default function PricingPageSettings() {
         form.setValue('paragraph', contentData.paragraph || '');
         form.setValue('title', contentData.title || '');
         form.setValue('subtitle', contentData.subtitle || '');
+        form.setValue('trust_title', contentData.trust_title || '');
+        form.setValue('trust_description', contentData.trust_description || '');
       }
     });
   }, [form]);
@@ -96,8 +102,8 @@ export default function PricingPageSettings() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(async () => {
         try {
-            const { h1_title, paragraph, title, subtitle, plans } = values;
-            await updatePricingPageContent({ h1_title, paragraph, title, subtitle });
+            const { h1_title, paragraph, title, subtitle, trust_title, trust_description, plans } = values;
+            await updatePricingPageContent({ h1_title, paragraph, title, subtitle, trust_title, trust_description });
             await updatePricingPlans(plans);
 
             toast({
@@ -121,6 +127,8 @@ export default function PricingPageSettings() {
               form.setValue('paragraph', contentData.paragraph);
               form.setValue('title', contentData.title);
               form.setValue('subtitle', contentData.subtitle);
+              form.setValue('trust_title', contentData.trust_title || '');
+              form.setValue('trust_description', contentData.trust_description || '');
             }
         } catch(error) {
              toast({
@@ -198,6 +206,37 @@ export default function PricingPageSettings() {
                         <FormLabel>Section Subtitle</FormLabel>
                         <FormControl>
                             <Textarea placeholder="Pricing Section Subtitle" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </div>
+
+            <div className="space-y-4 rounded-lg border p-4">
+                <h3 className="text-lg font-semibold">Trust & Guarantee Banner</h3>
+                <Separator />
+                <FormField
+                    control={form.control}
+                    name="trust_title"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Trust Heading</FormLabel>
+                        <FormControl>
+                            <Input placeholder="e.g. No hidden fees. Just transparent quality." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="trust_description"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Trust Description</FormLabel>
+                        <FormControl>
+                            <Textarea placeholder="e.g. All our interior plans include a dedicated project manager, complete turnkey execution..." {...field} className="min-h-[80px]" />
                         </FormControl>
                         <FormMessage />
                         </FormItem>

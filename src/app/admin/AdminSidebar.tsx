@@ -11,6 +11,8 @@ import {
   MousePointerClick
 } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
+import { getGeneralSettings } from "./settings/actions/general-actions";
 
 const adminNavLinks = [
     { group: "Overview", links: [
@@ -45,15 +47,33 @@ interface AdminSidebarProps {
 
 export default function AdminSidebar({ className, onLinkClick }: AdminSidebarProps) {
     const pathname = usePathname();
+    const [siteName, setSiteName] = useState("Fixbro");
+
+    useEffect(() => {
+        async function loadSettings() {
+            try {
+                const s = await getGeneralSettings();
+                if (s?.website_name) {
+                    setSiteName(s.website_name);
+                }
+            } catch (e) {
+                // Ignore fallback to default
+            }
+        }
+        loadSettings();
+    }, []);
 
     return (
         <aside className={cn("bg-muted text-muted-foreground text-muted-foreground border-r border-border flex flex-col h-screen sticky top-0 shadow-sm", className)}>
             <div className="p-6 mb-2">
                 <div className="flex items-center gap-3 px-2">
-                    <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/25">
+                    <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/25 shrink-0">
                         <Settings className="text-white h-5 w-5" />
                     </div>
-                    <span className="font-black text-foreground tracking-tighter text-2xl uppercase italic">Fixbro<span className="text-primary">Admin</span></span>
+                    <div className="min-w-0">
+                        <span className="font-black text-foreground tracking-tight text-lg uppercase truncate block">{siteName}</span>
+                        <span className="text-[10px] text-primary font-bold uppercase tracking-widest block -mt-1">Admin Panel</span>
+                    </div>
                 </div>
             </div>
             

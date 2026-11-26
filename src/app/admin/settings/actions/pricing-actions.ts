@@ -28,6 +28,8 @@ export interface PricingPageContent {
     paragraph: string;
     title: string;
     subtitle: string;
+    trust_title?: string;
+    trust_description?: string;
 }
 
 export const getPricingPageContent = cache(async (): Promise<PricingPageContent> => {
@@ -48,7 +50,9 @@ export const getPricingPageContent = cache(async (): Promise<PricingPageContent>
                     h1_title: seoData.h1_title || '',
                     paragraph: seoData.paragraph || '',
                     title: data.title || 'Flexible Pricing Plans',
-                    subtitle: data.subtitle || 'Choose a plan that fits your needs. All plans include one year of free support.',
+                    subtitle: data.subtitle || 'Choose a plan that fits your needs. All plans include turnkey execution and dedicated project support.',
+                    trust_title: data.trust_title || 'No hidden fees. Just transparent quality.',
+                    trust_description: data.trust_description || 'All our interior plans include a dedicated project manager, complete turnkey execution support, and a 100% satisfaction guarantee.',
                 };
             } catch (error) {
                 console.error("Failed to fetch pricing page content:", error);
@@ -57,7 +61,9 @@ export const getPricingPageContent = cache(async (): Promise<PricingPageContent>
                     h1_title: seoData.h1_title || '',
                     paragraph: seoData.paragraph || '',
                     title: 'Flexible Pricing Plans',
-                    subtitle: 'Choose a plan that fits your needs. All plans include one year of free support.',
+                    subtitle: 'Choose a plan that fits your needs. All plans include turnkey execution and dedicated project support.',
+                    trust_title: 'No hidden fees. Just transparent quality.',
+                    trust_description: 'All our interior plans include a dedicated project manager, complete turnkey execution support, and a 100% satisfaction guarantee.',
                 };
             }
         },

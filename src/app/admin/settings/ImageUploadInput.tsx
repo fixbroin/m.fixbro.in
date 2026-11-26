@@ -61,17 +61,11 @@ export default function ImageUploadInput({
         const formData = new FormData();
         formData.append('file', file);
 
-        const result = await uploadFile(formData, folder);
+        const result = await uploadFile(formData, folder, value);
 
         if (result.success && result.url) {
-            const oldUrl = value;
             onChange(result.url);
             toast({ title: 'Success', description: 'File uploaded successfully!' });
-
-            // Delete old file AFTER success
-            if (oldUrl && oldUrl.startsWith('/uploads/')) {
-                await deleteFile(oldUrl);
-            }
         } else {
             throw new Error(result.error || 'Upload failed');
         }
