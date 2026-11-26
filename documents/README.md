@@ -1,4 +1,4 @@
-# CineElite ADS
+# Fixbro
 
 A fast, SEO-optimized, and mobile-friendly website for a web design service. Built with Next.js and Tailwind CSS.
 
@@ -8,7 +8,7 @@ It also includes a GenAI-powered tool for generating SEO-friendly meta descripti
 
 ## Getting Started
 
-First, create a `.env` file and add `NEXT_PUBLIC_APP_NAME="CineElite ADS"` to it.
+First, create a `.env` file and add `NEXT_PUBLIC_APP_NAME="Fixbro"` to it.
 
 Then, run the development server:
 

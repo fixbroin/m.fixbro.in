@@ -1,8 +1,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { getPaymentSettings } from '@/app/admin/settings/actions/payment-actions';
-import { saveOrder, SaveOrderPayload } from '@/app/checkout/actions';
+import { getPaymentSettingsInternal } from '@/lib/server-settings';
+import { persistVerifiedOrder } from '@/lib/order-service';
 import db from '@/lib/db';
 
 export async function POST(req: NextRequest) {
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Signature missing' }, { status: 400 });
         }
 
-        const settings = await getPaymentSettings();
+        const settings = await getPaymentSettingsInternal();
         const webhookSecret = settings.razorpay_webhook_secret;
 
         if (webhookSecret) {
@@ -27,8 +27,11 @@ export async function POST(req: NextRequest) {
                 console.error('Webhook signature mismatch');
                 return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
             }
+        } else if (process.env.NODE_ENV === 'production') {
+            console.error('Razorpay Webhook Secret not configured in production.');
+            return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 500 });
         } else {
-            console.warn('Razorpay Webhook Secret not configured. Skipping signature verification.');
+            console.warn('Razorpay Webhook Secret not configured. Skipping signature verification in non-production.');
         }
 
         const payload = JSON.parse(body);
@@ -59,24 +62,15 @@ export async function POST(req: NextRequest) {
                 return NextResponse.json({ status: 'ok', message: 'Order already exists' });
             }
 
-            // Prepare payload for saveOrder
-            // Note: We bypass the payment signature check in saveOrder by setting status to 'completed'
-            // but we've already verified the WEBHOOK signature here.
-            // However, saveOrder in actions.ts STILL tries to verify the payment signature if status is 'completed'.
-            // I should probably modify saveOrder to have an option to skip verification if called from webhook.
-            
-            const orderPayload: SaveOrderPayload = {
+            await persistVerifiedOrder({
                 customer_name: notes.customer_name,
                 customer_email: notes.customer_email,
                 plan_title: notes.plan_title,
                 amount: Number(notes.amount),
                 razorpay_payment_id: paymentId,
                 razorpay_order_id: orderId,
-                razorpay_signature: 'WEBHOOK_VERIFIED', // Sentinel value or handle it in saveOrder
                 status: 'completed'
-            };
-
-            await saveOrder(orderPayload);
+            });
             console.log(`Webhook: Successfully processed order for ${notes.customer_email}`);
         }
 

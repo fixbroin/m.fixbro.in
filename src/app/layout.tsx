@@ -13,7 +13,6 @@ import { getThemeSettings } from './admin/settings/actions/theme-actions';
 import { DEFAULT_DARK_THEME_COLORS_HSL, DEFAULT_LIGHT_THEME_COLORS_HSL } from '@/lib/colorUtils';
 import { getVantaSettings } from './admin/settings/actions/vanta-actions';
 import { getMarketingSettings } from './admin/marketing/actions';
-import { headers, cookies } from 'next/headers';
 import { LoadingProvider } from '@/context/LoadingContext';
 import GlobalLoader from '@/components/GlobalLoader';
 import { AnalyticsProvider } from '@/context/AnalyticsContext';
@@ -153,9 +152,6 @@ export default async function RootLayout({
       .join('\n');
   };
   
-  const cookieStore = await cookies();
-  const theme = cookieStore.get('theme')?.value || 'light';
-
   const cssVariables = `
     :root {
       ${generateCssVariables(themeColors.light)}
@@ -165,25 +161,32 @@ export default async function RootLayout({
     }
   `;
 
+  const enabledVantaEffects = vantaSettings?.globalEnable
+    ? Array.from(
+        new Set(
+          Object.values(vantaSettings.sections || {})
+            .filter((s: any) => s?.enabled && s?.effect)
+            .map((s: any) => s.effect.toLowerCase())
+        )
+      )
+    : [];
+
   return (
-    <html lang="en" className={cn("scroll-smooth", theme)} suppressHydrationWarning>
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-        {vantaSettings.globalEnable && (
+        {enabledVantaEffects.length > 0 && (
            <>
             <Script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js" strategy="afterInteractive" />
-            <Script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js" strategy="afterInteractive" />
-            <Script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js" strategy="afterInteractive" />
-            <Script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.cells.min.js" strategy="afterInteractive" />
-            <Script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.clouds.min.js" strategy="afterInteractive" />
-            <Script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.dots.min.js" strategy="afterInteractive" />
-            <Script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.fog.min.js" strategy="afterInteractive" />
-            <Script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.globe.min.js" strategy="afterInteractive" />
-            <Script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js" strategy="afterInteractive" />
-            <Script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.rings.min.js" strategy="afterInteractive" />
-            <Script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.trunk.min.js" strategy="afterInteractive" />
+            {enabledVantaEffects.map((effect) => (
+              <Script
+                key={effect}
+                src={`https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.${effect}.min.js`}
+                strategy="afterInteractive"
+              />
+            ))}
            </>
         )}
         <style dangerouslySetInnerHTML={{ __html: cssVariables }} />

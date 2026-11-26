@@ -53,7 +53,7 @@ export default function AdminSidebar({ className, onLinkClick }: AdminSidebarPro
                     <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/25">
                         <Settings className="text-white h-5 w-5" />
                     </div>
-                    <span className="font-black text-foreground tracking-tighter text-2xl uppercase italic">ADS<span className="text-primary">Admin</span></span>
+                    <span className="font-black text-foreground tracking-tighter text-2xl uppercase italic">Fixbro<span className="text-primary">Admin</span></span>
                 </div>
             </div>
             

@@ -2,6 +2,7 @@
 
 import db from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth';
 
 const TABLES_TO_MANAGE = [
     'contact_submissions',
@@ -29,6 +30,7 @@ const TABLES_TO_MANAGE = [
 ];
 
 export async function exportDatabase(): Promise<Record<string, any[]>> {
+  await requireAdmin();
   try {
     const data: Record<string, any[]> = {};
     for (const tableName of TABLES_TO_MANAGE) {
@@ -53,6 +55,7 @@ export async function exportDatabase(): Promise<Record<string, any[]>> {
 }
 
 export async function clearTable(tableName: string): Promise<{ success: boolean; error?: string }> {
+    await requireAdmin();
     try {
         if (!TABLES_TO_MANAGE.includes(tableName)) {
             throw new Error("Invalid table name.");
@@ -73,6 +76,7 @@ export async function clearTable(tableName: string): Promise<{ success: boolean;
 
 
 export async function importDatabase(jsonData: string): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin();
   try {
     const data = JSON.parse(jsonData) as Record<string, any[]>;
 

@@ -45,7 +45,7 @@ export default async function ServicesSection() {
                 {/* Premium Card Glow */}
                 <div className="absolute -inset-0.5 bg-gradient-to-br from-primary/20 to-purple-500/0 rounded-3xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
                 
-                <div className="relative h-full bg-card text-card-foreground border border-border rounded-3xl p-8 transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-2xl dark:group-hover:bg-[#161922]">
+                <div className="relative h-full flex flex-col items-center text-center bg-card text-card-foreground border border-border rounded-3xl p-8 transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-2xl dark:group-hover:bg-[#161922]">
                   <div className="mb-6 inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-white">
                     <DynamicIcon name={service.icon} className="h-7 w-7" />
                   </div>
@@ -54,11 +54,11 @@ export default async function ServicesSection() {
                     {service.title}
                   </h3>
                   
-                  <p className="text-slate-600 dark:text-white leading-relaxed font-medium mb-6">
+                  <p className="text-slate-600 dark:text-white leading-relaxed font-medium mb-6 flex-grow">
                     {service.description}
                   </p>
 
-                  <div className="flex items-center gap-2 text-primary font-bold text-sm">
+                  <div className="flex items-center justify-center gap-2 text-primary font-bold text-sm">
                     <span>Learn more</span>
                     <div className="w-4 h-0.5 bg-primary transform origin-left transition-transform duration-300 group-hover:scale-x-150" />
                   </div>

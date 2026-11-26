@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { getPaymentSettings } from '../admin/settings/actions/payment-actions';
+import { getPublicPaymentSettings } from '../admin/settings/actions/payment-actions';
 import { useEffect, useState } from 'react';
 import { APP_NAME } from '@/lib/config';
 import { saveOrder, SaveOrderPayload, createRazorpayOrder } from './actions';
@@ -72,7 +72,7 @@ export default function CheckoutForm({ planTitle, planPrice }: CheckoutFormProps
 
   useEffect(() => {
     async function fetchKey() {
-        const settings = await getPaymentSettings();
+        const settings = await getPublicPaymentSettings();
         if (settings?.enable_online_payments && settings.razorpay_key_id) {
             setRazorpayKey(settings.razorpay_key_id);
         }

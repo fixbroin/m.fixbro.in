@@ -8,6 +8,7 @@ import { cache } from 'react';
 import * as z from 'zod';
 import { notFound } from 'next/navigation';
 import { deleteFile } from '@/lib/storage-actions';
+import { requireAdmin } from '@/lib/auth';
 
 // The schema is now defined in TestimonialForm.tsx
 const testimonialSchema = z.object({
@@ -24,6 +25,7 @@ export type Testimonial = z.infer<typeof testimonialSchema> & {
 export type TestimonialFormData = z.infer<typeof testimonialSchema>;
 
 export async function addTestimonial(data: TestimonialFormData) {
+  await requireAdmin();
   const validated = testimonialSchema.safeParse(data);
   if (!validated.success) {
     return { success: false, error: 'Invalid data provided.' };
@@ -112,6 +114,7 @@ export async function getTestimonial(id: string): Promise<TestimonialFormData | 
 }
 
 export async function updateTestimonial(id: string, data: TestimonialFormData) {
+  await requireAdmin();
   const validated = testimonialSchema.safeParse(data);
   if (!validated.success) {
     return { success: false, error: 'Invalid data provided.' };
@@ -133,6 +136,7 @@ export async function updateTestimonial(id: string, data: TestimonialFormData) {
 }
 
 export async function deleteTestimonial(id: string) {
+  await requireAdmin();
   try {
     const testimonial = await getTestimonial(id);
     if (testimonial && testimonial.image) {

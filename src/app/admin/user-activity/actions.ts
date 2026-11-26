@@ -3,6 +3,7 @@
 
 import db from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth';
 
 interface AnalyticsEvent {
     id: string;
@@ -20,6 +21,7 @@ export interface UserEvent extends AnalyticsEvent {
 }
 
 export async function getRecentPageVisits(count: number = 20): Promise<PageVisit[]> {
+    await requireAdmin();
     try {
         const rows: any = await db.query(
             'SELECT * FROM page_visits ORDER BY timestamp DESC LIMIT ?',
@@ -43,6 +45,7 @@ export async function getRecentPageVisits(count: number = 20): Promise<PageVisit
 }
 
 export async function getRecentUserEvents(count: number = 20): Promise<UserEvent[]> {
+    await requireAdmin();
     try {
         const rows: any = await db.query(
             'SELECT * FROM user_events ORDER BY timestamp DESC LIMIT ?',
@@ -68,6 +71,7 @@ export async function getRecentUserEvents(count: number = 20): Promise<UserEvent
 
 
 export async function clearUserActivity(): Promise<{ success: boolean; error?: string }> {
+    await requireAdmin();
     try {
         await db.query('DELETE FROM page_visits');
         await db.query('DELETE FROM user_events');

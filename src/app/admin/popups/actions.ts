@@ -2,18 +2,23 @@
 
 import { query } from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
+import { cache } from 'react';
 import { uploadFile as libUploadFile, deleteFile as libDeleteFile } from '@/lib/storage-actions';
+import { requireAdmin } from '@/lib/auth';
 
 export async function uploadFile(formData: FormData) {
+    await requireAdmin();
     return await libUploadFile(formData, 'popups');
 }
 
 export async function deleteFile(url: string) {
+    await requireAdmin();
     return await libDeleteFile(url);
 }
 
 export async function getPopups() {
+    await requireAdmin();
     try {
         const results = await query('SELECT * FROM popups ORDER BY created_at DESC');
         return results as any[];
@@ -34,6 +39,7 @@ export async function getPopupById(id: string) {
 }
 
 export async function savePopup(data: any) {
+    await requireAdmin();
     const {
         id,
         name,
@@ -91,6 +97,7 @@ export async function savePopup(data: any) {
                 ]
             );
         }
+        revalidateTag('active-popups');
         revalidatePath('/admin/popups');
         revalidatePath('/');
         return { success: true };
@@ -101,6 +108,7 @@ export async function savePopup(data: any) {
 }
 
 export async function deletePopup(id: string) {
+    await requireAdmin();
     try {
         const popup = await getPopupById(id);
         if (popup && popup.media_url) {
@@ -108,6 +116,7 @@ export async function deletePopup(id: string) {
         }
 
         await query('DELETE FROM popups WHERE id = ?', [id]);
+        revalidateTag('active-popups');
         revalidatePath('/admin/popups');
         revalidatePath('/');
         return { success: true };
@@ -118,8 +127,10 @@ export async function deletePopup(id: string) {
 }
 
 export async function togglePopupStatus(id: string, isActive: boolean) {
+    await requireAdmin();
     try {
         await query('UPDATE popups SET is_active = ? WHERE id = ?', [isActive, id]);
+        revalidateTag('active-popups');
         revalidatePath('/admin/popups');
         revalidatePath('/');
         return { success: true };
@@ -129,17 +140,24 @@ export async function togglePopupStatus(id: string, isActive: boolean) {
     }
 }
 
-export async function getActivePopups() {
-    try {
-        const results = await query('SELECT * FROM popups WHERE is_active = TRUE');
-        return results as any[];
-    } catch (error) {
-        console.error('Error fetching active popups:', error);
-        return [];
-    }
-}
+export const getActivePopups = cache(async () => {
+    return await unstable_cache(
+        async () => {
+            try {
+                const results = await query('SELECT * FROM popups WHERE is_active = TRUE');
+                return results as any[];
+            } catch (error) {
+                console.error('Error fetching active popups:', error);
+                return [];
+            }
+        },
+        ['active-popups'],
+        { tags: ['active-popups'], revalidate: false }
+    )();
+});
 
 export async function getPopupLeads() {
+    await requireAdmin();
     try {
         const results = await query(`
             SELECT pl.*, p.name as popup_name 
@@ -155,6 +173,7 @@ export async function getPopupLeads() {
 }
 
 export async function deleteLead(id: string) {
+    await requireAdmin();
     try {
         await query('DELETE FROM popup_leads WHERE id = ?', [id]);
         revalidatePath('/admin/popups');

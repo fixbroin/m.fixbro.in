@@ -17,7 +17,7 @@ const pool = mysql.createPool({
   multipleStatements: true,
 });
 
-async function ensureAuthSecret() {
+async function ensureEnvDefaults() {
   const envPath = path.join(process.cwd(), '.env');
   let envContent = '';
   
@@ -25,17 +25,63 @@ async function ensureAuthSecret() {
     envContent = fs.readFileSync(envPath, 'utf8');
   }
 
-  if (!envContent.includes('AUTH_SECRET=')) {
-    const newSecret = crypto.randomBytes(32).toString('hex');
-    const secretLine = `\nAUTH_SECRET=${newSecret}`;
-    fs.appendFileSync(envPath, secretLine);
-    console.log('🔑 Generated new AUTH_SECRET and added to .env');
+  let updatedContent = envContent;
+  const additions: string[] = [];
+
+  const setOrAppendEnv = (key: string, value: string, logMsg: string) => {
+    const emptyLineRegex = new RegExp(`^${key}=\\s*$`, 'm');
+    const existingValueRegex = new RegExp(`^${key}=.+`, 'm');
+
+    if (existingValueRegex.test(updatedContent)) {
+      return; // Already has a non-empty value
+    }
+
+    if (emptyLineRegex.test(updatedContent)) {
+      updatedContent = updatedContent.replace(emptyLineRegex, `${key}=${value}`);
+    } else {
+      additions.push(`${key}=${value}`);
+    }
+    process.env[key] = value;
+    console.log(logMsg);
+  };
+
+  if (!process.env.AUTH_SECRET) {
+    setOrAppendEnv(
+      'AUTH_SECRET',
+      crypto.randomBytes(32).toString('hex'),
+      '🔑 Generated new AUTH_SECRET and saved to .env'
+    );
+  }
+
+  if (!process.env.ADMIN_USERNAME) {
+    setOrAppendEnv(
+      'ADMIN_USERNAME',
+      'admin',
+      '👤 Added ADMIN_USERNAME to .env'
+    );
+  }
+
+  if (!process.env.DEFAULT_ADMIN_PASSWORD) {
+    setOrAppendEnv(
+      'DEFAULT_ADMIN_PASSWORD',
+      crypto.randomBytes(12).toString('base64url'),
+      '🔐 Generated new DEFAULT_ADMIN_PASSWORD and saved to .env'
+    );
+  }
+
+  if (additions.length > 0) {
+    const prefix = updatedContent.length > 0 && !updatedContent.endsWith('\n') ? '\n' : '';
+    updatedContent = `${updatedContent}${prefix}${additions.join('\n')}\n`;
+  }
+
+  if (updatedContent !== envContent) {
+    fs.writeFileSync(envPath, updatedContent, 'utf8');
   }
 }
 
 async function init() {
   console.log('🚀 Comprehensive Database Initialization Starting...');
-  await ensureAuthSecret();
+  await ensureEnvDefaults();
   
   try {
     // 0. Connect and Create DB
@@ -104,6 +150,34 @@ async function init() {
     await ensureColumn('faqs', 'displayOrder', 'INT DEFAULT 0');
     await ensureColumn('portfolio_items', 'mediaType', "VARCHAR(50) DEFAULT 'image'");
     await ensureColumn('portfolio_items', 'displayOrder', 'INT DEFAULT 0');
+
+    // --- Ensure performance indexes exist ---
+    const ensureIndex = async (table: string, indexName: string, columns: string) => {
+        try {
+            const [rows]: any = await connection.query(`SHOW INDEX FROM \`${table}\` WHERE Key_name = ?`, [indexName]);
+            if (rows.length === 0) {
+                await connection.query(`CREATE INDEX \`${indexName}\` ON \`${table}\` (${columns})`);
+                console.log(`✅ Index "${indexName}" created on "${table}".`);
+            }
+        } catch (e) {
+            console.error(`❌ Error ensuring index ${indexName} on ${table}:`, e);
+        }
+    };
+
+    await ensureIndex('orders', 'idx_orders_created_at', 'created_at');
+    await ensureIndex('orders', 'idx_orders_email_plan', 'customer_email, plan_title, created_at');
+    await ensureIndex('orders', 'idx_orders_payment_method', 'payment_method');
+    await ensureIndex('visitor_logs', 'idx_visitor_logs_timestamp', 'timestamp');
+    await ensureIndex('page_visits', 'idx_page_visits_timestamp', 'timestamp');
+    await ensureIndex('user_events', 'idx_user_events_timestamp', 'timestamp');
+    await ensureIndex('booking_funnel', 'idx_booking_funnel_timestamp', 'timestamp');
+    await ensureIndex('user_activity', 'idx_user_activity_timestamp', 'timestamp');
+    await ensureIndex('notifications', 'idx_notifications_read_created', 'isRead, createdAt');
+    await ensureIndex('popups', 'idx_popups_is_active', 'is_active');
+    await ensureIndex('pricing_plans', 'idx_pricing_plans_order', 'displayOrder');
+    await ensureIndex('services', 'idx_services_order', 'displayOrder');
+    await ensureIndex('portfolio_items', 'idx_portfolio_items_order', 'displayOrder');
+    await ensureIndex('faqs', 'idx_faqs_order', 'displayOrder');
 
     // 2. Check if data exists
     const [rows]: any = await connection.query('SELECT COUNT(*) as count FROM settings');
@@ -230,11 +304,11 @@ async function init() {
 
     // Pricing Plans
     const plans = [
-      { id: uuidv4(), title: 'Essential', price: '₹99,000', billingCycle: 'per package', description: 'Perfect for single room makeovers.', features: JSON.stringify([{name:'2D Layouts'}, {name:'Color Consultation'}]), displayOrder: 1 },
-      { id: uuidv4(), title: 'Premium', price: '₹4,99,000', billingCycle: 'per project', description: 'Full home interior transformation.', features: JSON.stringify([{name:'Full 3D Renderings'}, {name:'Turnkey Execution'}]), displayOrder: 2 }
+      { id: uuidv4(), title: 'Essential', value: '₹99,000', billingCycle: 'per package', description: 'Perfect for single room makeovers.', features: JSON.stringify([{name:'2D Layouts'}, {name:'Color Consultation'}]), displayOrder: 1 },
+      { id: uuidv4(), title: 'Premium', value: '₹4,99,000', billingCycle: 'per project', description: 'Full home interior transformation.', features: JSON.stringify([{name:'Full 3D Renderings'}, {name:'Turnkey Execution'}]), displayOrder: 2 }
     ];
     for (const pl of plans) {
-      await connection.query('INSERT INTO pricing_plans (id, title, price, billingCycle, description, features, displayOrder) VALUES (?, ?, ?, ?, ?, ?, ?)', [pl.id, pl.title, pl.price, pl.billingCycle, pl.description, pl.features, pl.displayOrder]);
+      await connection.query('INSERT INTO pricing_plans (id, title, value, billingCycle, description, features, displayOrder) VALUES (?, ?, ?, ?, ?, ?, ?)', [pl.id, pl.title, pl.value, pl.billingCycle, pl.description, pl.features, pl.displayOrder]);
     }
 
     // FAQs
@@ -289,12 +363,14 @@ async function init() {
     console.log('🎉 ALL CONTENT PACKED INTO DATABASE SUCCESSFULLY!');
 
     // --- 5. DEFAULT ADMIN USER ---
-    const hashedPassword = await bcrypt.hash('admin123', 10);
+    const adminUsername = process.env.ADMIN_USERNAME || 'admin';
+    const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || crypto.randomBytes(12).toString('base64url');
+    const hashedPassword = await bcrypt.hash(adminPassword, 10);
     await connection.query(
       'INSERT INTO admin_users (id, username, password, email) VALUES (?, ?, ?, ?)',
-      [uuidv4(), 'admin', hashedPassword, 'admin@fixbro.in']
+      [uuidv4(), adminUsername, hashedPassword, `${adminUsername}@fixbro.in`]
     );
-    console.log('👤 Default Admin User Created: admin / admin123');
+    console.log(`👤 Default Admin User Created: username="${adminUsername}"`);
 
     connection.release();
     process.exit(0);

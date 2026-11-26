@@ -139,7 +139,7 @@ export default function GeneralSettings() {
                                     <FormItem>
                                     <FormLabel className="text-slate-700 dark:text-gray-300 font-semibold">Website Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="CineElite ADS" {...field} className="bg-slate-50 dark:bg-white/5 border-border text-foreground h-11 focus-visible:ring-primary/20 transition-all" />
+                                        <Input placeholder="Fixbro" {...field} className="bg-slate-50 dark:bg-white/5 border-border text-foreground h-11 focus-visible:ring-primary/20 transition-all" />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>

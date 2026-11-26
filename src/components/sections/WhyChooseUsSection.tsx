@@ -47,7 +47,7 @@ export default async function WhyChooseUsSection() {
               {content.features.map((feature, index) => (
                 <ScrollAnimation key={feature.title} variant="fadeInUp" delay={index * 0.1} className="group">
                   <div className={cn(
-                    "flex flex-col gap-4 p-6 rounded-3xl transition-all duration-300 border",
+                    "flex flex-col items-center text-center gap-4 p-6 rounded-3xl transition-all duration-300 border",
                     useVanta 
                         ? "bg-white/5 border-white/10 text-white" 
                         : "bg-card text-card-foreground border-border group-hover:shadow-xl group-hover:-translate-y-1"

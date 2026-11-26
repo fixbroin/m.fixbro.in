@@ -6,6 +6,7 @@ import { RowDataPacket } from 'mysql2';
 import { revalidatePath, unstable_cache, revalidateTag } from 'next/cache';
 import { cache } from 'react';
 import type { VantaSettings } from '@/types/firestore';
+import { requireAdmin } from '@/lib/auth';
 
 const defaultSectionSettings = {
     enabled: false,
@@ -61,6 +62,7 @@ export const getVantaSettings = cache(async (): Promise<VantaSettings> => {
 });
 
 export async function updateVantaSettings(settings: VantaSettings): Promise<{ success: boolean; error?: string }> {
+    await requireAdmin();
     try {
         const rows = await db.query<RowDataPacket[]>('SELECT setting_value FROM settings WHERE setting_key = ?', ['vanta_settings']);
         let existingData = {};

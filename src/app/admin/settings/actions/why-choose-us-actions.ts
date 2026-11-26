@@ -34,7 +34,7 @@ export const getWhyChooseUsContent = cache(async (): Promise<WhyChooseUsContent>
                         : settingsResult[0].setting_value;
                 } else {
                     contentData = {
-                        title: 'Why Choose CineElite ADS?',
+                        title: 'Why Choose Fixbro?',
                         subtitle: 'We are committed to delivering excellence and innovation in every project.',
                         media_url: 'https://placehold.co/600x800.png',
                         media_type: 'image' as 'image'
@@ -68,7 +68,7 @@ export const getWhyChooseUsContent = cache(async (): Promise<WhyChooseUsContent>
             } catch (error) {
                 console.error('Failed to fetch Why Choose Us content:', error);
                 return {
-                    title: 'Why Choose CineElite ADS?',
+                    title: 'Why Choose Fixbro?',
                     subtitle: 'We are committed to delivering excellence and innovation in every project.',
                     media_url: 'https://placehold.co/600x800.png',
                     media_type: 'image' as 'image',

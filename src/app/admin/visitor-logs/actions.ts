@@ -3,6 +3,7 @@
 
 import db from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth';
 
 export interface VisitorLog {
     id: string;
@@ -16,6 +17,7 @@ export interface VisitorLog {
 }
 
 export async function getVisitorLogs(count: number = 50): Promise<VisitorLog[]> {
+    await requireAdmin();
     try {
         const rows: any = await db.query(
             'SELECT * FROM visitor_logs ORDER BY timestamp DESC LIMIT ?',
@@ -44,6 +46,7 @@ export async function getVisitorLogs(count: number = 50): Promise<VisitorLog[]> 
 
 
 export async function clearVisitorLogs(): Promise<{ success: boolean; error?: string }> {
+    await requireAdmin();
     try {
         await db.query('DELETE FROM visitor_logs');
         revalidatePath('/admin/visitor-logs');

@@ -5,23 +5,21 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, IndianRupee, ShoppingBag } from 'lucide-react';
-import { getSubmissions } from '@/app/contact/actions';
+import { getDashboardSubmissionStats } from '@/app/contact/actions';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import SubmissionsTableActions from '../submissions/SubmissionsTableActions';
-import { getOrders } from '@/app/checkout/actions';
+import { getOrderSummaryStats } from '@/app/checkout/actions';
 
 export const metadata: Metadata = {
   title: `Dashboard | Admin | ${APP_NAME}`,
 };
 
 export default async function AdminDashboardPage() {
-  const submissions = await getSubmissions();
-  const recentSubmissions = submissions.slice(0, 5);
-
-  const orders = await getOrders();
-  const successfulOrders = orders.filter(o => o.status === 'completed');
-  const totalRevenue = successfulOrders.reduce((acc, order) => acc + Number(order.amount), 0);
+  const [{ totalCount: totalSubmissions, recentSubmissions }, { completedCount, totalRevenue }] = await Promise.all([
+    getDashboardSubmissionStats(),
+    getOrderSummaryStats(),
+  ]);
 
 
   return (
@@ -50,7 +48,7 @@ export default async function AdminDashboardPage() {
             <ShoppingBag className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+{successfulOrders.length}</div>
+            <div className="text-2xl font-bold">+{completedCount}</div>
             <p className="text-xs text-muted-foreground">
               Total number of plans sold.
             </p>
@@ -62,7 +60,7 @@ export default async function AdminDashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+{submissions.length}</div>
+            <div className="text-2xl font-bold">+{totalSubmissions}</div>
             <p className="text-xs text-muted-foreground">
               Total contact form submissions received.
             </p>

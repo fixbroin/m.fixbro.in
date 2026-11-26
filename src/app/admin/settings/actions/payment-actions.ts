@@ -4,6 +4,8 @@
 import db from '@/lib/db';
 import { RowDataPacket } from 'mysql2';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth';
+import { getPaymentSettingsInternal } from '@/lib/server-settings';
 
 export interface PaymentSettings {
     razorpay_key_id: string;
@@ -13,38 +15,28 @@ export interface PaymentSettings {
     enable_pay_later: boolean;
 }
 
-export async function getPaymentSettings(): Promise<PaymentSettings> {
-    const defaultData: PaymentSettings = {
-        razorpay_key_id: 'rzp_test_12345',
-        razorpay_key_secret: 'your_secret_key',
-        razorpay_webhook_secret: '',
-        enable_online_payments: true,
-        enable_pay_later: false,
-    };
+export interface PublicPaymentSettings {
+    razorpay_key_id: string;
+    enable_online_payments: boolean;
+    enable_pay_later: boolean;
+}
 
-    try {
-        const rows = await db.query<RowDataPacket[]>('SELECT setting_value FROM settings WHERE setting_key = ?', ['payment_settings']);
-        if (rows.length > 0) {
-            const data = typeof rows[0].setting_value === 'string' ? JSON.parse(rows[0].setting_value) : rows[0].setting_value;
-            return {
-                razorpay_key_id: data.razorpay_key_id || '',
-                razorpay_key_secret: data.razorpay_key_secret || '',
-                razorpay_webhook_secret: data.razorpay_webhook_secret || '',
-                enable_online_payments: data.enable_online_payments === true,
-                enable_pay_later: data.enable_pay_later === true,
-            } as PaymentSettings;
-        } else {
-            await db.query('INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)', 
-                ['payment_settings', JSON.stringify(defaultData)]);
-            return defaultData;
-        }
-    } catch (error) {
-        console.error('Failed to fetch payment settings:', error);
-        return defaultData;
-    }
+export async function getPublicPaymentSettings(): Promise<PublicPaymentSettings> {
+    const data = await getPaymentSettingsInternal();
+    return {
+        razorpay_key_id: data.razorpay_key_id,
+        enable_online_payments: data.enable_online_payments,
+        enable_pay_later: data.enable_pay_later,
+    };
+}
+
+export async function getPaymentSettings(): Promise<PaymentSettings> {
+    await requireAdmin();
+    return getPaymentSettingsInternal();
 }
 
 export async function updatePaymentSettings(settings: PaymentSettings): Promise<void> {
+    await requireAdmin();
     try {
         const rows = await db.query<RowDataPacket[]>('SELECT setting_value FROM settings WHERE setting_key = ?', ['payment_settings']);
         let existingData: any = {};

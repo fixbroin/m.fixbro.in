@@ -4,6 +4,7 @@ import db from '@/lib/db';
 import { RowDataPacket } from 'mysql2';
 import { revalidatePath, unstable_cache, revalidateTag } from 'next/cache';
 import { cache } from 'react';
+import { requireAdmin } from '@/lib/auth';
 
 export interface GeneralSettings {
     website_name: string;
@@ -88,6 +89,7 @@ export const getGeneralSettings = cache(async (): Promise<GeneralSettings> => {
 });
 
 export async function updateGeneralSettings(settings: GeneralSettings): Promise<void> {
+    await requireAdmin();
     try {
         const rows = await db.query<RowDataPacket[]>('SELECT setting_value FROM settings WHERE setting_key = ?', ['general_settings']);
         let existingData = {};

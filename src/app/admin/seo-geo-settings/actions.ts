@@ -6,6 +6,7 @@ import { revalidatePath, unstable_cache, revalidateTag } from 'next/cache';
 import { cache } from 'react';
 import { PageSeoContent, defaultSeoSettings } from '@/types/seo';
 import { WEBSITE_URL } from '@/lib/config';
+import { requireAdmin } from '@/lib/auth';
 
 const defaultContent: Record<string, PageSeoContent> = {
     home: {
@@ -131,6 +132,7 @@ export const getSeoData = cache(async (pageSlug: string): Promise<PageSeoContent
 });
 
 export async function updateSeoData(pageSlug: string, data: PageSeoContent): Promise<{ success: boolean; error?: string }> {
+    await requireAdmin();
     try {
         await db.query(
             'INSERT INTO page_seo (slug, title, description, keywords, ogImage, h1_title, paragraph, schema_type, canonical_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE title = ?, description = ?, keywords = ?, ogImage = ?, h1_title = ?, paragraph = ?, schema_type = ?, canonical_url = ?',

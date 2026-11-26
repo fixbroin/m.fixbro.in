@@ -4,6 +4,8 @@
 import db from '@/lib/db';
 import { RowDataPacket } from 'mysql2';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth';
+import { getEmailSettingsInternal } from '@/lib/server-settings';
 
 export interface EmailSettings {
     smtp_host: string;
@@ -14,34 +16,12 @@ export interface EmailSettings {
 }
 
 export async function getEmailSettings(): Promise<EmailSettings> {
-    try {
-        const rows = await db.query<RowDataPacket[]>('SELECT setting_value FROM settings WHERE setting_key = ?', ['email_settings']);
-        if (rows.length > 0) {
-            const data = typeof rows[0].setting_value === 'string' ? JSON.parse(rows[0].setting_value) : rows[0].setting_value;
-            return {
-                ...data,
-                smtp_port: Number(data.smtp_port) || 587,
-                smtp_password: data.smtp_password || '',
-            };
-        } else {
-            const defaultData: EmailSettings = {
-                smtp_host: 'smtp.example.com',
-                smtp_port: 587,
-                smtp_user: 'user@example.com',
-                smtp_password: 'your-password',
-                smtp_sender_email: 'noreply@example.com',
-            };
-            await db.query('INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)', 
-                ['email_settings', JSON.stringify(defaultData)]);
-            return defaultData;
-        }
-    } catch (error) {
-        console.error("Failed to fetch email settings:", error);
-        throw error;
-    }
+    await requireAdmin();
+    return getEmailSettingsInternal();
 }
 
 export async function updateEmailSettings(settings: Omit<EmailSettings, 'smtp_password'> & { smtp_password?: string }): Promise<void> {
+    await requireAdmin();
     try {
         const rows = await db.query<RowDataPacket[]>('SELECT setting_value FROM settings WHERE setting_key = ?', ['email_settings']);
         let existingData: any = {};

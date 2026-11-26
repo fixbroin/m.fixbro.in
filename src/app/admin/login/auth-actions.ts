@@ -2,13 +2,9 @@
 
 import db from '@/lib/db';
 import bcrypt from 'bcryptjs';
-import { SignJWT, jwtVerify } from 'jose';
+import { SignJWT } from 'jose';
 import { cookies } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
-
-const SECRET_KEY = new TextEncoder().encode(
-  process.env.AUTH_SECRET || 'fixbro-interiors-super-secret-key-12345'
-);
+import { getAuthSecret, getAdminSession } from '@/lib/auth';
 
 export async function login(formData: any) {
   const { username, password } = formData;
@@ -32,7 +28,7 @@ export async function login(formData: any) {
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime('24h')
-      .sign(SECRET_KEY);
+      .sign(getAuthSecret());
 
     // Set HTTP-only cookie
     const cookieStore = await cookies();
@@ -61,15 +57,5 @@ export async function logout() {
 }
 
 export async function getSession() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('admin_session')?.value;
-
-  if (!token) return null;
-
-  try {
-    const { payload } = await jwtVerify(token, SECRET_KEY);
-    return payload;
-  } catch (error) {
-    return null;
-  }
+  return getAdminSession();
 }

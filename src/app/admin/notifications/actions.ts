@@ -3,6 +3,7 @@
 import db from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth';
 
 export interface Notification {
     id?: string;
@@ -26,6 +27,7 @@ export async function createNotification(data: { type: Notification['type']; mes
 }
 
 export async function getNotifications(): Promise<Notification[]> {
+    await requireAdmin();
     try {
         const rows: any = await db.query('SELECT * FROM notifications ORDER BY createdAt DESC');
         return rows.map((row: any) => ({
@@ -42,6 +44,7 @@ export async function getNotifications(): Promise<Notification[]> {
 }
 
 export async function getUnreadNotificationsCount(): Promise<number> {
+    await requireAdmin();
     try {
         const rows: any = await db.query('SELECT COUNT(*) as count FROM notifications WHERE isRead = FALSE');
         return rows[0].count;
@@ -52,6 +55,7 @@ export async function getUnreadNotificationsCount(): Promise<number> {
 }
 
 export async function markAllNotificationsAsRead() {
+    await requireAdmin();
     try {
         await db.query('UPDATE notifications SET isRead = TRUE WHERE isRead = FALSE');
         revalidatePath('/admin/header');
@@ -63,6 +67,7 @@ export async function markAllNotificationsAsRead() {
 
 
 export async function clearAllNotifications(): Promise<{ success: boolean, error?: string}> {
+    await requireAdmin();
     try {
         await db.query('DELETE FROM notifications');
         revalidatePath('/admin/notifications');

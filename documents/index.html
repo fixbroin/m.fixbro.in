@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FixBro Interiors — Complete Installation &amp; VPS Deployment Guide</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-2: #f1f5f9;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --primary: #d97706;
+      --primary-soft: rgba(217, 119, 6, 0.12);
+      --primary-hover: #b45309;
+      --code-bg: #0f172a;
+      --code-text: #e2e8f0;
+      --code-header: #1e293b;
+      --success: #059669;
+      --success-soft: rgba(5, 150, 105, 0.12);
+      --info: #2563eb;
+      --info-soft: rgba(37, 99, 235, 0.1);
+      --warn: #d97706;
+      --warn-soft: rgba(217, 119, 6, 0.12);
+      --shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    html.dark {
+      --bg: #0b0f19;
+      --surface: #111827;
+      --surface-2: #1f2937;
+      --border: #1f2937;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #f59e0b;
+      --primary-soft: rgba(245, 158, 11, 0.14);
+      --primary-hover: #fbbf24;
+      --code-bg: #020617;
+      --code-text: #e2e8f0;
+      --code-header: #0f172a;
+      --success: #10b981;
+      --success-soft: rgba(16, 185, 129, 0.15);
+      --info: #60a5fa;
+      --info-soft: rgba(96, 165, 250, 0.12);
+      --warn: #fbbf24;
+      --warn-soft: rgba(251, 191, 36, 0.12);
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Navbar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    html.dark .topbar {
+      background: rgba(17, 24, 39, 0.85);
+    }
+    .topbar-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+    }
+    .brand-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), #ea580c);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      font-size: 1rem;
+      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+    }
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .pill {
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+    .theme-btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 9px;
+      padding: 7px 12px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .theme-btn:hover { background: var(--surface-2); }
+
+    /* Layout */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+      display: grid;
+      grid-template-columns: 270px 1fr;
+      gap: 36px;
+      align-items: start;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: sticky;
+      top: 84px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+    .sidebar-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin: 0 0 12px;
+    }
+    .nav-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .nav-list a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 9px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.87rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .nav-list a:hover, .nav-list a.active {
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .nav-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: var(--surface-2);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .nav-list a.active .nav-num, .nav-list a:hover .nav-num {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .progress-box {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .progress-bar {
+      height: 7px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary), var(--success));
+      transition: width 0.25s ease;
+    }
+
+    /* Main Content */
+    .main { min-width: 0; display: flex; flex-direction: column; gap: 28px; }
+
+    /* Hero */
+    .hero {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), #ea580c, var(--success));
+    }
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: 2rem;
+      line-height: 1.2;
+      letter-spacing: -0.03em;
+    }
+    .hero p {
+      margin: 0 0 22px;
+      color: var(--text-muted);
+      font-size: 1.02rem;
+      max-width: 720px;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+    }
+    .meta-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .meta-card span {
+      display: block;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+    .meta-card strong {
+      font-size: 0.94rem;
+      font-weight: 700;
+    }
+
+    /* Step Cards */
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      scroll-margin-top: 86px;
+    }
+    .step-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .step-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .step-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 1rem;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .step-card h2 {
+      margin: 0;
+      font-size: 1.32rem;
+      letter-spacing: -0.02em;
+    }
+    .step-sub {
+      margin: 2px 0 0;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+    .check-toggle {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 6px 11px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .check-toggle input { accent-color: var(--success); width: 15px; height: 15px; cursor: pointer; }
+    .check-toggle.done {
+      background: var(--success-soft);
+      border-color: rgba(5, 150, 105, 0.35);
+      color: var(--success);
+    }
+
+    .step-card h3 {
+      margin: 20px 0 8px;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .step-card p, .step-card li {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+    .step-card ul, .step-card ol {
+      padding-left: 20px;
+      margin: 8px 0 14px;
+    }
+    .step-card li { margin-bottom: 6px; }
+
+    code.inline {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.84em;
+      color: var(--text);
+    }
+
+    /* Code Blocks */
+    .code-wrap {
+      margin: 14px 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      background: var(--code-bg);
+    }
+    .code-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      background: var(--code-header);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+      font-size: 0.76rem;
+      color: #94a3b8;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #f8fafc;
+      border-radius: 7px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+    }
+    .copy-btn:hover { background: rgba(255, 255, 255, 0.16); }
+    .copy-btn.copied {
+      background: var(--success);
+      border-color: var(--success);
+      color: #fff;
+    }
+    pre {
+      margin: 0;
+      padding: 16px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.85rem;
+      line-height: 1.55;
+      color: var(--code-text);
+    }
+
+    /* Callouts */
+    .callout {
+      margin: 16px 0;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .callout.info { background: var(--info-soft); border-left: 4px solid var(--info); }
+    .callout.warn { background: var(--warn-soft); border-left: 4px solid var(--warn); }
+    .callout.success { background: var(--success-soft); border-left: 4px solid var(--success); }
+    .callout strong { display: block; margin-bottom: 2px; color: var(--text); }
+    .callout div { color: var(--text-muted); }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.88rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      background: var(--surface-2);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.84rem;
+      padding-top: 12px;
+    }
+
+    @media (max-width: 960px) {
+      .container { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+    }
+    @media (max-width: 600px) {
+      .hero, .step-card { padding: 20px; }
+      .step-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-badge">F</div>
+        <span>FixBro Interiors — Setup &amp; VPS Guide</span>
+      </div>
+      <div class="topbar-actions">
+        <span class="pill">Next.js 15 + MySQL</span>
+        <button class="theme-btn" id="themeToggle" type="button">
+          <span id="themeIcon">🌙</span>
+          <span id="themeText">Dark Mode</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <aside class="sidebar">
+      <p class="sidebar-title">Step-by-Step Guide</p>
+      <ul class="nav-list" id="navList">
+        <li><a href="#step-1"><span class="nav-num">1</span>Server &amp; Node.js</a></li>
+        <li><a href="#step-2"><span class="nav-num">2</span>MySQL Database</a></li>
+        <li><a href="#step-3"><span class="nav-num">3</span>Upload Project</a></li>
+        <li><a href="#step-4"><span class="nav-num">4</span>Configure .env</a></li>
+        <li><a href="#step-5"><span class="nav-num">5</span>Init DB &amp; Build</a></li>
+        <li><a href="#step-6"><span class="nav-num">6</span>Run with PM2</a></li>
+        <li><a href="#step-7"><span class="nav-num">7</span>Nginx &amp; Free SSL</a></li>
+        <li><a href="#step-8"><span class="nav-num">8</span>Admin &amp; Razorpay</a></li>
+        <li><a href="#maintenance"><span class="nav-num">★</span>Maintenance &amp; FAQ</a></li>
+      </ul>
+
+      <div class="progress-box">
+        <div class="progress-label">
+          <span>Setup Progress</span>
+          <span id="progressText">0 / 8</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="hero">
+        <h1>Complete VPS Installation Guide</h1>
+        <p>
+          Follow these 8 steps to deploy your FixBro Interiors website on a fresh Ubuntu/Debian VPS with MySQL,
+          auto-generated admin credentials, PM2 process management, Nginx reverse proxy, and free HTTPS SSL.
+        </p>
+        <div class="meta-grid">
+          <div class="meta-card"><span>Recommended OS</span><strong>Ubuntu 22.04 / 24.04</strong></div>
+          <div class="meta-card"><span>Runtime</span><strong>Node.js 20 LTS+</strong></div>
+          <div class="meta-card"><span>Database</span><strong>MySQL 8.0+</strong></div>
+          <div class="meta-card"><span>App Port</span><strong>3004 (Proxied via 443)</strong></div>
+        </div>
+      </section>
+
+      <!-- STEP 1 -->
+      <section class="step-card" id="step-1" data-step="1">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <div class="step-badge">1</div>
+            <div>
+              <h2>Prepare VPS &amp; Install Node.js 20+</h2>
+              <p class="step-sub">Connect via SSH and install Node.js, Git, and PM2.</p>
+            </div>
+          </div>
+          <label class="check-toggle"><input type="checkbox" class="step-check" data-step="1" /> Mark Done</label>
+        </div>
+
+        <p>Log in to your VPS using SSH (<code class="inline">ssh root@YOUR_SERVER_IP</code>) and update system packages:</p>
+        <div class="code-wrap">
+          <div class="code-head"><span>bash — Update &amp; Install Node.js 20</span><button class="copy-btn" type="button">Copy</button></div>
+          <pre>sudo apt update && sudo apt upgrade -y
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs git build-essential
+node -v && npm -v</pre>
+        </div>
+
+        <p>Install <strong>PM2</strong> globally so your website stays online 24/7 and restarts automatically after crashes or reboots:</p>
+        <div class="code-wrap">
+          <div class="code-head"><span>bash — Install PM2</span><button class="copy-btn" type="button">Copy</button></div>
+          <pre>sudo npm install -g pm2</pre>
+        </div>
+      </section>
+
+      <!-- STEP 2 -->
+      <section class="step-card" id="step-2" data-step="2">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <div class="step-badge">2</div>
+            <div>
+              <h2>Install &amp; Configure MySQL</h2>
+              <p class="step-sub">Create a dedicated database and user for the application.</p>
+            </div>
+          </div>
+          <label class="check-toggle"><input type="checkbox" class="step-check" data-step="2" /> Mark Done</label>
+        </div>
+
+        <div class="code-wrap">
+          <div class="code-head"><span>bash — Install MySQL Server</span><button class="copy-btn" type="button">Copy</button></div>
+          <pre>sudo apt install -y mysql-server
+sudo systemctl enable --now mysql
+sudo mysql</pre>
+        </div>
+
+        <p>Inside the <code class="inline">mysql&gt;</code> prompt, create the database and user (replace <code class="inline">YOUR_STRONG_DB_PASSWORD</code>):</p>
+        <div class="code-wrap">
+          <div class="code-head"><span>sql — Create Database &amp; User</span><button class="copy-btn" type="button">Copy</button></div>
+          <pre>CREATE DATABASE IF NOT EXISTS fixbro_interiors CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'fixbro_user'@'localhost' IDENTIFIED BY 'YOUR_STRONG_DB_PASSWORD';
+GRANT ALL PRIVILEGES ON fixbro_interiors.* TO 'fixbro_user'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;</pre>
+        </div>
+
+        <div class="callout info">
+          <div>
+            <strong>High Traffic Tip (1 Lakh+ Visitors)</strong>
+            MySQL defaults to ~151 <code class="inline">max_connections</code>. Our pool uses <code class="inline">MYSQL_CONNECTION_LIMIT=15</code> per Node instance, so it comfortably supports scaling up without exhausting connections.
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 3 -->
+      <section class="step-card" id="step-3" data-step="3">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <div class="step-badge">3</div>
+            <div>
+              <h2>Upload Project &amp; Install Dependencies</h2>
+              <p class="step-sub">Place your code in <code class="inline">/var/www/fixbro</code> and run <code class="inline">npm install</code>.</p>
+            </div>
+          </div>
+          <label class="check-toggle"><input type="checkbox" class="step-check" data-step="3" /> Mark Done</label>
+        </div>
+
+        <p>Create the project directory, upload your files (via SFTP, FileZilla, or <code class="inline">git clone</code>), and install packages:</p>
+        <div class="code-wrap">
+          <div class="code-head"><span>bash — Setup Directory &amp; Dependencies</span><button class="copy-btn" type="button">Copy</button></div>
+          <pre>sudo mkdir -p /var/www/fixbro
+sudo chown -R $USER:$USER /var/www/fixbro
+cd /var/www/fixbro
+# Upload or clone your project files here
+npm install</pre>
+        </div>
+      </section>
+
+      <!-- STEP 4 -->
+      <section class="step-card" id="step-4" data-step="4">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <div class="step-badge">4</div>
+            <div>
+              <h2>Configure Environment (<code class="inline">.env</code>)</h2>
+              <p class="step-sub">Copy <code class="inline">documents/example.env</code> to <code class="inline">.env</code> and set your domain &amp; DB credentials.</p>
+            </div>
+          </div>
+          <label class="check-toggle"><input type="checkbox" class="step-check" data-step="4" /> Mark Done</label>
+        </div>
+
+        <div class="code-wrap">
+          <div class="code-head"><span>bash — Create .env from Template</span><button class="copy-btn" type="button">Copy</button></div>
+          <pre>cp documents/example.env .env
+nano .env</pre>
+        </div>
+
+        <p>Template contents (also saved in <code class="inline">documents/example.env</code>):</p>
+        <div class="code-wrap">
+          <div class="code-head"><span>.env — Reference Configuration</span><button class="copy-btn" type="button">Copy</button></div>
+          <pre># Application Configuration
+NEXT_PUBLIC_APP_NAME="FixBro Interiors"
+NEXT_PUBLIC_WEBSITE_URL="https://yourdomain.com"
+NEXT_PUBLIC_BASE_URL="https://yourdomain.com"
+PORT=3004
+
+# MySQL Database Configuration
+MYSQL_HOST="127.0.0.1"
+MYSQL_PORT=3306
+MYSQL_DATABASE="fixbro_interiors"
+MYSQL_USER="fixbro_user"
+MYSQL_PASSWORD="YOUR_STRONG_DB_PASSWORD"
+MYSQL_CONNECTION_LIMIT=15
+
+# Authentication &amp; Initial Admin Setup
+# Leave blank to auto-generate secure values on first `npm run init-db`.
+# Existing values are always preserved.
+AUTH_SECRET=
+ADMIN_USERNAME=
+DEFAULT_ADMIN_PASSWORD=</pre>
+        </div>
+
+        <div class="callout warn">
+          <div>
+            <strong>How Auto-Generation Works</strong>
+            If <code class="inline">AUTH_SECRET</code>, <code class="inline">ADMIN_USERNAME</code>, or <code class="inline">DEFAULT_ADMIN_PASSWORD</code> are left blank or omitted, <code class="inline">npm run init-db</code> automatically generates secure random values and saves them into <code class="inline">.env</code>. If they already exist, it keeps your existing values untouched.
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 5 -->
+      <section class="step-card" id="step-5" data-step="5">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <div class="step-badge">5</div>
+            <div>
+              <h2>Initialize Database &amp; Build App</h2>
+              <p class="step-sub">Create tables, indexes, default content, admin user, and compile production bundle.</p>
+            </div>
+          </div>
+          <label class="check-toggle"><input type="checkbox" class="step-check" data-step="5" /> Mark Done</label>
+        </div>
+
+        <div class="code-wrap">
+          <div class="code-head"><span>bash — Initialize DB &amp; Build</span><button class="copy-btn" type="button">Copy</button></div>
+          <pre>npm run init-db
+npm run build</pre>
+        </div>
+
+        <p>Check your generated admin credentials in <code class="inline">.env</code> so you can log in after deployment:</p>
+        <div class="code-wrap">
+          <div class="code-head"><span>bash — View Generated Admin Credentials</span><button class="copy-btn" type="button">Copy</button></div>
+          <pre>grep -E "ADMIN_USERNAME|DEFAULT_ADMIN_PASSWORD" .env</pre>
+        </div>
+      </section>
+
+      <!-- STEP 6 -->
+      <section class="step-card" id="step-6" data-step="6">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <div class="step-badge">6</div>
+            <div>
+              <h2>Start &amp; Persist App with PM2</h2>
+              <p class="step-sub">Run the Next.js production server on port <code class="inline">3004</code>.</p>
+            </div>
+          </div>
+          <label class="check-toggle"><input type="checkbox" class="step-check" data-step="6" /> Mark Done</label>
+        </div>
+
+        <div class="code-wrap">
+          <div class="code-head"><span>bash — Start with PM2</span><button class="copy-btn" type="button">Copy</button></div>
+          <pre>pm2 start npm --name "fixbro" -- start
+pm2 save
+pm2 startup</pre>
+        </div>
+        <p>Copy and run the <code class="inline">sudo env PATH=...</code> command that <code class="inline">pm2 startup</code> prints so PM2 auto-starts on server reboot. Then verify:</p>
+        <div class="code-wrap">
+          <div class="code-head"><span>bash — Verify Local Server</span><button class="copy-btn" type="button">Copy</button></div>
+          <pre>pm2 status
+curl -I http://127.0.0.1:3004</pre>
+        </div>
+      </section>
+
+      <!-- STEP 7 -->
+      <section class="step-card" id="step-7" data-step="7">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <div class="step-badge">7</div>
+            <div>
+              <h2>Configure Nginx Reverse Proxy &amp; Free SSL</h2>
+              <p class="step-sub">Point your domain to port <code class="inline">3004</code> and enable HTTPS with Certbot.</p>
+            </div>
+          </div>
+          <label class="check-toggle"><input type="checkbox" class="step-check" data-step="7" /> Mark Done</label>
+        </div>
+
+        <div class="code-wrap">
+          <div class="code-head"><span>bash — Install Nginx &amp; Certbot</span><button class="copy-btn" type="button">Copy</button></div>
+          <pre>sudo apt install -y nginx certbot python3-certbot-nginx
+sudo nano /etc/nginx/sites-available/fixbro</pre>
+        </div>
+
+        <p>Paste this Nginx config (replace <code class="inline">yourdomain.com</code> with your domain):</p>
+        <div class="code-wrap">
+          <div class="code-head"><span>nginx — /etc/nginx/sites-available/fixbro</span><button class="copy-btn" type="button">Copy</button></div>
+          <pre>server {
+    listen 80;
+    server_name yourdomain.com www.yourdomain.com;
+
+    client_max_body_size 100M;
+
+    location / {
+        proxy_pass http://127.0.0.1:3004;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}</pre>
+        </div>
+
+        <p>Enable the site, test Nginx, and issue your free Let's Encrypt SSL certificate:</p>
+        <div class="code-wrap">
+          <div class="code-head"><span>bash — Enable Site &amp; Issue SSL</span><button class="copy-btn" type="button">Copy</button></div>
+          <pre>sudo ln -s /etc/nginx/sites-available/fixbro /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com</pre>
+        </div>
+      </section>
+
+      <!-- STEP 8 -->
+      <section class="step-card" id="step-8" data-step="8">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <div class="step-badge">8</div>
+            <div>
+              <h2>Post-Install Admin Panel Setup</h2>
+              <p class="step-sub">Secure your admin account and configure Razorpay, Email &amp; SEO.</p>
+            </div>
+          </div>
+          <label class="check-toggle"><input type="checkbox" class="step-check" data-step="8" /> Mark Done</label>
+        </div>
+
+        <ol>
+          <li>Open <code class="inline">https://yourdomain.com/admin/login</code> in your browser.</li>
+          <li>Sign in with <code class="inline">ADMIN_USERNAME</code> and <code class="inline">DEFAULT_ADMIN_PASSWORD</code> from <code class="inline">.env</code>.</li>
+          <li>Go to <strong>Profile</strong> (<code class="inline">/admin/profile</code>) and immediately change your <strong>admin email</strong> and <strong>password</strong>.</li>
+          <li>Open <strong>Settings</strong> (<code class="inline">/admin/settings</code>) to configure:
+            <ul>
+              <li><strong>General Settings:</strong> Brand name, logo, favicon, social links.</li>
+              <li><strong>Email (SMTP):</strong> Host, port, username, password, sender email.</li>
+              <li><strong>Payment Gateway (Razorpay):</strong> Key ID, Key Secret, Webhook Secret.</li>
+            </ul>
+          </li>
+          <li>In your Razorpay Dashboard, set the Webhook URL to:
+            <div class="code-wrap">
+              <div class="code-head"><span>Webhook URL (subscribe to payment.captured &amp; order.paid)</span><button class="copy-btn" type="button">Copy</button></div>
+              <pre>https://yourdomain.com/api/razorpay/webhook</pre>
+            </div>
+          </li>
+        </ol>
+
+        <div class="callout success">
+          <div>
+            <strong>You're Live!</strong>
+            Your FixBro Interiors site is now running with HTTPS, MySQL connection pooling, static/ISR route caching, and protected admin endpoints.
+          </div>
+        </div>
+      </section>
+
+      <!-- MAINTENANCE -->
+      <section class="step-card" id="maintenance">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <div class="step-badge">★</div>
+            <div>
+              <h2>Maintenance &amp; Useful Commands</h2>
+              <p class="step-sub">Common commands for updates, logs, and troubleshooting.</p>
+            </div>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr><th>Task</th><th>Command</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>View live server logs</td><td><code class="inline">pm2 logs fixbro</code></td></tr>
+            <tr><td>Rebuild &amp; restart after edits</td><td><code class="inline">npm run build &amp;&amp; pm2 restart fixbro</code></td></tr>
+            <tr><td>Check DB schema &amp; indexes</td><td><code class="inline">npm run init-db</code></td></tr>
+            <tr><td>Renew SSL certificate test</td><td><code class="inline">sudo certbot renew --dry-run</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <footer>
+        FixBro Interiors Template Documentation • Open this file anytime in Chrome, Edge, or Firefox.
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    // Copy to clipboard for every code block
+    document.querySelectorAll('.copy-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const pre = btn.closest('.code-wrap').querySelector('pre');
+        const text = pre.innerText;
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.classList.remove('copied');
+        }, 1800);
+      });
+    });
+
+    // Dark / Light theme toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
+    const root = document.documentElement;
+
+    function applyTheme(mode) {
+      if (mode === 'dark') {
+        root.classList.add('dark');
+        root.classList.remove('light');
+        themeIcon.textContent = '☀️';
+        themeText.textContent = 'Light Mode';
+      } else {
+        root.classList.add('light');
+        root.classList.remove('dark');
+        themeIcon.textContent = '🌙';
+        themeText.textContent = 'Dark Mode';
+      }
+      localStorage.setItem('fixbro_docs_theme', mode);
+    }
+
+    applyTheme(localStorage.getItem('fixbro_docs_theme') || 'light');
+    themeToggle.addEventListener('click', () => {
+      applyTheme(root.classList.contains('dark') ? 'light' : 'dark');
+    });
+
+    // Interactive step checklist + progress bar
+    const checks = document.querySelectorAll('.step-check');
+    const progressText = document.getElementById('progressText');
+    const progressFill = document.getElementById('progressFill');
+    const savedSteps = JSON.parse(localStorage.getItem('fixbro_docs_steps') || '{}');
+
+    function updateProgress() {
+      let done = 0;
+      checks.forEach((cb) => {
+        const label = cb.closest('.check-toggle');
+        if (cb.checked) {
+          done++;
+          label.classList.add('done');
+        } else {
+          label.classList.remove('done');
+        }
+      });
+      progressText.textContent = `${done} / ${checks.length}`;
+      progressFill.style.width = `${(done / checks.length) * 100}%`;
+    }
+
+    checks.forEach((cb) => {
+      const step = cb.dataset.step;
+      if (savedSteps[step]) cb.checked = true;
+      cb.addEventListener('change', () => {
+        savedSteps[step] = cb.checked;
+        localStorage.setItem('fixbro_docs_steps', JSON.stringify(savedSteps));
+        updateProgress();
+      });
+    });
+    updateProgress();
+
+    // Active sidebar link on scroll
+    const navLinks = document.querySelectorAll('#navList a');
+    const sections = Array.from(navLinks).map((a) => document.querySelector(a.getAttribute('href')));
+    window.addEventListener('scroll', () => {
+      let current = sections[0];
+      for (const sec of sections) {
+        if (sec && sec.getBoundingClientRect().top <= 140) current = sec;
+      }
+      navLinks.forEach((a) => {
+        a.classList.toggle('active', current && a.getAttribute('href') === `#${current.id}`);
+      });
+    }, { passive: true });
+  </script>
+</body>
+</html>

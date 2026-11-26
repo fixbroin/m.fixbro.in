@@ -5,6 +5,7 @@ import db from '@/lib/db';
 import { RowDataPacket } from 'mysql2';
 import { revalidatePath, unstable_cache, revalidateTag } from 'next/cache';
 import { cache } from 'react';
+import { requireAdmin } from '@/lib/auth';
 
 interface Setting {
     enabled: boolean;
@@ -70,6 +71,7 @@ export const getMarketingSettings = cache(async (): Promise<MarketingSettings> =
 });
 
 export async function updateMarketingSettings(settings: MarketingSettings): Promise<void> {
+    await requireAdmin();
     try {
         const rows = await db.query<RowDataPacket[]>('SELECT setting_value FROM settings WHERE setting_key = ?', ['marketing_settings']);
         let existingData = {};

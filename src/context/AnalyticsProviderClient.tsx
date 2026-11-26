@@ -36,9 +36,17 @@ export default function AnalyticsProviderClient({ children }: { children: ReactN
     if (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')) {
       return;
     }
-    // Set session ID once on mount
-    const session = uuidv4();
+    // Reuse session ID within the same browser session to avoid duplicate visitor logs
+    let session = sessionStorage.getItem('analytics_session_id');
+    if (!session) {
+      session = uuidv4();
+      sessionStorage.setItem('analytics_session_id', session);
+    }
     setSessionId(session);
+
+    if (sessionStorage.getItem('analytics_visitor_tracked')) {
+      return;
+    }
 
     // Fetch geo data and send initial visitor log
     async function trackVisitor() {
@@ -52,11 +60,13 @@ export default function AnalyticsProviderClient({ children }: { children: ReactN
             
             const geoDataWithUrl = { ...geoData, pathname: window.location.pathname };
             sendData('/api/track', { sessionId: session, geoData: geoDataWithUrl, deviceInfo });
+            sessionStorage.setItem('analytics_visitor_tracked', '1');
         } catch (error) {
             console.error("Failed to track visitor:", error);
              // Fallback with less data if geo lookup fails
             const deviceInfo = getDeviceInfo(navigator.userAgent);
             sendData('/api/track', { sessionId: session, geoData: {ip: 'Error', pathname: window.location.pathname}, deviceInfo });
+            sessionStorage.setItem('analytics_visitor_tracked', '1');
         }
     }
     

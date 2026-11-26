@@ -2,47 +2,52 @@
 
 import fs from 'fs';
 import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
-import { Readable } from 'stream';
+import { requireAdmin } from '@/lib/auth';
 
 const UPLOAD_DIR = path.resolve(process.cwd(), 'public', 'uploads');
+const ALLOWED_EXTENSIONS = new Set([
+  '.png', '.jpg', '.jpeg', '.webp', '.gif', '.ico', '.avif', '.mp4', '.webm', '.mov'
+]);
 
 export async function uploadFile(formData: FormData, folder: string = 'general'): Promise<{ success: boolean; url?: string; error?: string }> {
   try {
+    await requireAdmin();
+
     const file = formData.get('file') as File;
     if (!file) {
       return { success: false, error: 'No file provided.' };
     }
 
-    // Ensure upload directory and page-specific subfolder exist
-    const targetDir = path.join(UPLOAD_DIR, folder);
+    // Sanitize folder name to prevent path traversal
+    const safeFolder = folder.replace(/[^a-zA-Z0-9_-]/g, '') || 'general';
+    const targetDir = path.resolve(UPLOAD_DIR, safeFolder);
+    if (!targetDir.startsWith(UPLOAD_DIR + path.sep)) {
+      return { success: false, error: 'Invalid upload folder.' };
+    }
+
     if (!fs.existsSync(targetDir)) {
       fs.mkdirSync(targetDir, { recursive: true });
     }
 
-    // Use a more memory-efficient way for larger files (videos)
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    
-    // Create numeric timestamp filename as requested (e.g., 1711234567890.ext)
     const timestamp = Date.now();
-    // Normalize extension and handle edge cases
     let extension = path.extname(file.name).toLowerCase();
     if (!extension && file.type) {
-        extension = `.${file.type.split('/')[1]}`;
+      extension = `.${file.type.split('/')[1]?.toLowerCase() || ''}`;
     }
     if (!extension) extension = '.png';
-    
+
+    if (!ALLOWED_EXTENSIONS.has(extension)) {
+      return { success: false, error: `Unsupported file type: ${extension}` };
+    }
+
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
     const fileName = `${timestamp}${extension}`;
-    
-    const filePath = path.join(targetDir, fileName);
-    
-    // Using synchronous write for now but with a buffer from arrayBuffer
-    // Next.js Server Actions have a limit, but we increased it in next.config.ts
+    const filePath = path.resolve(targetDir, fileName);
+
     fs.writeFileSync(filePath, buffer);
 
-    // Return the public URL - Always use forward slashes for URLs
-    const publicUrl = `/uploads/${folder}/${fileName}`;
+    const publicUrl = `/uploads/${safeFolder}/${fileName}`;
     return { success: true, url: publicUrl };
 
   } catch (error: any) {
@@ -53,12 +58,19 @@ export async function uploadFile(formData: FormData, folder: string = 'general')
 
 export async function deleteFile(url: string): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAdmin();
+
     if (!url || !url.startsWith('/uploads/')) {
       return { success: true }; // Not a local upload
     }
 
-    const relativePath = url.replace(/^\//, ''); // remove leading slash
-    const filePath = path.join(process.cwd(), 'public', relativePath);
+    const relativePath = url.replace(/^\/+/, '');
+    const filePath = path.resolve(process.cwd(), 'public', relativePath);
+
+    // Prevent path traversal outside public/uploads
+    if (!filePath.startsWith(UPLOAD_DIR + path.sep)) {
+      return { success: false, error: 'Invalid file path.' };
+    }
 
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);

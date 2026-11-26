@@ -4,6 +4,7 @@
 import db from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth';
 
 export interface NewsletterSubscriber {
     id: string;
@@ -42,6 +43,7 @@ export async function subscribeToNewsletter(email: string) {
 }
 
 export async function getNewsletterSubscribers(): Promise<NewsletterSubscriber[]> {
+    await requireAdmin();
     try {
         const rows: any = await db.query(
             'SELECT * FROM newsletter_subscribers ORDER BY subscribedAt DESC'
@@ -59,6 +61,7 @@ export async function getNewsletterSubscribers(): Promise<NewsletterSubscriber[]
 }
 
 export async function deleteSubscriber(id: string) {
+    await requireAdmin();
     try {
         await db.query('DELETE FROM newsletter_subscribers WHERE id = ?', [id]);
         revalidatePath('/admin/marketing');

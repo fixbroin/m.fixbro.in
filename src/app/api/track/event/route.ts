@@ -11,7 +11,12 @@ const VALID_COLLECTIONS: Record<string, string> = {
 
 export async function POST(request: NextRequest) {
     try {
-        const { eventType, data } = await request.json();
+        const raw = await request.text();
+        if (raw.length > 8192) {
+            return NextResponse.json({ success: false, error: 'Payload too large.' }, { status: 413 });
+        }
+
+        const { eventType, data } = JSON.parse(raw);
         const headersList = await headers();
         const userAgent = headersList.get('user-agent');
         const ip = headersList.get('x-forwarded-for') ?? (request as any).ip ?? 'unknown';

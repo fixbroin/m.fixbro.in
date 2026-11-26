@@ -1,45 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
-import { createNotification } from '@/app/admin/notifications/actions';
 
 export async function POST(request: NextRequest) {
     try {
-        const { sessionId, geoData, deviceInfo } = await request.json();
+        const raw = await request.text();
+        if (raw.length > 8192) {
+            return NextResponse.json({ success: false, error: 'Payload too large.' }, { status: 413 });
+        }
 
-        if (!sessionId || !geoData || !deviceInfo) {
-            return NextResponse.json({ success: false, error: 'Missing required fields.' }, { status: 400 });
+        const { sessionId, geoData, deviceInfo } = JSON.parse(raw);
+
+        if (!sessionId || typeof sessionId !== 'string' || sessionId.length > 128 || !geoData || !deviceInfo) {
+            return NextResponse.json({ success: false, error: 'Missing or invalid fields.' }, { status: 400 });
         }
         
         // Prevent tracking of admin pages if somehow called
-        if (geoData.pathname && (geoData.pathname as string).startsWith('/admin')) {
+        if (geoData.pathname && String(geoData.pathname).startsWith('/admin')) {
              return NextResponse.json({ success: true, message: 'Admin activity not tracked.' });
         }
 
-        // Check if a log for this session ID already exists
-        const existing: any = await db.query('SELECT 1 FROM visitor_logs WHERE sessionId = ? LIMIT 1', [sessionId]);
-
-        if (existing && existing.length > 0) {
-            return NextResponse.json({ success: true, message: 'Visitor already logged for this session.' }, { status: 200 });
-        }
-
+        // Single atomic INSERT IGNORE using the UNIQUE(sessionId) constraint (avoids extra SELECT)
         const id = uuidv4();
         await db.query(
-            'INSERT INTO visitor_logs (id, sessionId, geoData, deviceInfo, timestamp) VALUES (?, ?, ?, ?, NOW())',
+            'INSERT IGNORE INTO visitor_logs (id, sessionId, geoData, deviceInfo, timestamp) VALUES (?, ?, ?, ?, NOW())',
             [id, sessionId, JSON.stringify(geoData), JSON.stringify(deviceInfo)]
         );
-
-        // Create a notification for the new visit
-        await createNotification({
-            type: 'visit',
-            message: `New visitor from ${geoData.city || 'an unknown location'} on a ${deviceInfo} device.`
-        });
-
 
         return NextResponse.json({ success: true }, { status: 200 });
     } catch (error) {
         console.error('Error in tracking API:', error);
-        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-        return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
+        return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
     }
 }
