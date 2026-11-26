@@ -99,23 +99,23 @@ export default function Footer({ settings, legalPages: initialLegalPages }: { se
   return (
     <footer className={cn(
         "relative pt-24 pb-12 overflow-hidden",
-        useVanta ? "" : "bg-slate-900 text-white"
+        useVanta ? "" : "bg-[#06232b] text-white"
     )}>
         {useVanta && <VantaBackground sectionConfig={sectionVantaConfig} />}
       
       <div className="container relative z-10">
         {/* CTA Banner */}
         <ScrollAnimation variant="fadeInUp" className="mb-20">
-            <div className="bg-primary rounded-[3rem] p-8 md:p-16 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl shadow-primary/30 overflow-hidden relative group">
+            <div className="bg-primary rounded-[2rem] p-8 md:p-16 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl shadow-black/20 overflow-hidden relative group border border-white/10">
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                 <div className="text-center md:text-left relative z-10">
-                    <h2 className="text-3xl md:text-5xl font-black tracking-tight text-white mb-4">{sectionSettings?.footer_cta_title || 'Transform Your Home Interiors Today.'}</h2>
-                    <p className="text-white font-medium text-lg max-w-md">{sectionSettings?.footer_cta_description || 'Book a consultation and get expert guidance for your modular kitchen, wardrobes, and complete home interiors.'}</p>
+                    <h2 className="font-display text-3xl md:text-5xl font-semibold tracking-tight text-white mb-4">{sectionSettings?.footer_cta_title || 'Transform Your Home Interiors Today.'}</h2>
+                    <p className="text-white/85 font-normal text-base md:text-lg max-w-md">{sectionSettings?.footer_cta_description || 'Book a consultation and get expert guidance for your modular kitchen, wardrobes, and complete home interiors.'}</p>
                 </div>
-                <Button asChild size="lg" className="bg-white text-primary hover:bg-slate-50 h-16 px-10 rounded-full font-black text-lg group shadow-xl relative z-10">
+                <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90 h-14 px-9 rounded-full font-semibold text-base group shadow-xl relative z-10">
                     <LoadingLink href="/contact">
                         {sectionSettings?.footer_cta_button || 'Book Site Visit'}
-                        <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                        <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </LoadingLink>
                 </Button>
             </div>
@@ -172,11 +172,11 @@ export default function Footer({ settings, legalPages: initialLegalPages }: { se
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
-          <p className="text-sm font-medium text-white">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left md:pr-16">
+          <p className="text-xs font-normal text-white/70">
             &copy; {new Date().getFullYear()} {settings?.website_name || 'FixBro Interiors'}. {mounted && sectionSettings?.footer_copyright_text ? sectionSettings.footer_copyright_text : 'Engineered with precision.'}
           </p>
-           <ul className="flex flex-wrap justify-center gap-x-8 gap-y-4">
+           <ul className="flex flex-wrap justify-center gap-x-5 gap-y-2">
               {legalLinks.map((link) => {
                 // Find the dynamic title if it exists, otherwise use default label
                 // We use legalPages directly (which is now initialized from server props)
@@ -185,7 +185,7 @@ export default function Footer({ settings, legalPages: initialLegalPages }: { se
                 
                 return (
                   <li key={link.href}>
-                    <LoadingLink href={link.href} className="text-sm font-bold uppercase tracking-widest text-white hover:text-primary transition-colors">
+                    <LoadingLink href={link.href} className="text-xs font-medium tracking-wide text-white/75 hover:text-white transition-colors">
                       {displayLabel}
                     </LoadingLink>
                   </li>

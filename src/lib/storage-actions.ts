@@ -5,16 +5,17 @@ import path from 'path';
 import { requireAdmin } from '@/lib/auth';
 
 const UPLOAD_DIR = path.resolve(process.cwd(), 'public', 'uploads');
+const BRANDS_DIR = path.resolve(process.cwd(), 'public', 'brands');
 const ALLOWED_EXTENSIONS = new Set([
   '.png', '.jpg', '.jpeg', '.webp', '.gif', '.ico', '.avif', '.mp4', '.webm', '.mov'
 ]);
 
 function extractLocalUploadPath(url?: string | null): string | null {
   if (!url) return null;
-  if (url.startsWith('/uploads/')) return url;
+  if (url.startsWith('/uploads/') || url.startsWith('/brands/')) return url;
   try {
     const parsed = new URL(url);
-    if (parsed.pathname.startsWith('/uploads/')) {
+    if (parsed.pathname.startsWith('/uploads/') || parsed.pathname.startsWith('/brands/')) {
       return parsed.pathname;
     }
   } catch {
@@ -30,8 +31,10 @@ async function removeLocalUploadIfExists(url?: string | null): Promise<void> {
   const relativePath = localPath.replace(/^\/+/, '');
   const filePath = path.resolve(process.cwd(), 'public', relativePath);
 
-  // Prevent path traversal outside public/uploads
-  if (!filePath.startsWith(UPLOAD_DIR + path.sep)) {
+  // Prevent path traversal outside public/uploads or public/brands
+  const isInsideUploads = filePath.startsWith(UPLOAD_DIR + path.sep);
+  const isInsideBrands = filePath.startsWith(BRANDS_DIR + path.sep);
+  if (!isInsideUploads && !isInsideBrands) {
     throw new Error('Invalid file path.');
   }
 

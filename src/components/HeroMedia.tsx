@@ -23,10 +23,24 @@ export default function HeroMedia({ media }: HeroMediaProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMuted, setIsMuted] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+
+  const activeMediaUrl =
+    media.hero_media_type === 'video' && isMobile && media.hero_mobile_media_url
+      ? media.hero_mobile_media_url
+      : media.hero_media_url;
 
   const youTubeVideoId =
-    media.hero_media_type === 'video' && media.hero_media_url
-      ? getYouTubeVideoId(media.hero_media_url)
+    media.hero_media_type === 'video' && activeMediaUrl
+      ? getYouTubeVideoId(activeMediaUrl)
       : null;
 
   const setYouTubeMute = (mute: boolean) => {
@@ -133,25 +147,26 @@ export default function HeroMedia({ media }: HeroMediaProps) {
   return (
     <div
       ref={containerRef}
-      className={`relative ${isFullscreen ? 'w-screen h-screen rounded-none' : 'aspect-video w-full rounded-[2rem]'} overflow-hidden bg-black flex items-center justify-center shadow-2xl group`}
+      className="absolute inset-0 h-full w-full overflow-hidden bg-[#0c2229]"
     >
       {media.hero_media_type === 'video' ? (
         youTubeVideoId ? (
           <div className="relative h-full w-full">
             <iframe
+              key={youTubeVideoId}
               ref={iframeRef}
               src={`https://www.youtube.com/embed/${youTubeVideoId}?autoplay=1&mute=1&loop=1&playlist=${youTubeVideoId}&controls=0&disablekb=1&fs=0&modestbranding=1&iv_load_policy=3&playsinline=1&rel=0&enablejsapi=1`}
-              title="Hero Video"
+              title="Hero Background Video"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
-              className="h-full w-full object-contain pointer-events-none"
+              className="absolute top-1/2 left-1/2 min-w-full min-h-full w-[177.78vh] h-[56.25vw] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
             />
-            <div className="absolute bottom-4 right-4 flex items-center gap-2 z-30">
+            <div className="absolute bottom-6 right-6 flex items-center gap-2 z-30">
               <Button
                 variant="secondary"
                 size="icon"
-                className="h-10 w-10 rounded-full bg-black/50 backdrop-blur-md border border-white/25 text-white hover:bg-black/75 shadow-2xl transition-all hover:scale-110 active:scale-90"
+                className="h-10 w-10 rounded-full bg-black/45 backdrop-blur-md border border-white/25 text-white hover:bg-black/75 shadow-xl transition-all hover:scale-110 active:scale-90"
                 onClick={toggleMute}
                 aria-label={isMuted ? 'Unmute video' : 'Mute video'}
               >
@@ -160,7 +175,7 @@ export default function HeroMedia({ media }: HeroMediaProps) {
               <Button
                 variant="secondary"
                 size="icon"
-                className="h-10 w-10 rounded-full bg-black/50 backdrop-blur-md border border-white/25 text-white hover:bg-black/75 shadow-2xl transition-all hover:scale-110 active:scale-90"
+                className="h-10 w-10 rounded-full bg-black/45 backdrop-blur-md border border-white/25 text-white hover:bg-black/75 shadow-xl transition-all hover:scale-110 active:scale-90"
                 onClick={handleFullscreen}
                 aria-label={isFullscreen ? 'Exit fullscreen' : 'Play video in fullscreen'}
               >
@@ -171,23 +186,24 @@ export default function HeroMedia({ media }: HeroMediaProps) {
         ) : (
           <div className="relative h-full w-full">
             <video
+              key={activeMediaUrl}
               ref={videoRef}
-              src={media.hero_media_url}
-              className="h-full w-full object-contain"
+              src={activeMediaUrl}
+              className={`h-full w-full ${isFullscreen ? 'object-contain' : 'object-cover'}`}
               autoPlay
               loop
               muted
               playsInline
+              preload="auto"
               controlsList="nodownload"
               disablePictureInPicture
               onContextMenu={(e) => e.preventDefault()}
             />
-            <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-            <div className="absolute bottom-4 right-4 flex items-center gap-2 z-30">
+            <div className="absolute bottom-6 right-6 flex items-center gap-2 z-30">
               <Button
                 variant="secondary"
                 size="icon"
-                className="h-10 w-10 rounded-full bg-black/50 backdrop-blur-md border border-white/25 text-white hover:bg-black/75 shadow-2xl transition-all hover:scale-110 active:scale-90"
+                className="h-10 w-10 rounded-full bg-black/45 backdrop-blur-md border border-white/25 text-white hover:bg-black/75 shadow-xl transition-all hover:scale-110 active:scale-90"
                 onClick={toggleMute}
                 aria-label={isMuted ? 'Unmute video' : 'Mute video'}
               >
@@ -196,7 +212,7 @@ export default function HeroMedia({ media }: HeroMediaProps) {
               <Button
                 variant="secondary"
                 size="icon"
-                className="h-10 w-10 rounded-full bg-black/50 backdrop-blur-md border border-white/25 text-white hover:bg-black/75 shadow-2xl transition-all hover:scale-110 active:scale-90"
+                className="h-10 w-10 rounded-full bg-black/45 backdrop-blur-md border border-white/25 text-white hover:bg-black/75 shadow-xl transition-all hover:scale-110 active:scale-90"
                 onClick={handleFullscreen}
                 aria-label={isFullscreen ? 'Exit fullscreen' : 'Play video in fullscreen'}
               >
@@ -207,15 +223,26 @@ export default function HeroMedia({ media }: HeroMediaProps) {
         )
       ) : (
         <Image
-          src={media.hero_media_url || 'https://placehold.co/800x600.png'}
+          src={media.hero_media_url || 'https://placehold.co/1600x900.png'}
           alt="Hero Media"
           fill
           priority={true}
-          sizes="(max-width: 768px) 100vw, 50vw"
+          sizes="100vw"
           className="h-full w-full object-cover"
           draggable={false}
           onContextMenu={(e) => e.preventDefault()}
           unoptimized
+        />
+      )}
+
+      {/* Subtle bottom scrim for editorial legibility */}
+      {!isFullscreen && (
+        <div
+          className="pointer-events-none absolute inset-0 z-10"
+          style={{
+            background:
+              'linear-gradient(180deg, rgba(4,22,28,0.22) 0%, rgba(4,22,28,0.08) 42%, rgba(4,22,28,0.82) 100%)',
+          }}
         />
       )}
     </div>

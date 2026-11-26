@@ -94,7 +94,7 @@ export default function ImageUploadInput({
 
     setIsDeleting(true);
     try {
-        if (value.startsWith('/uploads/')) {
+        if (value.startsWith('/uploads/') || value.startsWith('/brands/')) {
             await deleteFile(value);
         }
         onChange('');

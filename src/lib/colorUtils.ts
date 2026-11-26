@@ -1,67 +1,67 @@
 import type { ThemePalette } from "@/types/firestore";
 
-/* ✅ DEFAULT LIGHT THEME */
+/* ✅ DEFAULT LIGHT THEME (Warm Cream & Petrol Teal) */
 export const DEFAULT_LIGHT_THEME_COLORS_HSL: ThemePalette = {
-  background: '40 20% 98%',
-  foreground: '20 20% 8%',
+  background: '38 35% 94%',
+  foreground: '240 3% 12%',
 
-  card: '0 0% 100%',
-  'card-foreground': '20 20% 8%',
+  card: '38 40% 97%',
+  'card-foreground': '240 3% 12%',
 
-  popover: '0 0% 100%',
-  'popover-foreground': '20 20% 8%',
+  popover: '38 40% 97%',
+  'popover-foreground': '240 3% 12%',
 
-  primary: '38 92% 50%',
-  'primary-foreground': '0 0% 100%',
+  primary: '192 100% 16%',
+  'primary-foreground': '38 35% 96%',
 
-  secondary: '40 15% 92%',
-  'secondary-foreground': '20 20% 8%',
+  secondary: '36 25% 89%',
+  'secondary-foreground': '240 3% 12%',
 
-  muted: '40 15% 92%',
-  'muted-foreground': '20 10% 45%',
+  muted: '36 25% 89%',
+  'muted-foreground': '240 4% 40%',
 
-  accent: '38 92% 50%',
-  'accent-foreground': '0 0% 100%',
+  accent: '192 100% 20%',
+  'accent-foreground': '38 35% 96%',
 
   destructive: '0 84.2% 60.2%',
   'destructive-foreground': '0 0% 100%',
 
-  border: '40 15% 86%',
-  input: '40 15% 86%',
+  border: '36 20% 85%',
+  input: '36 20% 85%',
 
-  ring: '38 92% 50%',
+  ring: '192 100% 16%',
 };
 
 /* ✅ DEFAULT DARK THEME */
 export const DEFAULT_DARK_THEME_COLORS_HSL: ThemePalette = {
-  background: '220 10% 6%',
-  foreground: '40 15% 96%',
+  background: '196 42% 8%',
+  foreground: '38 30% 94%',
 
-  card: '220 10% 10%',
-  'card-foreground': '40 15% 96%',
+  card: '196 36% 12%',
+  'card-foreground': '38 30% 94%',
 
-  popover: '220 10% 10%',
-  'popover-foreground': '40 15% 96%',
+  popover: '196 36% 12%',
+  'popover-foreground': '38 30% 94%',
 
-  primary: '45 95% 55%',
-  'primary-foreground': '220 10% 6%',
+  primary: '190 68% 42%',
+  'primary-foreground': '196 42% 8%',
 
-  secondary: '220 10% 16%',
-  'secondary-foreground': '40 15% 96%',
+  secondary: '196 28% 18%',
+  'secondary-foreground': '38 30% 94%',
 
-  muted: '220 10% 16%',
-  'muted-foreground': '220 10% 65.1%',
+  muted: '196 28% 18%',
+  'muted-foreground': '196 15% 68%',
 
-  accent: '45 95% 55%',
-  'accent-foreground': '220 10% 6%',
+  accent: '190 68% 42%',
+  'accent-foreground': '196 42% 8%',
 
   destructive: '0 62.8% 40.6%',
-  'destructive-foreground': '40 15% 96%',
+  'destructive-foreground': '38 30% 94%',
 
-  border: '220 10% 16%',
-  input: '220 10% 16%',
+  border: '196 24% 20%',
+  input: '196 24% 20%',
 
-  ring: '45 95% 55%',
+  ring: '190 68% 42%',
 };
 
 /* ✅ HSL → HEX */

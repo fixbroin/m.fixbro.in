@@ -41,19 +41,19 @@ const PricingCard = ({ plan, onBookNowClick }: { plan: PricingPlan; onBookNowCli
                 )}
 
                 <div className={cn(
-                    "h-full flex flex-col rounded-[2.5rem] p-8 lg:p-10 transition-all duration-300 border shadow-sm",
+                    "h-full flex flex-col rounded-[1.75rem] p-8 lg:p-10 transition-all duration-300 border shadow-sm backdrop-blur-md",
                     plan.is_featured 
-                        ? "bg-[#0f1117] border-primary/50 dark:border-primary shadow-2xl shadow-primary/10 text-white" 
-                        : "bg-card text-card-foreground border-border text-slate-900 dark:text-white"
+                        ? "bg-[#06232b]/90 border-primary shadow-2xl text-white" 
+                        : "bg-card/75 text-card-foreground border-white/50 dark:border-white/10"
                 )}>
                     <div className="mb-8">
                         <h3 className={cn(
-                            "text-xl font-bold mb-2",
-                            plan.is_featured ? "text-primary" : "text-slate-900 dark:text-white"
+                            "font-display text-2xl font-semibold mb-2",
+                            plan.is_featured ? "text-white" : "text-foreground"
                         )}>{plan.title}</h3>
                         <p className={cn(
-                            "text-sm font-medium leading-relaxed",
-                            plan.is_featured ? "text-white" : "text-white dark:text-white"
+                            "text-sm leading-relaxed",
+                            plan.is_featured ? "text-white/75" : "text-muted-foreground"
                         )}>{plan.description}</p>
                     </div>
 
@@ -147,18 +147,18 @@ export default function PricingSection() {
     const useVanta = vantaSettings?.globalEnable && sectionVantaConfig?.enabled;
     
     return (
-        <section id="pricing" className="relative overflow-hidden py-8">
+        <section id="pricing" className={cn("relative overflow-hidden py-20 lg:py-28", !useVanta && "bg-secondary/45 border-y border-border/60")}>
             {useVanta && <VantaBackground sectionConfig={sectionVantaConfig} />}
             <div className="container relative z-10">
-                <ScrollAnimation variant="fadeInUp" className="text-center mb-20">
+                <ScrollAnimation variant="fadeInUp" className="text-center mb-16">
                     <h2 className={cn(
-                        "text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tighttracking-tight mb-4",
-                        useVanta ? "text-white" : "text-slate-900 dark:text-white"
+                        "font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight tracking-tight mb-4",
+                        useVanta ? "text-white" : "text-foreground"
                     )}>{pageContent.title}</h2>
-                    <div className="w-20 h-1.5 bg-primary mx-auto rounded-full mb-6" />
+                    <div className="w-16 h-0.5 bg-primary mx-auto rounded-full mb-5" />
                     <p className={cn(
-                        "mx-auto max-w-2xl text-lg font-medium",
-                        useVanta ? "text-white" : "text-slate-600 dark:text-white"
+                        "mx-auto max-w-2xl text-base md:text-lg font-normal",
+                        useVanta ? "text-white/85" : "text-muted-foreground"
                     )}>
                         {pageContent.subtitle}
                     </p>

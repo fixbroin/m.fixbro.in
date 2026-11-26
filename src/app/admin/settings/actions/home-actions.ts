@@ -5,11 +5,13 @@ import { RowDataPacket } from 'mysql2';
 import { revalidatePath, unstable_cache, revalidateTag } from 'next/cache';
 import { cache } from 'react';
 import { getSeoData, updateSeoData } from '../../seo-geo-settings/actions';
+import { requireAdmin } from '@/lib/auth';
 
 export interface HomePageContent {
     h1_title: string;
     paragraph: string;
     hero_media_url: string;
+    hero_mobile_media_url?: string;
     hero_media_type: 'image' | 'video';
     hero_button1_text: string;
     hero_button1_link: string;
@@ -33,6 +35,7 @@ export const getHomePageContent = cache(async (): Promise<HomePageContent | null
                     h1_title: seoData.h1_title || '',
                     paragraph: seoData.paragraph || '',
                     hero_media_url: data.hero_media_url || data.hero_image || 'https://placehold.co/800x600.png',
+                    hero_mobile_media_url: data.hero_mobile_media_url || '',
                     hero_media_type: data.hero_media_type || 'image',
                     hero_button1_text: data.hero_button1_text || 'Get Consultation',
                     hero_button1_link: data.hero_button1_link || '/contact',
@@ -46,6 +49,7 @@ export const getHomePageContent = cache(async (): Promise<HomePageContent | null
                     h1_title: seoData.h1_title || '',
                     paragraph: seoData.paragraph || '',
                     hero_media_url: 'https://placehold.co/800x600.png',
+                    hero_mobile_media_url: '',
                     hero_media_type: 'image',
                     hero_button1_text: 'Get Consultation',
                     hero_button1_link: '/contact',
@@ -60,6 +64,7 @@ export const getHomePageContent = cache(async (): Promise<HomePageContent | null
 });
 
 export async function updateHomePageContent(content: HomePageContent): Promise<void> {
+    await requireAdmin();
     try {
         // Update SEO data (H1 and Paragraph)
         const currentSeo = await getSeoData('home');
@@ -72,6 +77,7 @@ export async function updateHomePageContent(content: HomePageContent): Promise<v
         // Update other home page settings
         const settingsToSave = {
             hero_media_url: content.hero_media_url,
+            hero_mobile_media_url: content.hero_mobile_media_url || '',
             hero_media_type: content.hero_media_type,
             hero_button1_text: content.hero_button1_text,
             hero_button1_link: content.hero_button1_link,

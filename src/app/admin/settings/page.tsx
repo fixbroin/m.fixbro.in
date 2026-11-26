@@ -18,6 +18,7 @@ import FaqSettings from './FaqSettings';
 import ThemeSettings from './ThemeSettings';
 import VantaSettings from './VantaSettings';
 import SectionContentSettings from './SectionContentSettings';
+import BrandsSettings from './BrandsSettings';
 
 export const metadata: Metadata = {
   title: `Website Settings | ${APP_NAME}`,
@@ -44,6 +45,7 @@ export default function SettingsPage() {
           <TabsTrigger value="why-choose-us">Why Us</TabsTrigger>
           <TabsTrigger value="services">Services</TabsTrigger>
           <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+          <TabsTrigger value="brands">Brands</TabsTrigger>
           <TabsTrigger value="pricing">Pricing</TabsTrigger>
           <TabsTrigger value="about">About</TabsTrigger>
           <TabsTrigger value="contact">Contact</TabsTrigger>
@@ -73,6 +75,9 @@ export default function SettingsPage() {
         </TabsContent>
         <TabsContent value="portfolio">
           <PortfolioPageSettings />
+        </TabsContent>
+        <TabsContent value="brands">
+          <BrandsSettings />
         </TabsContent>
         <TabsContent value="pricing">
           <PricingPageSettings />

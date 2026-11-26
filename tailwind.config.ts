@@ -18,8 +18,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ["'Inter'", 'sans-serif'],
-        headline: ["'Inter'", 'sans-serif'],
+        body: ["'DM Sans'", '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        headline: ["'Cormorant Garamond'", 'Georgia', 'serif'],
+        display: ["'Cormorant Garamond'", 'Georgia', 'serif'],
         code: ['monospace'],
       },
       colors: {

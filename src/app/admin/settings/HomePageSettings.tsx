@@ -27,6 +27,7 @@ const formSchema = z.object({
   h1_title: z.string().min(5, 'H1 Title must be at least 5 characters.'),
   paragraph: z.string().min(10, 'Paragraph must be at least 10 characters.'),
   hero_media_url: z.string().optional(),
+  hero_mobile_media_url: z.string().optional(),
   hero_media_type: z.enum(['image', 'video']).optional(),
   hero_button1_text: z.string().min(1, 'Button 1 text is required.'),
   hero_button1_link: z.string().min(1, 'Button 1 link is required.'),
@@ -44,6 +45,7 @@ export default function HomePageSettings() {
       h1_title: '',
       paragraph: '',
       hero_media_url: '',
+      hero_mobile_media_url: '',
       hero_media_type: 'image',
 
        // ✅ ADD THESE (VERY IMPORTANT)
@@ -62,6 +64,7 @@ export default function HomePageSettings() {
                 h1_title: data.h1_title || '',
                 paragraph: data.paragraph || '',
                 hero_media_url: data.hero_media_url || '',
+                hero_mobile_media_url: data.hero_mobile_media_url || '',
                 hero_media_type: data.hero_media_type || 'image',
                 hero_button1_text: data.hero_button1_text || 'Get Consultation',
                 hero_button1_link: data.hero_button1_link || '/contact',
@@ -171,7 +174,7 @@ export default function HomePageSettings() {
                     name="hero_media_url"
                     render={({ field: { onChange, value } }) => (
                         <FormItem>
-                        <FormLabel>{form.watch('hero_media_type') === 'video' ? 'Video' : 'Image'}</FormLabel>
+                        <FormLabel>{form.watch('hero_media_type') === 'video' ? 'Desktop Hero Video (Landscape MP4/WebM or YouTube)' : 'Desktop Hero Image'}</FormLabel>
                         <FormControl>
                           <ImageUploadInput 
                             id="hero-media-upload" 
@@ -185,6 +188,27 @@ export default function HomePageSettings() {
                         </FormItem>
                     )}
                 />
+                {form.watch('hero_media_type') === 'video' && (
+                  <FormField
+                      control={form.control}
+                      name="hero_mobile_media_url"
+                      render={({ field: { onChange, value } }) => (
+                          <FormItem>
+                          <FormLabel>Mobile Hero Video (Portrait MP4/WebM or YouTube — optional)</FormLabel>
+                          <FormControl>
+                            <ImageUploadInput 
+                              id="hero-mobile-media-upload" 
+                              value={value || ''} 
+                              onChange={onChange}
+                              folder="home"
+                              accept="video/mp4,video/webm"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                          </FormItem>
+                      )}
+                  />
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField

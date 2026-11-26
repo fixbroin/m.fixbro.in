@@ -25,49 +25,49 @@ export default async function ContactSection() {
   ].filter(item => item.value && item.value !== '');
 
   return (
-    <section id="contact" className="relative overflow-hidden py-8">
+    <section id="contact" className={cn("relative overflow-hidden py-20 lg:py-28", !useVanta && "bg-background")}>
       {useVanta && <VantaBackground sectionConfig={sectionVantaConfig} />}
       
       <div className="container relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           
-          <div className="lg:col-span-5 space-y-10">
+          <div className="lg:col-span-5 space-y-8">
             <ScrollAnimation variant="fadeInUp">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[11px] font-semibold uppercase tracking-[0.2em] mb-4">
                     <Send className="h-3 w-3" />
                     <span>{sectionSettings.contact_badge || 'Get in Touch'}</span>
                 </div>
                 <h2 className={cn(
-                    "text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tighttracking-tight mb-6",
-                    useVanta ? "text-white" : "text-slate-900 dark:text-white"
+                    "font-display text-3xl sm:text-4xl md:text-5xl font-semibold leading-tight tracking-tight mb-5",
+                    useVanta ? "text-white" : "text-foreground"
                 )}>{sectionSettings.contact_title || 'Start Your Home Interior Project'}</h2>
                 <p className={cn(
-                    "text-lg font-medium leading-relaxed",
-                    useVanta ? "text-white" : "text-slate-600 dark:text-white"
+                    "text-base md:text-lg font-normal leading-relaxed",
+                    useVanta ? "text-white/85" : "text-muted-foreground"
                 )}>
                     {sectionSettings.contact_description || 'Looking to upgrade your home? Get expert interior solutions including modular kitchen, wardrobes, furniture, and complete home interiors. Contact us for a free site visit and quotation.'}
                 </p>
             </ScrollAnimation>
 
-            <div className="space-y-6">
+            <div className="space-y-4">
                 {contactList.map((item, idx) => (
                     <ScrollAnimation key={idx} variant="fadeInUp" delay={idx * 0.1}>
                         <div className={cn(
-                            "flex items-center gap-6 p-6 rounded-[2rem] border transition-all duration-300",
+                            "flex items-center gap-5 p-5 rounded-[1.5rem] border transition-all duration-300 backdrop-blur-md",
                             useVanta 
-                                ? "bg-white/5 border-white/10 text-white" 
-                                : "bg-card text-card-foreground border-border hover:border-primary/30"
+                                ? "bg-white/10 border-white/15 text-white" 
+                                : "bg-card/75 text-card-foreground border-white/50 dark:border-white/10 hover:border-primary/30"
                         )}>
-                            <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-black/5", item.color)}>
+                            <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md", item.color)}>
                                 <item.icon className="h-5 w-5" />
                             </div>
                             <div>
                                 <p className={cn(
-                                    "text-[10px] font-black uppercase tracking-widest mb-1",
+                                    "text-[10px] font-semibold uppercase tracking-widest mb-1",
                                     useVanta ? "text-white/60" : "text-muted-foreground"
                                 )}>{item.label}</p>
                                 <p className={cn(
-                                    "text-lg font-bold tracking-tight",
+                                    "text-base md:text-lg font-semibold tracking-tight",
                                     useVanta ? "text-white" : "text-foreground"
                                 )}>{item.value}</p>
                             </div>
@@ -80,8 +80,8 @@ export default async function ContactSection() {
           <div className="lg:col-span-7">
             <ScrollAnimation variant="slideInRight">
                 <div className={cn(
-                    "rounded-[3rem]",
-                    useVanta && "p-1 md:p-1 border border-white/10 bg-white/5 backdrop-blur-xl"
+                    "rounded-[2rem]",
+                    useVanta && "p-1 border border-white/10 bg-white/5 backdrop-blur-xl"
                 )}>
                     <ContactForm />
                 </div>
