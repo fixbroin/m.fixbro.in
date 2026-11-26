@@ -1,5 +1,6 @@
 
 import type { Metadata, Viewport } from 'next';
+import { Suspense } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -269,7 +270,9 @@ export default async function RootLayout({
               enableSystem={false}
               disableTransitionOnChange
             >
-              <AnalyticsTracker />
+              <Suspense fallback={null}>
+                <AnalyticsTracker />
+              </Suspense>
               <GlobalLoader />
               <Header settings={settings} />
               <main>{children}</main>
