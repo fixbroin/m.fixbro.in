@@ -22,6 +22,8 @@ export interface GeneralSettings {
     google_site_verification?: string;
     header_cta_text?: string;
     header_cta_link?: string;
+    video_compression_quality?: 'high' | 'balanced' | 'compact';
+    image_max_kb?: string;
 }
 
 export const getGeneralSettings = cache(async (): Promise<GeneralSettings> => {
@@ -47,6 +49,8 @@ export const getGeneralSettings = cache(async (): Promise<GeneralSettings> => {
                         google_site_verification: data.google_site_verification || '',
                         header_cta_text: data.header_cta_text || 'Get Quote',
                         header_cta_link: data.header_cta_link || '/contact',
+                        video_compression_quality: data.video_compression_quality || 'high',
+                        image_max_kb: data.image_max_kb || '980',
                     };
                 } else {
                     const defaultData: GeneralSettings = {

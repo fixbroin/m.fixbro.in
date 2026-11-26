@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { requireAdmin } from '@/lib/auth';
 import { compressMediaBuffer } from '@/lib/media-compression';
+import { getGeneralSettings } from '@/app/admin/settings/actions/general-actions';
 
 const UPLOAD_DIR = path.resolve(process.cwd(), 'public', 'uploads');
 const BRANDS_DIR = path.resolve(process.cwd(), 'public', 'brands');
@@ -86,6 +87,7 @@ export async function uploadFile(
       return { success: false, error: `Unsupported file type: ${extension}` };
     }
 
+    const generalSettings = await getGeneralSettings().catch(() => null);
     const arrayBuffer = await file.arrayBuffer();
     const rawBuffer = Buffer.from(arrayBuffer);
     const {
@@ -94,7 +96,10 @@ export async function uploadFile(
       compressed,
       originalBytes,
       finalBytes,
-    } = await compressMediaBuffer(rawBuffer, extension);
+    } = await compressMediaBuffer(rawBuffer, extension, {
+      videoQuality: generalSettings?.video_compression_quality || 'high',
+      imageTargetKb: Number(generalSettings?.image_max_kb) || 980,
+    });
     const fileName = `${timestamp}${finalExtension}`;
     const filePath = path.resolve(targetDir, fileName);
 

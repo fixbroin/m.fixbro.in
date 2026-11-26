@@ -36,7 +36,7 @@ export default function LocationInterlinks({
                 <LoadingLink
                   key={area.id}
                   href={`/${currentCity.slug}/${area.slug}`}
-                  className="px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-card/80 backdrop-blur-md border border-border hover:border-primary hover:text-primary transition-colors shadow-sm"
+                  className="px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-card border border-border hover:border-primary hover:text-primary transition-colors shadow-sm"
                 >
                   Interior Designers in {area.name}, {currentCity.name}
                 </LoadingLink>
@@ -58,7 +58,7 @@ export default function LocationInterlinks({
                 <LoadingLink
                   key={city.id}
                   href={`/${city.slug}`}
-                  className="px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-card/80 backdrop-blur-md border border-border hover:border-primary hover:text-primary transition-colors shadow-sm"
+                  className="px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-card border border-border hover:border-primary hover:text-primary transition-colors shadow-sm"
                 >
                   Interior Designers in {city.name}
                 </LoadingLink>

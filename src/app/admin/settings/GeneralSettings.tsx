@@ -19,7 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { getGeneralSettings, updateGeneralSettings } from './actions/general-actions';
 import ImageUploadInput from './ImageUploadInput';
-import { Facebook, Instagram, Linkedin, Twitter, Youtube, Globe, Share2, Sparkles, Save, MousePointerClick, Coins } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, Twitter, Youtube, Globe, Share2, Sparkles, Save, MousePointerClick, Coins, Gauge } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { motion } from 'framer-motion';
@@ -44,6 +44,8 @@ const formSchema = z.object({
   currency_code: z.string().min(1, 'Currency code is required'),
   header_cta_text: z.string().min(1, 'CTA Text is required'),
   header_cta_link: z.string().min(1, 'CTA Link is required'),
+  video_compression_quality: z.enum(['high', 'balanced', 'compact']).default('high'),
+  image_max_kb: z.string().default('980'),
 });
 
 export default function GeneralSettings() {
@@ -67,6 +69,8 @@ export default function GeneralSettings() {
       currency_code: 'INR',
       header_cta_text: 'Get Quote',
       header_cta_link: '/contact',
+      video_compression_quality: 'high',
+      image_max_kb: '980',
     },
   });
 
@@ -89,6 +93,8 @@ export default function GeneralSettings() {
           currency_code: data.currency_code || 'INR',
           header_cta_text: data.header_cta_text || 'Get Quote',
           header_cta_link: data.header_cta_link || '/contact',
+          video_compression_quality: data.video_compression_quality || 'high',
+          image_max_kb: data.image_max_kb || '980',
         });
       }
     });
@@ -237,6 +243,72 @@ export default function GeneralSettings() {
                                                 <Input placeholder="e.g. INR, USD, EUR, GBP, AED" {...field} className="bg-slate-50 dark:bg-white/5 border-border text-foreground h-11 focus-visible:ring-primary/20 transition-all font-mono uppercase" />
                                             </FormControl>
                                             <FormDescription className="text-[11px]">3-letter standard code for payment gateways</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Media Compression */}
+                    <Card className="bg-card text-card-foreground border-border shadow-sm dark:shadow-2xl overflow-hidden">
+                        <CardHeader className="pb-4 bg-slate-50/50 dark:bg-white/[0.02] border-b border-border">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 rounded-lg bg-amber-500/10 text-amber-500">
+                                    <Gauge className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <CardTitle className="text-xl text-foreground font-bold">Media Compression</CardTitle>
+                                    <CardDescription className="text-muted-foreground">Control automatic image &amp; video compression quality on upload.</CardDescription>
+                                </div>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="pt-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <FormField
+                                    control={form.control}
+                                    name="video_compression_quality"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-slate-700 dark:text-gray-300 font-semibold">Video Compression Quality</FormLabel>
+                                            <Select onValueChange={field.onChange} value={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger className="bg-slate-50 dark:bg-white/5 border-border h-11">
+                                                        <SelectValue placeholder="Select video quality" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="high">High Quality — 1080p Full HD (CRF 22, ~50-65% smaller)</SelectItem>
+                                                    <SelectItem value="balanced">Balanced — 720p HD (CRF 25, ~70-80% smaller)</SelectItem>
+                                                    <SelectItem value="compact">Maximum Compression — 720p (CRF 28, ~80-90% smaller)</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormDescription className="text-[11px]">Applies automatically to all uploaded MP4/WebM/MOV videos.</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="image_max_kb"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-slate-700 dark:text-gray-300 font-semibold">Image Compression Target</FormLabel>
+                                            <Select onValueChange={field.onChange} value={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger className="bg-slate-50 dark:bg-white/5 border-border h-11">
+                                                        <SelectValue placeholder="Select target size" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="500">Extra Small (Under 500 KB)</SelectItem>
+                                                    <SelectItem value="980">Under 1 MB — Recommended (980 KB)</SelectItem>
+                                                    <SelectItem value="1500">High Detail (Under 1.5 MB)</SelectItem>
+                                                    <SelectItem value="2000">Ultra Detail (Under 2 MB)</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormDescription className="text-[11px]">Images larger than this target (up to 50MB) are compressed to WebP.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}

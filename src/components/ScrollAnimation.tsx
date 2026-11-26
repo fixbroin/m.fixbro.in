@@ -17,19 +17,19 @@ interface ScrollAnimationProps {
 
 const animationVariants = {
   fadeInUp: {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: 18 },
     visible: { opacity: 1, y: 0 },
   },
   slideInLeft: {
-    hidden: { opacity: 0, x: -50 },
+    hidden: { opacity: 0, x: -24 },
     visible: { opacity: 1, x: 0 },
   },
   slideInRight: {
-    hidden: { opacity: 0, x: 50 },
+    hidden: { opacity: 0, x: 24 },
     visible: { opacity: 1, x: 0 },
   },
   zoomIn: {
-    hidden: { opacity: 0, scale: 0.95 },
+    hidden: { opacity: 0, scale: 0.97 },
     visible: { opacity: 1, scale: 1 },
   },
 };
@@ -38,7 +38,7 @@ const ScrollAnimation: React.FC<ScrollAnimationProps> = ({
   children,
   variant = 'fadeInUp',
   delay = 0,
-  duration = 0.6,
+  duration = 0.42,
   once = true,
   className,
   as = 'div',
@@ -49,8 +49,8 @@ const ScrollAnimation: React.FC<ScrollAnimationProps> = ({
     <MotionComponent
       initial="hidden"
       whileInView="visible"
-      viewport={{ once }}
-      transition={{ duration, delay, ease: [0.25, 1, 0.5, 1] }}
+      viewport={{ once, amount: 0.08, margin: '60px 0px' }}
+      transition={{ duration, delay, ease: [0.22, 1, 0.36, 1] }}
       variants={animationVariants[variant]}
       className={cn(className)}
     >

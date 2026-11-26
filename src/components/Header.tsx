@@ -75,7 +75,7 @@ function HeaderContent({ settings }: { settings?: GeneralSettings | null }) {
       isHome ? "fixed inset-x-0 top-0" : "sticky top-0",
       isTransparent
         ? "bg-transparent border-transparent h-20"
-        : "bg-background/65 backdrop-blur-2xl border-b border-white/25 dark:border-white/10 h-16 shadow-sm"
+        : "bg-background/85 backdrop-blur-md border-b border-white/25 dark:border-white/10 h-16 shadow-sm"
     )}>
       <div className="container h-full flex items-center justify-between md:px-8">
         <div className={cn(isTransparent && "[&_span]:text-white")}>

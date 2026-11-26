@@ -13,6 +13,13 @@ export const IMAGE_TARGET_BYTES = 980 * 1024; // < 1 MB target
 const COMPRESSIBLE_IMAGE_EXTS = new Set(['.png', '.jpg', '.jpeg', '.webp', '.avif']);
 const VIDEO_EXTS = new Set(['.mp4', '.webm', '.mov']);
 
+export type VideoCompressionQuality = 'high' | 'balanced' | 'compact';
+
+export interface CompressionOptions {
+  videoQuality?: VideoCompressionQuality;
+  imageTargetKb?: number;
+}
+
 export interface CompressedMediaResult {
   buffer: Buffer;
   extension: string;
@@ -21,24 +28,39 @@ export interface CompressedMediaResult {
   finalBytes: number;
 }
 
+const VIDEO_PRESETS: Record<
+  VideoCompressionQuality,
+  { maxWidth: number; crf: string; preset: string; audioBitrate: string }
+> = {
+  high: { maxWidth: 1920, crf: '22', preset: 'fast', audioBitrate: '128k' },
+  balanced: { maxWidth: 1280, crf: '25', preset: 'veryfast', audioBitrate: '96k' },
+  compact: { maxWidth: 1280, crf: '28', preset: 'veryfast', audioBitrate: '96k' },
+};
+
 /**
- * Compresses images > 1 MB down to < 1 MB using sharp (WebP) while preserving quality,
+ * Compresses images > target size down to target (default < 1 MB) using sharp (WebP),
  * and compresses videos (.mp4/.webm/.mov) using ffmpeg H.264 +faststart when available.
  */
 export async function compressMediaBuffer(
   buffer: Buffer,
-  extension: string
+  extension: string,
+  options: CompressionOptions = {}
 ): Promise<CompressedMediaResult> {
   const ext = extension.toLowerCase();
   const originalBytes = buffer.length;
+  const targetImageBytes =
+    options.imageTargetKb && options.imageTargetKb > 0
+      ? options.imageTargetKb * 1024
+      : IMAGE_TARGET_BYTES;
+  const videoQuality: VideoCompressionQuality = options.videoQuality || 'high';
 
-  // 1. Image compression (only if > 1 MB and compressible raster format)
+  // 1. Image compression (only if > target size and compressible raster format)
   if (COMPRESSIBLE_IMAGE_EXTS.has(ext)) {
     if (originalBytes > MAX_IMAGE_UPLOAD_BYTES) {
       throw new Error('Image size must be 50MB or less.');
     }
 
-    if (originalBytes <= 1024 * 1024) {
+    if (originalBytes <= targetImageBytes) {
       return {
         buffer,
         extension: ext,
@@ -48,7 +70,7 @@ export async function compressMediaBuffer(
       };
     }
 
-    const compressedImage = await compressImageUnderOneMb(buffer);
+    const compressedImage = await compressImageUnderTarget(buffer, targetImageBytes);
     if (compressedImage.length < originalBytes) {
       return {
         buffer: compressedImage,
@@ -70,7 +92,7 @@ export async function compressMediaBuffer(
 
   // 2. Video compression (H.264 MP4 +faststart for web streaming)
   if (VIDEO_EXTS.has(ext)) {
-    const compressedVideo = await compressVideoWithFfmpeg(buffer, ext);
+    const compressedVideo = await compressVideoWithFfmpeg(buffer, ext, videoQuality);
     if (compressedVideo && compressedVideo.length < originalBytes) {
       return {
         buffer: compressedVideo,
@@ -91,7 +113,7 @@ export async function compressMediaBuffer(
   };
 }
 
-async function compressImageUnderOneMb(input: Buffer): Promise<Buffer> {
+async function compressImageUnderTarget(input: Buffer, targetBytes: number): Promise<Buffer> {
   const maxDimensions = [1920, 1600, 1280, 1024];
   const qualities = [84, 76, 68, 58, 48];
 
@@ -106,7 +128,7 @@ async function compressImageUnderOneMb(input: Buffer): Promise<Buffer> {
         .toBuffer();
 
       bestBuffer = candidate;
-      if (candidate.length <= IMAGE_TARGET_BYTES) {
+      if (candidate.length <= targetBytes) {
         return candidate;
       }
     }
@@ -115,7 +137,12 @@ async function compressImageUnderOneMb(input: Buffer): Promise<Buffer> {
   return bestBuffer;
 }
 
-async function compressVideoWithFfmpeg(input: Buffer, ext: string): Promise<Buffer | null> {
+async function compressVideoWithFfmpeg(
+  input: Buffer,
+  ext: string,
+  videoQuality: VideoCompressionQuality
+): Promise<Buffer | null> {
+  const presetCfg = VIDEO_PRESETS[videoQuality] || VIDEO_PRESETS.high;
   const tmpId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const tmpIn = path.join(os.tmpdir(), `fixbro-in-${tmpId}${ext}`);
   const tmpOut = path.join(os.tmpdir(), `fixbro-out-${tmpId}.mp4`);
@@ -130,13 +157,13 @@ async function compressVideoWithFfmpeg(input: Buffer, ext: string): Promise<Buff
         '-i',
         tmpIn,
         '-vf',
-        "scale='min(1280,iw)':-2",
+        `scale='min(${presetCfg.maxWidth},iw)':-2`,
         '-c:v',
         'libx264',
         '-preset',
-        'veryfast',
+        presetCfg.preset,
         '-crf',
-        '26',
+        presetCfg.crf,
         '-pix_fmt',
         'yuv420p',
         '-movflags',
@@ -144,7 +171,7 @@ async function compressVideoWithFfmpeg(input: Buffer, ext: string): Promise<Buff
         '-c:a',
         'aac',
         '-b:a',
-        '96k',
+        presetCfg.audioBitrate,
         tmpOut,
       ],
       { timeout: 180_000, maxBuffer: 10 * 1024 * 1024 }

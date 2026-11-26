@@ -4,7 +4,7 @@ import { getBrandsSection, BrandItem } from '@/app/admin/settings/actions/brands
 function BrandTile({ brand }: { brand: BrandItem }) {
   if (!brand.imageUrl) return null;
   return (
-    <div className="flex-shrink-0 w-44 sm:w-52 h-24 sm:h-28 bg-white/85 backdrop-blur-md rounded-[20px] border border-white/60 dark:border-white/15 shadow-sm flex items-center justify-center p-5 transition-transform duration-300 hover:scale-[1.03]">
+    <div className="flex-shrink-0 w-44 sm:w-52 h-24 sm:h-28 bg-white/95 rounded-[20px] border border-border/60 dark:border-white/15 shadow-sm flex items-center justify-center p-5 transition-transform duration-300 hover:scale-[1.03]">
       <img
         src={brand.imageUrl}
         alt={brand.name}
