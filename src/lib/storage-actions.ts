@@ -48,7 +48,14 @@ export async function uploadFile(
   formData: FormData,
   folder: string = 'general',
   oldUrl?: string
-): Promise<{ success: boolean; url?: string; error?: string }> {
+): Promise<{
+  success: boolean;
+  url?: string;
+  compressed?: boolean;
+  originalBytes?: number;
+  finalBytes?: number;
+  error?: string;
+}> {
   try {
     await requireAdmin();
 
@@ -81,7 +88,13 @@ export async function uploadFile(
 
     const arrayBuffer = await file.arrayBuffer();
     const rawBuffer = Buffer.from(arrayBuffer);
-    const { buffer, extension: finalExtension } = await compressMediaBuffer(rawBuffer, extension);
+    const {
+      buffer,
+      extension: finalExtension,
+      compressed,
+      originalBytes,
+      finalBytes,
+    } = await compressMediaBuffer(rawBuffer, extension);
     const fileName = `${timestamp}${finalExtension}`;
     const filePath = path.resolve(targetDir, fileName);
 
@@ -94,7 +107,7 @@ export async function uploadFile(
       await removeLocalUploadIfExists(oldUrl);
     }
 
-    return { success: true, url: publicUrl };
+    return { success: true, url: publicUrl, compressed, originalBytes, finalBytes };
 
   } catch (error: any) {
     console.error('Local upload error:', error);

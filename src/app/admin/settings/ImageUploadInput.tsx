@@ -4,10 +4,11 @@ import { useState, useTransition } from 'react';
 import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Button, buttonVariants } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Upload, X, Loader2 } from 'lucide-react';
-import { uploadFile, deleteFile } from '@/lib/storage-actions';
+import { deleteFile } from '@/lib/storage-actions';
 
 interface ImageUploadInputProps {
   id: string; 
@@ -40,6 +41,8 @@ export default function ImageUploadInput({
 }: ImageUploadInputProps) {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadStage, setUploadStage] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
 
   const isPending = isUploading || isDeleting;
@@ -68,15 +71,88 @@ export default function ImageUploadInput({
     }
 
     setIsUploading(true);
+    setUploadProgress(2);
+    setUploadStage('Uploading...');
+
+    let compressTimer: ReturnType<typeof setInterval> | null = null;
+
     try {
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('folder', folder);
+        if (value) formData.append('oldUrl', value);
 
-        const result = await uploadFile(formData, folder, value);
+        const result = await new Promise<{
+            success: boolean;
+            url?: string;
+            compressed?: boolean;
+            originalBytes?: number;
+            finalBytes?: number;
+            error?: string;
+        }>((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/api/admin/upload');
+
+            xhr.upload.onprogress = (ev) => {
+                if (ev.lengthComputable && ev.total > 0) {
+                    const pct = Math.min(88, Math.max(5, Math.round((ev.loaded / ev.total) * 88)));
+                    setUploadProgress(pct);
+                    if (pct >= 88) {
+                        setUploadStage('Compressing & saving...');
+                        if (!compressTimer) {
+                            compressTimer = setInterval(() => {
+                                setUploadProgress((prev) => (prev < 98 ? prev + 1 : prev));
+                            }, 450);
+                        }
+                    } else {
+                        setUploadStage(`Uploading (${pct}%)...`);
+                    }
+                }
+            };
+
+            xhr.upload.onload = () => {
+                setUploadProgress((prev) => Math.max(prev, 90));
+                setUploadStage('Compressing & saving...');
+                if (!compressTimer) {
+                    compressTimer = setInterval(() => {
+                        setUploadProgress((prev) => (prev < 98 ? prev + 1 : prev));
+                    }, 450);
+                }
+            };
+
+            xhr.onload = () => {
+                try {
+                    const data = JSON.parse(xhr.responseText || '{}');
+                    if (xhr.status >= 200 && xhr.status < 300 && data.success) {
+                        resolve(data);
+                    } else {
+                        reject(new Error(data.error || `Upload failed (${xhr.status})`));
+                    }
+                } catch {
+                    reject(new Error('Invalid server response during upload.'));
+                }
+            };
+
+            xhr.onerror = () => reject(new Error('Network error during upload.'));
+            xhr.send(formData);
+        });
+
+        setUploadProgress(100);
+        setUploadStage('Completed (100%)');
 
         if (result.success && result.url) {
             onChange(result.url);
-            toast({ title: 'Success', description: 'File uploaded successfully!' });
+            const fmtSize = (bytes?: number) => {
+                if (!bytes) return '';
+                if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+                return `${Math.round(bytes / 1024)} KB`;
+            };
+            const desc = result.compressed
+                ? `Compressed ${fmtSize(result.originalBytes)} → ${fmtSize(result.finalBytes)}`
+                : result.originalBytes
+                    ? `Uploaded (${fmtSize(result.originalBytes)}, no compression needed)`
+                    : 'File uploaded successfully!';
+            toast({ title: 'Success', description: desc });
         } else {
             throw new Error(result.error || 'Upload failed');
         }
@@ -88,7 +164,10 @@ export default function ImageUploadInput({
             description: error.message || 'The server interrupted the upload. The file might be too large or the connection was lost.',
         });
     } finally {
+        if (compressTimer) clearInterval(compressTimer);
         setIsUploading(false);
+        setUploadProgress(0);
+        setUploadStage('');
         // Reset the input value so the same file can be selected again if needed
         event.target.value = '';
     }
@@ -180,11 +259,20 @@ export default function ImageUploadInput({
                  </div>
             </div>
         )}
+        {isUploading && (
+            <div className="space-y-1.5 rounded-lg border bg-muted/40 p-3">
+                <div className="flex items-center justify-between text-xs font-semibold">
+                    <span className="text-muted-foreground">{uploadStage || 'Uploading...'}</span>
+                    <span className="text-primary tabular-nums">{uploadProgress}%</span>
+                </div>
+                <Progress value={uploadProgress} className="h-2" />
+            </div>
+        )}
         <div className="flex items-center gap-4">
             <Input id={id} type="file" onChange={handleFileChange} disabled={isPending} className="hidden" accept={accept} />
             <label htmlFor={id} className={cn(buttonVariants({ variant: 'outline' }), 'cursor-pointer w-full h-12 border-2 border-primary/20 hover:border-primary/50 hover:bg-primary/5 font-bold transition-all', isPending && 'pointer-events-none opacity-50')}>
                 {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin text-primary" /> : <Upload className="mr-2 h-4 w-4" />}
-                {isUploading ? `Uploading Large File...` : 'Upload from Device'}
+                {isUploading ? `${uploadStage || 'Uploading...'} ${uploadProgress}%` : 'Upload from Device'}
             </label>
         </div>
         

@@ -151,7 +151,11 @@ async function compressVideoWithFfmpeg(input: Buffer, ext: string): Promise<Buff
     );
 
     if (fs.existsSync(tmpOut)) {
-      return await fs.promises.readFile(tmpOut);
+      const outBuf = await fs.promises.readFile(tmpOut);
+      console.log(
+        `[MediaCompression] Video compressed: ${(input.length / (1024 * 1024)).toFixed(2)} MB -> ${(outBuf.length / (1024 * 1024)).toFixed(2)} MB`
+      );
+      return outBuf;
     }
     return null;
   } catch (err) {
