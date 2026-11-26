@@ -44,3 +44,6 @@ next-env.d.ts
 
 # studio
 .studio
+
+# user uploaded media (keep local, ignore in Git)
+/public/uploads/

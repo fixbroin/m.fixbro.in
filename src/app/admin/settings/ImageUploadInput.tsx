@@ -18,8 +18,10 @@ interface ImageUploadInputProps {
   folder?: string;
 }
 
-const MAX_FILE_SIZE_MB = 1000; // Allow larger files (1GB) as per next.config
-const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+const MAX_IMAGE_SIZE_MB = 50;
+const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
+const MAX_VIDEO_SIZE_MB = 1000;
+const MAX_VIDEO_SIZE_BYTES = MAX_VIDEO_SIZE_MB * 1024 * 1024;
 
 function getYouTubeVideoId(url: string): string | null {
   if (!url) return null;
@@ -46,12 +48,21 @@ export default function ImageUploadInput({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Check file size
-    if (file.size > MAX_FILE_SIZE_BYTES) {
+    const isImage = file.type.startsWith('image/');
+    if (isImage && file.size > MAX_IMAGE_SIZE_BYTES) {
         toast({
             variant: 'destructive',
-            title: 'File Too Large',
-            description: `File must be less than ${MAX_FILE_SIZE_MB}MB.`,
+            title: 'Image Too Large',
+            description: `Images must be ${MAX_IMAGE_SIZE_MB}MB or less (files over 1MB are automatically compressed).`,
+        });
+        return;
+    }
+
+    if (!isImage && file.size > MAX_VIDEO_SIZE_BYTES) {
+        toast({
+            variant: 'destructive',
+            title: 'Video Too Large',
+            description: `Video must be less than ${MAX_VIDEO_SIZE_MB}MB.`,
         });
         return;
     }

@@ -3,6 +3,7 @@
 import fs from 'fs';
 import path from 'path';
 import { requireAdmin } from '@/lib/auth';
+import { compressMediaBuffer } from '@/lib/media-compression';
 
 const UPLOAD_DIR = path.resolve(process.cwd(), 'public', 'uploads');
 const BRANDS_DIR = path.resolve(process.cwd(), 'public', 'brands');
@@ -79,8 +80,9 @@ export async function uploadFile(
     }
 
     const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const fileName = `${timestamp}${extension}`;
+    const rawBuffer = Buffer.from(arrayBuffer);
+    const { buffer, extension: finalExtension } = await compressMediaBuffer(rawBuffer, extension);
+    const fileName = `${timestamp}${finalExtension}`;
     const filePath = path.resolve(targetDir, fileName);
 
     fs.writeFileSync(filePath, buffer);
