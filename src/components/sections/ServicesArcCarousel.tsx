@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Service } from '@/app/admin/settings/actions/services-actions';
 import DynamicIcon from '../DynamicIcon';
@@ -21,11 +21,21 @@ export default function ServicesArcCarousel({
   useVanta = false,
 }: ServicesArcCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
   const touchStartX = useRef<number | null>(null);
+
+  const total = services?.length || 0;
+
+  useEffect(() => {
+    if (total <= 1 || isPaused) return;
+    const timer = setInterval(() => {
+      setActiveIndex((i) => (i + 1) % total);
+    }, 1500);
+    return () => clearInterval(timer);
+  }, [total, isPaused]);
 
   if (!services || services.length === 0) return null;
 
-  const total = services.length;
   const activeService = services[activeIndex] || services[0];
 
   const prev = () => setActiveIndex((i) => (i - 1 + total) % total);
@@ -76,8 +86,16 @@ export default function ServicesArcCarousel({
       {/* 3D Curved Arc Stage */}
       <div
         className="relative flex items-center justify-center"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={(e) => {
+          setIsPaused(true);
+          handleTouchStart(e);
+        }}
+        onTouchEnd={(e) => {
+          handleTouchEnd(e);
+          setIsPaused(false);
+        }}
       >
         {/* Left Arrow */}
         <button

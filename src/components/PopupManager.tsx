@@ -195,7 +195,7 @@ export default function PopupManager() {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogContent className={cn(
-                "p-0 border-none shadow-2xl rounded-2xl overflow-hidden transition-all duration-500",
+                "p-0 border border-white/40 dark:border-white/15 bg-white/85 dark:bg-[#0b181f]/85 backdrop-blur-2xl shadow-2xl rounded-2xl overflow-hidden transition-all duration-500 text-slate-900 dark:text-white",
                 hasMedia ? "sm:max-w-[850px]" : "sm:max-w-md"
             )}>
                 <div className="relative overflow-y-auto flex-1 custom-scrollbar flex flex-col sm:flex-row">
@@ -232,7 +232,7 @@ export default function PopupManager() {
                     )}
 
                     <div className={cn(
-                        "p-6 sm:p-10 space-y-4 bg-card flex flex-col justify-center",
+                        "p-6 sm:p-10 space-y-4 bg-transparent flex flex-col justify-center",
                         hasMedia ? "w-full sm:w-1/2" : "w-full"
                     )}>
                         <div className="space-y-1">

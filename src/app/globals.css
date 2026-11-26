@@ -132,17 +132,11 @@ img, video {
 @layer utilities {
   /* 🔥 Premium Glass - Optimized for Mobile Performance */
   .glass {
-    @apply bg-white/80 border border-white/30;
-    @media (min-width: 768px) {
-      @apply backdrop-blur-xl bg-white/60;
-    }
+    @apply bg-white/80 border border-white/30 md:backdrop-blur-xl md:bg-white/60;
   }
 
   .glass-dark {
-    @apply bg-black/50 border border-white/10;
-    @media (min-width: 768px) {
-      @apply backdrop-blur-xl bg-black/30;
-    }
+    @apply bg-black/50 border border-white/10 md:backdrop-blur-xl md:bg-black/30;
   }
 
   /* Force hardware acceleration for smoother animations */

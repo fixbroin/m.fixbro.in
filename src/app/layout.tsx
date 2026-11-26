@@ -29,6 +29,7 @@ import { WEBSITE_URL } from '@/lib/config';
 import PopupManager from '@/components/PopupManager';
 import MediaProtection from '@/components/MediaProtection';
 import SplashPreloader from '@/components/SplashPreloader';
+import ScrollToTopButton from '@/components/ScrollToTopButton';
 
 // Use generateMetadata for dynamic metadata
 export async function generateMetadata(): Promise<Metadata> {
@@ -282,6 +283,7 @@ export default async function RootLayout({
               <main>{children}</main>
               <Footer settings={settings} legalPages={legalPages} />
               <FloatingActionButtons contactDetails={contactInfo} />
+              <ScrollToTopButton />
               <PopupManager />
               <Toaster />
             </ThemeProvider>

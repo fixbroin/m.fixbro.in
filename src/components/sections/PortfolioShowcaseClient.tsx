@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import PortfolioMedia from '../PortfolioMedia';
@@ -20,6 +20,17 @@ export default function PortfolioShowcaseClient({
   subtitle,
 }: PortfolioShowcaseClientProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const total = items?.length || 0;
+
+  useEffect(() => {
+    if (total <= 1 || isPaused) return;
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % total);
+    }, 1500);
+    return () => clearInterval(timer);
+  }, [total, isPaused]);
 
   if (!items || items.length === 0) return null;
 
@@ -36,6 +47,8 @@ export default function PortfolioShowcaseClient({
   return (
     <section
       id="portfolio"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
       className="relative min-h-[720px] w-full overflow-hidden py-16 lg:py-24 bg-black text-white flex flex-col justify-between"
     >
       {/* Dynamic neutral transparent dark-scrimmed background matching active project */}
@@ -95,7 +108,7 @@ export default function PortfolioShowcaseClient({
             size="icon"
             onClick={handlePrev}
             aria-label="Previous project"
-            className="h-11 w-11 md:h-12 md:w-12 rounded-full border border-white/15 bg-transparent text-white/60 opacity-25 group-hover/stage:opacity-90 hover:bg-white/10 hover:border-white/40 hover:text-white flex-shrink-0 transition-all hover:scale-105 active:scale-95"
+            className="h-12 w-12 rounded-full border border-white/45 bg-black/45 backdrop-blur-md text-white opacity-95 shadow-lg hover:bg-black/70 hover:border-white/75 hover:text-white flex-shrink-0 transition-all hover:scale-105 active:scale-95"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -110,7 +123,7 @@ export default function PortfolioShowcaseClient({
             size="icon"
             onClick={handleNext}
             aria-label="Next project"
-            className="h-11 w-11 md:h-12 md:w-12 rounded-full border border-white/15 bg-transparent text-white/60 opacity-25 group-hover/stage:opacity-90 hover:bg-white/10 hover:border-white/40 hover:text-white flex-shrink-0 transition-all hover:scale-105 active:scale-95"
+            className="h-12 w-12 rounded-full border border-white/45 bg-black/45 backdrop-blur-md text-white opacity-95 shadow-lg hover:bg-black/70 hover:border-white/75 hover:text-white flex-shrink-0 transition-all hover:scale-105 active:scale-95"
           >
             <ArrowRight className="h-5 w-5" />
           </Button>
