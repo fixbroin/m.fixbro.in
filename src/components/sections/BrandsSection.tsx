@@ -9,6 +9,8 @@ function BrandTile({ brand }: { brand: BrandItem }) {
         src={brand.imageUrl}
         alt={brand.name}
         loading="lazy"
+        decoding="async"
+        fetchPriority="low"
         draggable={false}
         className="max-h-full max-w-full object-contain"
       />

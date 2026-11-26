@@ -2,6 +2,7 @@
 import { getWhyChooseUsContent } from '@/app/admin/settings/actions/why-choose-us-actions';
 import DynamicIcon from '../DynamicIcon';
 import ScrollAnimation from '../ScrollAnimation';
+import LazyBackgroundVideo from '../LazyBackgroundVideo';
 import { cn } from '@/lib/utils';
 
 function getYouTubeVideoId(url: string): string | null {
@@ -23,39 +24,25 @@ export default async function WhyChooseUsSection() {
       id="why-choose-us"
       className="relative overflow-hidden py-24 lg:py-32 bg-black text-white"
     >
-      {/* Full-bleed background video or image */}
+      {/* Full-bleed background video or image (lazy-loaded near viewport) */}
       {content.media_url && (
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          {content.media_type === 'video' ? (
-            youTubeId ? (
-              <iframe
-                src={`https://www.youtube.com/embed/${youTubeId}?autoplay=1&mute=1&loop=1&playlist=${youTubeId}&controls=0&disablekb=1&fs=0&modestbranding=1&iv_load_policy=3&playsinline=1&rel=0`}
-                title={content.title}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                className="absolute top-1/2 left-1/2 min-w-full min-h-full w-[177.78vh] h-[56.25vw] -translate-x-1/2 -translate-y-1/2"
-              />
-            ) : (
-              <video
-                src={content.media_url}
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="auto"
-                controlsList="nodownload"
-                disablePictureInPicture
-                className="h-full w-full object-cover"
-              />
-            )
-          ) : (
+        content.media_type === 'video' ? (
+          <LazyBackgroundVideo
+            src={content.media_url}
+            youTubeId={youTubeId}
+            title={content.title}
+          />
+        ) : (
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
             <img
               src={content.media_url}
               alt={content.title}
+              loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover"
             />
-          )}
-        </div>
+          </div>
+        )
       )}
 
       {/* Neutral dark scrim for crisp glass card readability */}

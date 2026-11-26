@@ -194,7 +194,7 @@ export default function HeroMedia({ media }: HeroMediaProps) {
               loop
               muted
               playsInline
-              preload="auto"
+              preload="metadata"
               controlsList="nodownload"
               disablePictureInPicture
               onContextMenu={(e) => e.preventDefault()}
@@ -231,7 +231,6 @@ export default function HeroMedia({ media }: HeroMediaProps) {
           className="h-full w-full object-cover"
           draggable={false}
           onContextMenu={(e) => e.preventDefault()}
-          unoptimized
         />
       )}
 
