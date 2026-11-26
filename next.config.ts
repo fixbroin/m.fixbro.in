@@ -12,6 +12,7 @@ const withPWA = require('@ducanh2912/next-pwa').default({
 const nextConfig: NextConfig = {
   /* config options here */
   experimental: {
+    middlewareClientMaxBodySize: '500mb',
     serverActions: {
       bodySizeLimit: '1GB', // Allow up to 1GB for large media/video backups
     },
