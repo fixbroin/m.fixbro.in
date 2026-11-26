@@ -6,7 +6,17 @@ import ScrollAnimation from '../ScrollAnimation';
 import LoadingLink from '../LoadingLink';
 import HeroMedia from '../HeroMedia';
 
-export default async function HeroSection() {
+interface HeroSectionProps {
+  h1Override?: string;
+  paragraphOverride?: string;
+  eyebrowOverride?: string;
+}
+
+export default async function HeroSection({
+  h1Override,
+  paragraphOverride,
+  eyebrowOverride,
+}: HeroSectionProps = {}) {
   const [home, seo, general] = await Promise.all([
     getHomePageContent(),
     getSeoData('home'),
@@ -14,6 +24,10 @@ export default async function HeroSection() {
   ]);
 
   if (!home || !seo) return null;
+
+  const displayH1 = h1Override || seo.h1_title;
+  const displayParagraph = paragraphOverride || seo.paragraph;
+  const displayEyebrow = eyebrowOverride || general.website_name || 'Interior Design Studio';
 
   return (
     <section
@@ -28,10 +42,10 @@ export default async function HeroSection() {
         <div className="max-w-2xl space-y-5 pointer-events-auto">
           <ScrollAnimation as="div" variant="fadeInUp">
             <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-white/80 mb-3">
-              {general.website_name || 'Interior Design Studio'}
+              {displayEyebrow}
             </p>
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-white leading-[1.03]">
-              {seo.h1_title}
+              {displayH1}
             </h1>
           </ScrollAnimation>
 
@@ -41,7 +55,7 @@ export default async function HeroSection() {
             delay={0.1}
             className="max-w-xl text-base md:text-lg text-white/85 leading-relaxed font-normal"
           >
-            {seo.paragraph}
+            {displayParagraph}
           </ScrollAnimation>
 
           <ScrollAnimation

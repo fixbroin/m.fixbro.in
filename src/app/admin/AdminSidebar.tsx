@@ -8,7 +8,7 @@ import {
   Globe, User, MessageSquare, 
   Database, Activity, Users, Bell, 
   ChevronRight, ExternalLink, BookOpen, Archive,
-  MousePointerClick
+  MousePointerClick, MapPin, Building2
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -30,6 +30,8 @@ const adminNavLinks = [
     { group: "Business", links: [
         { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
         { href: "/admin/seo-geo-settings", label: "SEO & Geo", icon: Globe },
+        { href: "/admin/city-seo", label: "City-wise SEO", icon: Building2 },
+        { href: "/admin/area-seo", label: "Area-wise SEO", icon: MapPin },
     ]},
     { group: "System", links: [
         { href: "/admin/settings", label: "Configuration", icon: Settings },

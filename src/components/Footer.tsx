@@ -150,6 +150,16 @@ export default function Footer({ settings, legalPages: initialLegalPages }: { se
                   </LoadingLink>
                 </li>
               ))}
+              <li>
+                <LoadingLink href="/sitemap" className="text-base font-medium text-white hover:text-primary transition-colors">
+                  Sitemap
+                </LoadingLink>
+              </li>
+              <li>
+                <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer" className="text-base font-medium text-white hover:text-primary transition-colors">
+                  XML Sitemap
+                </a>
+              </li>
             </ul>
           </div>
 

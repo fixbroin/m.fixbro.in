@@ -8,6 +8,7 @@ import { getContactDetails } from '@/app/admin/settings/actions/contact-actions'
 import { getGeneralSettings } from '@/app/admin/settings/actions/general-actions';
 import { APP_NAME } from '@/lib/config';
 import { createNotification } from '@/app/admin/notifications/actions';
+import { generateOrderReceiptPdf } from '@/lib/receipt-pdf';
 
 export interface VerifiedOrderInput {
   customer_name: string;
@@ -59,15 +60,41 @@ async function sendOrderConfirmationEmails(orderDetails: {
       },
     });
 
+    const receiptId = orderDetails.order_id || 'RECEIPT';
+    const pdfBuffer = generateOrderReceiptPdf({
+      orderId: receiptId,
+      companyName: APP_NAME,
+      companyEmail: contactDetails?.email,
+      companyPhone: contactDetails?.phone,
+      companyAddress: contactDetails?.location,
+      customerName: orderDetails.customer_name,
+      customerEmail: orderDetails.customer_email,
+      planTitle: orderDetails.plan_title,
+      amount: orderDetails.amount,
+      currencySymbol,
+      paymentMethod: isPayLater ? 'Pay Later / Offline' : 'Online Payment (Razorpay)',
+      status: orderDetails.status || (isPayLater ? 'Pending' : 'Completed'),
+      dateStr: new Date().toLocaleDateString('en-IN'),
+    });
+
+    const attachments = [
+      {
+        filename: `receipt-${receiptId.slice(0, 12)}.pdf`,
+        content: pdfBuffer,
+        contentType: 'application/pdf',
+      },
+    ];
+
     await Promise.all([
       transporter.sendMail({
         from: `"${APP_NAME}" <${emailSettings.smtp_sender_email}>`,
         to: contactDetails.email,
         subject: `New ${isPayLater ? 'Consultation Booking (Pay Later)' : 'Paid Order'} - ${orderDetails.plan_title}`,
+        attachments,
         html: `
           <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-              <h2 style="color: #333;">New Order / Booking Notification</h2>
-              <p>A new order has been placed on your website.</p>
+              <h2 style="color: #333;">New Order / Booking Receipt</h2>
+              <p>A new order has been placed on your website. The PDF receipt is attached.</p>
               <hr>
               <p><strong>Customer Name:</strong> ${orderDetails.customer_name}</p>
               <p><strong>Customer Email:</strong> <a href="mailto:${orderDetails.customer_email}">${orderDetails.customer_email}</a></p>
@@ -84,17 +111,18 @@ async function sendOrderConfirmationEmails(orderDetails: {
       transporter.sendMail({
         from: `"${APP_NAME}" <${emailSettings.smtp_sender_email}>`,
         to: orderDetails.customer_email,
-        subject: `Your Booking Confirmation from ${APP_NAME}`,
+        subject: `Your Payment Receipt & Booking Confirmation from ${APP_NAME}`,
+        attachments,
         html: `
           <div style="font-family: Arial, sans-serif; line-height: 1.6;">
               <h2 style="color: #333;">Thank You For Your Booking, ${orderDetails.customer_name}!</h2>
-              <p>${isPayLater ? 'We have received your consultation booking. Our design team will contact you to confirm details.' : 'We have successfully received your payment. Here are your booking details:'}</p>
+              <p>${isPayLater ? 'We have received your consultation booking. Your booking receipt is below and attached as a PDF.' : 'We have successfully received your payment. Your official receipt is below and attached as a PDF:'}</p>
               <div style="padding: 15px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
                   <p><strong>Plan:</strong> ${orderDetails.plan_title}</p>
-                  <p><strong>Amount:</strong> ${currencySymbol}${orderDetails.amount.toLocaleString()}</p>
+                  <p><strong>Total Amount:</strong> ${currencySymbol}${orderDetails.amount.toLocaleString()}</p>
                   <p><strong>Payment Method:</strong> ${isPayLater ? 'Pay Later / Offline' : 'Online Payment'}</p>
                   <p><strong>Status:</strong> ${isPayLater ? 'Pending Confirmation' : 'Paid / Confirmed'}</p>
-                  ${orderDetails.order_id ? `<p><strong>Order ID:</strong> ${orderDetails.order_id}</p>` : ''}
+                  ${orderDetails.order_id ? `<p><strong>Receipt / Order ID:</strong> ${orderDetails.order_id}</p>` : ''}
               </div>
               <hr style="margin: 20px 0;">
               <p>We are excited to help you transform your space. If you have any questions, feel free to reach out.</p>

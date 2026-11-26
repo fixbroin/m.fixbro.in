@@ -22,6 +22,7 @@ import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useAnalytics } from '@/context/AnalyticsContext';
 import { getSectionSettings, SectionSettings } from '@/app/admin/settings/actions/section-actions';
+import { getGeneralSettings } from '@/app/admin/settings/actions/general-actions';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -35,12 +36,19 @@ export default function ContactForm() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sectionSettings, setSectionSettings] = useState<SectionSettings | null>(null);
+  const [currencySymbol, setCurrencySymbol] = useState<string>('₹');
   const { trackEvent } = useAnalytics();
 
   useEffect(() => {
     async function fetchSettings() {
-      const settings = await getSectionSettings();
+      const [settings, general] = await Promise.all([
+        getSectionSettings(),
+        getGeneralSettings(),
+      ]);
       setSectionSettings(settings);
+      if (general?.currency_symbol) {
+        setCurrencySymbol(general.currency_symbol);
+      }
     }
     fetchSettings();
   }, []);
@@ -133,7 +141,7 @@ export default function ContactForm() {
                   <FormItem>
                     <FormLabel>Budget (Optional)</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., ₹10,000" {...field} />
+                      <Input placeholder={`e.g., ${currencySymbol}10,000`} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

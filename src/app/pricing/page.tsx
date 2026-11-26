@@ -2,7 +2,9 @@
 import { Metadata } from 'next';
 import PricingSection from '@/components/sections/PricingSection';
 import { getSeoData } from '../admin/seo-geo-settings/actions';
-import { getPricingPageContent } from '../admin/settings/actions/pricing-actions';
+import { getPricingPageContent, getPricingPlans } from '../admin/settings/actions/pricing-actions';
+import { getVantaSettings } from '../admin/settings/actions/vanta-actions';
+import { getGeneralSettings } from '../admin/settings/actions/general-actions';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import { Sparkles } from 'lucide-react';
 import { WEBSITE_URL } from '@/lib/config';
@@ -26,9 +28,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PricingPage() {
-  const [seoData, pageContent] = await Promise.all([
+  const [seoData, pageContent, pricingPlans, vantaSettings, generalSettings] = await Promise.all([
     getSeoData('pricing'),
     getPricingPageContent(),
+    getPricingPlans(),
+    getVantaSettings(),
+    getGeneralSettings(),
   ]);
 
   return (
@@ -55,8 +60,14 @@ export default async function PricingPage() {
       </section>
 
       {/* Main Content */}
-      <div className="-mt-12 md:-mt-20 relative z-20">
-        <PricingSection />
+      <div className="relative z-20">
+        <PricingSection
+          hideHeader
+          initialPlans={pricingPlans}
+          initialPageContent={pageContent}
+          initialVantaSettings={vantaSettings}
+          initialCurrencySymbol={generalSettings?.currency_symbol || '₹'}
+        />
       </div>
 
       {/* Trust Quote */}

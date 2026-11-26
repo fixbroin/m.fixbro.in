@@ -1,10 +1,9 @@
 
 import { Metadata } from 'next';
 import { Suspense } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { APP_NAME } from '@/lib/config';
 import { getGeneralSettings } from '@/app/admin/settings/actions/general-actions';
-import CheckoutForm from './CheckoutForm';
+import CheckoutClient from './CheckoutClient';
 import { Skeleton } from '@/components/ui/skeleton';
 import Script from 'next/script';
 
@@ -35,40 +34,11 @@ async function CheckoutPageContent({
   }
 
   return (
-    <div className="container py-12 md:py-20">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-6xl mx-auto">
-        <div className='md:order-last'>
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle>Order Summary</CardTitle>
-            </CardHeader>
-            <CardContent className='pt-0'>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <p className="text-muted-foreground">{planTitle}</p>
-                  <p className="font-semibold">{currencySymbol}{planPrice.toLocaleString()}</p>
-                </div>
-                <div className="flex justify-between items-center text-lg font-bold">
-                  <p>Total</p>
-                  <p>{currencySymbol}{planPrice.toLocaleString()}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        <div>
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle>Billing Information</CardTitle>
-              <CardDescription>Please enter your details to proceed with the booking.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <CheckoutForm planTitle={planTitle} planPrice={planPrice} currencySymbol={currencySymbol} />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
+    <CheckoutClient
+      planTitle={planTitle}
+      ratePerSqFt={planPrice}
+      currencySymbol={currencySymbol}
+    />
   );
 }
 

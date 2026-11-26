@@ -216,3 +216,39 @@ CREATE TABLE IF NOT EXISTS popup_leads (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (popup_id) REFERENCES popups(id) ON DELETE SET NULL
 );
+
+CREATE TABLE IF NOT EXISTS seo_cities (
+    id VARCHAR(36) PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    slug VARCHAR(160) NOT NULL UNIQUE,
+    country VARCHAR(100) DEFAULT 'India',
+    latitude DECIMAL(10, 7),
+    longitude DECIMAL(10, 7),
+    h1_title VARCHAR(255) NOT NULL,
+    paragraph TEXT NOT NULL,
+    meta_title VARCHAR(255) NOT NULL,
+    meta_description TEXT NOT NULL,
+    meta_keywords TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS seo_areas (
+    id VARCHAR(36) PRIMARY KEY,
+    city_id VARCHAR(36) NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    slug VARCHAR(160) NOT NULL,
+    latitude DECIMAL(10, 7),
+    longitude DECIMAL(10, 7),
+    h1_title VARCHAR(255) NOT NULL,
+    paragraph TEXT NOT NULL,
+    meta_title VARCHAR(255) NOT NULL,
+    meta_description TEXT NOT NULL,
+    meta_keywords TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uniq_city_area_slug (city_id, slug),
+    FOREIGN KEY (city_id) REFERENCES seo_cities(id) ON DELETE CASCADE
+);

@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Order, deleteOrder } from "@/app/checkout/actions";
-import { Eye, Trash } from "lucide-react";
+import { Eye, FileText, Download, Trash } from "lucide-react";
 
 interface OrdersTableActionsProps {
   order: Order;
@@ -34,31 +34,66 @@ export default function OrdersTableActions({ order, currencySymbol = '₹' }: Or
 
   return (
     <div className="flex items-center gap-2">
-      {/* View Dialog */}
+      {/* View Receipt Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
         <DialogTrigger asChild>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" title="View Receipt">
             <Eye className="h-4 w-4" />
           </Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Order from {order.customer_name}</DialogTitle>
+            <DialogTitle>Payment Receipt — {order.customer_name}</DialogTitle>
             <DialogDescription>
-              {order.created_at}
+              Receipt ID: {order.id} • {order.created_at}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <p><strong>Customer Name:</strong> {order.customer_name}</p>
-            <p><strong>Email:</strong> {order.customer_email}</p>
-            <p><strong>Plan:</strong> {order.plan_title}</p>
-            <p><strong>Amount:</strong> {currencySymbol}{Number(order.amount).toLocaleString()}</p>
-            <p><strong>Status:</strong> <span className="capitalize">{order.status}</span></p>
-            <p><strong>Payment ID:</strong> {order.razorpay_payment_id}</p>
-            <p><strong>Order ID:</strong> {order.razorpay_order_id || 'N/A'}</p>
+          <div className="rounded-xl border bg-muted/30 p-4 space-y-2.5 text-sm">
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">Customer</span>
+              <span className="font-semibold text-right">{order.customer_name}</span>
+            </div>
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">Email</span>
+              <span className="text-right">{order.customer_email}</span>
+            </div>
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">Plan / Details</span>
+              <span className="font-medium text-right">{order.plan_title}</span>
+            </div>
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">Payment Method</span>
+              <span className="capitalize text-right">{order.razorpay_payment_id || 'N/A'}</span>
+            </div>
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">Status</span>
+              <span className="capitalize font-semibold text-right">{order.status}</span>
+            </div>
+            <div className="flex justify-between gap-4 border-t pt-2.5 text-base font-bold">
+              <span>Total Amount</span>
+              <span>{currencySymbol}{Number(order.amount).toLocaleString()}</span>
+            </div>
+          </div>
+          <div className="flex flex-wrap justify-end gap-2 pt-2">
+            <Button variant="outline" size="sm" asChild>
+              <a href={`/api/admin/orders/${order.id}/receipt`} target="_blank" rel="noopener noreferrer">
+                <FileText className="mr-1.5 h-4 w-4" /> View PDF
+              </a>
+            </Button>
+            <Button size="sm" asChild>
+              <a href={`/api/admin/orders/${order.id}/receipt?download=1`}>
+                <Download className="mr-1.5 h-4 w-4" /> Download PDF
+              </a>
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
+
+      <Button variant="ghost" size="icon" title="Download PDF Receipt" asChild>
+        <a href={`/api/admin/orders/${order.id}/receipt?download=1`}>
+          <Download className="h-4 w-4" />
+        </a>
+      </Button>
 
       {/* Delete Alert Dialog */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>

@@ -211,6 +211,8 @@ async function init() {
     await ensureIndex('services', 'idx_services_order', 'displayOrder');
     await ensureIndex('portfolio_items', 'idx_portfolio_items_order', 'displayOrder');
     await ensureIndex('faqs', 'idx_faqs_order', 'displayOrder');
+    await ensureIndex('seo_cities', 'idx_seo_cities_active', 'is_active, name');
+    await ensureIndex('seo_areas', 'idx_seo_areas_city_active', 'city_id, is_active, name');
 
     // --- HELPER FOR SETTINGS INSERT OR MERGE ---
     const insertOrMergeSetting = async (key: string, defaultVal: any) => {

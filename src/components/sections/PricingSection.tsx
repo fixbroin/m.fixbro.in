@@ -5,6 +5,7 @@ import { Check, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { getPricingPlans, getPricingPageContent, PricingPlan } from '@/app/admin/settings/actions/pricing-actions';
+import { getGeneralSettings } from '@/app/admin/settings/actions/general-actions';
 import VantaBackground from '../VantaBackground';
 import { getVantaSettings } from '@/app/admin/settings/actions/vanta-actions';
 import ScrollAnimation from '../ScrollAnimation';
@@ -18,7 +19,7 @@ function parsePrice(price: string): number {
     return parseFloat(numericString) || 0;
 }
 
-const PricingCard = ({ plan, onBookNowClick }: { plan: PricingPlan; onBookNowClick: () => void }) => {
+const PricingCard = ({ plan, currencySymbol, onBookNowClick }: { plan: PricingPlan; currencySymbol: string; onBookNowClick: () => void }) => {
     const isCustom = !plan.is_enabled;
     const buttonLabel = isCustom ? 'Contact Us' : 'Choose Plan';
     const linkHref = isCustom 
@@ -60,8 +61,12 @@ const PricingCard = ({ plan, onBookNowClick }: { plan: PricingPlan; onBookNowCli
                     <div className="mb-8 flex items-baseline gap-1">
                         {plan.is_enabled ? (
                             <>
-                                <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight">{plan.value}</span>
-                                <span className={cn("text-sm font-bold opacity-60")}>/project</span>
+                                <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight">
+                                  {parsePrice(plan.value) > 0
+                                    ? `${currencySymbol}${parsePrice(plan.value).toLocaleString()}`
+                                    : plan.value}
+                                </span>
+                                <span className={cn("text-sm font-bold opacity-60")}>/sq.ft</span>
                             </>
                         ) : (
                             <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight">{plan.value}</span>
@@ -106,24 +111,45 @@ interface PageContent {
     subtitle: string;
 }
 
-export default function PricingSection() {
+interface PricingSectionProps {
+    hideHeader?: boolean;
+    initialPlans?: PricingPlan[];
+    initialPageContent?: PageContent | null;
+    initialVantaSettings?: VantaSettings | null;
+    initialCurrencySymbol?: string;
+}
+
+export default function PricingSection({
+    hideHeader = false,
+    initialPlans,
+    initialPageContent = null,
+    initialVantaSettings = null,
+    initialCurrencySymbol = '₹',
+}: PricingSectionProps) {
     const { trackEvent } = useAnalytics();
-    const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([]);
-    const [pageContent, setPageContent] = useState<PageContent | null>(null);
-    const [vantaSettings, setVantaSettings] = useState<VantaSettings | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const hasInitialData = Boolean(initialPlans && initialPageContent);
+    const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>(initialPlans || []);
+    const [pageContent, setPageContent] = useState<PageContent | null>(initialPageContent);
+    const [vantaSettings, setVantaSettings] = useState<VantaSettings | null>(initialVantaSettings);
+    const [currencySymbol, setCurrencySymbol] = useState<string>(initialCurrencySymbol);
+    const [isLoading, setIsLoading] = useState(!hasInitialData);
 
     useEffect(() => {
+        if (hasInitialData) return;
         async function fetchData() {
             try {
-                const [plans, content, vanta] = await Promise.all([
+                const [plans, content, vanta, general] = await Promise.all([
                     getPricingPlans(),
                     getPricingPageContent(),
-                    getVantaSettings()
+                    getVantaSettings(),
+                    getGeneralSettings()
                 ]);
                 setPricingPlans(plans);
                 setPageContent(content);
                 setVantaSettings(vanta);
+                if (general?.currency_symbol) {
+                    setCurrencySymbol(general.currency_symbol);
+                }
             } catch (error) {
                 console.error("Failed to fetch pricing data:", error);
             } finally {
@@ -131,7 +157,7 @@ export default function PricingSection() {
             }
         }
         fetchData();
-    }, []);
+    }, [hasInitialData]);
 
     const handleBookNowClick = (plan: PricingPlan) => {
         trackEvent('user_action', {
@@ -150,6 +176,7 @@ export default function PricingSection() {
         <section id="pricing" className={cn("relative overflow-hidden py-20 lg:py-28", !useVanta && "bg-secondary/45 border-y border-border/60")}>
             {useVanta && <VantaBackground sectionConfig={sectionVantaConfig} />}
             <div className="container relative z-10">
+                {!hideHeader && (
                 <ScrollAnimation variant="fadeInUp" className="text-center mb-16">
                     <h2 className={cn(
                         "font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight tracking-tight mb-4",
@@ -163,11 +190,13 @@ export default function PricingSection() {
                         {pageContent.subtitle}
                     </p>
                 </ScrollAnimation>
+                )}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
                     {pricingPlans.map((plan, index) => (
                          <PricingCard
                             key={plan.id || index}
                             plan={plan}
+                            currencySymbol={currencySymbol}
                             onBookNowClick={() => handleBookNowClick(plan)}
                         />
                     ))}
